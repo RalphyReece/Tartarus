@@ -248,7 +248,8 @@ def sapling_gen(x,y,d):
             r=random.randint(1,d)
             if r == 1:
                 trees[i][j] = 1
-    
+
+
     np.savetxt(str(maindir)+'/region/region_saplings.data',trees)
 def nettle_gen(x,y,d):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
@@ -266,6 +267,22 @@ def nettle_gen(x,y,d):
                 trees[i][j] = 1
     
     np.savetxt(str(maindir)+'/region/region_nettle.data',trees)
+def crabgrass_gen(x,y,d):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    trees = np.zeros((x,y), dtype=object)
+    x=int(x)
+    y=int(y)
+    d=int(d)
+    trees = np.zeros((x,y))
+    for i in range(x):
+        for j in range(y):
+            r=random.randint(1,d)
+            if r == 1:
+                trees[i][j] = 1
+    
+    np.savetxt(str(maindir)+'/region/region_crabgrass.data',trees)
 
 
 def micro_region(biome,elev):
@@ -334,31 +351,44 @@ def micro_region(biome,elev):
     if biome == 'forest':
         sapling_gen(xu,y,100)
         tree_gen(xu,y,50)
-        nettle_gen(xu,y,6)
+        nettle_gen(xu,y,10)
+        crabgrass_gen(xu,y,13)
     if biome == 'rainforest':
                 sapling_gen(xu,y,50)
                 tree_gen(xu,y,25)
+                crabgrass_gen(xu,y,20)
     if biome == 'desert':
                 sapling_gen(xu,y,400)
                 tree_gen(xu,y,200)
+                crabgrass_gen(xu,y,100)
     if biome == 'glacier':
                 sapling_gen(xu,y,320)
                 tree_gen(xu,y,160)
+                crabgrass_gen(xu,y,1000)
     if biome == 'alpine':
                 sapling_gen(xu,y,120)
                 tree_gen(xu,y,60)
+                nettle_gen(xu,y,20)
+                crabgrass_gen(xu,y,10)
     if biome == 'savannah':
                 sapling_gen(xu,y,220)
                 tree_gen(xu,y,110)
+                nettle_gen(xu,y,50)
+                crabgrass_gen(xu,y,10)
     if biome == 'marsh':
                 sapling_gen(xu,y,152)
                 tree_gen(xu,y,76)
+                nettle_gen(xu,y,9)
+                crabgrass_gen(xu,y,12)
     if biome == 'slop':
                 sapling_gen(xu,y,206)
                 tree_gen(xu,y,103)
+                nettle_gen(xu,y,90)
+                crabgrass_gen(xu,y,108)
     if biome == 'plain':
                 sapling_gen(xu,y,240)
                 tree_gen(xu,y,120)
+                crabgrass_gen(xu,y,6)
     for i in range(xu):
         for j in range(y):
             if biome == 'forest':
@@ -403,6 +433,11 @@ def micro_region(biome,elev):
         for j in range(y):
             if trees[i][j] == 1:
                 region[i][j] = 'nettle'
+    trees=np.loadtxt(str(maindir)+'/region/region_crabgrass.data')
+    for i in range(xu):
+        for j in range(y):
+            if trees[i][j] == 1:
+                region[i][j] = 'crabgrass'
 
 
     #ore
@@ -469,6 +504,8 @@ def micro_region(biome,elev):
                             region[i][j] = 'water'
                         if region[i][j] == 'sapling':
                             region[i][j] = 'water'
+                        if region[i][j] == 'nettle':
+                            region[i][j] = 'water'
     if biome == 'marsh':
         for i in range(x):
                 for j in range(y):
@@ -478,6 +515,8 @@ def micro_region(biome,elev):
                         if region[i][j] == 'tree':
                             region[i][j] = 'water'
                         if region[i][j] == 'sapling':
+                            region[i][j] = 'water'
+                        if region[i][j] == 'nettle':
                             region[i][j] = 'water'
     if biome == 'alpine':
         for i in range(x):
@@ -489,6 +528,8 @@ def micro_region(biome,elev):
                             region[i][j] = 'water'
                         if region[i][j] == 'sapling':
                             region[i][j] = 'water'
+                        if region[i][j] == 'nettle':
+                            region[i][j] = 'water'
     if biome == 'slop':
         for j in range(x):
                 for i in range(y):
@@ -498,6 +539,8 @@ def micro_region(biome,elev):
                         if region[i][j] == 'tree':
                             region[i][j] = 'water'
                         if region[i][j] == 'sapling':
+                            region[i][j] = 'water'
+                        if region[i][j] == 'nettle':
                             region[i][j] = 'water'
                             
                             

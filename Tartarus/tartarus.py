@@ -65,6 +65,8 @@ def start():
     scene=1
     stdscr.addstr("1: New World\n",curses.A_BOLD)
     stdscr.addstr("2: Existing World\n")
+    stdscr.addstr("3: Info\n")
+    stdscr.addstr(10,0,"Created by Ralphy Reece")
     
     
 def scene2():
@@ -153,6 +155,14 @@ curses.init_pair(13, 13, curses.COLOR_BLACK)
 #nettle
 curses.init_color(14, 0, 220, 0)  # RGB values for brown
 curses.init_pair(14, 14, curses.COLOR_BLACK)
+
+curses.init_color(15, 0, 120, 0)  # RGB values for brown
+curses.init_pair(15, 15, curses.COLOR_BLACK)
+
+curses.init_color(16, 0, 120, 0)  # RGB values for brown
+curses.init_pair(16, 16, curses.COLOR_BLACK)
+
+
 
 # Main loop
 while True:
@@ -487,6 +497,7 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(4))
                     except:
                         pass
+                
         np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
                 
         scene='preplay'
@@ -563,19 +574,12 @@ while True:
                 if x[i][j]== 'wood-wall':
                     stdscr.addstr(j+1,i,'#',curses.color_pair(8))
                 if x[i][j]== 'peat':
-                    stdscr.addstr(j+1,i,'&',curses.color_pair(13))
+                    stdscr.addstr(j+1,i,'&',curses.color_pair(15))
                 if x[i][j] == 'nettle':
-                    stdscr.addstr(j+1,i,'*',curses.color_pair(14))
-                '''
-                if x[i][j] == 'iron-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                if x[i][j] == 'copper-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                if x[i][j] == 'silver-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                if x[i][j] == 'gold-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                '''
+                    stdscr.addstr(j+1,i,'\'',curses.color_pair(14))
+                if x[i][j] == 'crabgrass':
+                    stdscr.addstr(j+1,i,'√',curses.color_pair(16))
+              
                     
                 if x [i][j] == 'stone':
                     try:
@@ -594,6 +598,8 @@ while True:
                         if x[i-1][j]=='water' or x[i+1][j]=='water' or x[i][j-1]=='water' or x[i][j+1]=='water':
                             stdscr.addstr(j+1,i,'&',curses.color_pair(10))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
+                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'&',curses.color_pair(10))
                         
 
@@ -622,6 +628,8 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(1))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(1))
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
                             
                     except:
                         pass
@@ -644,6 +652,8 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(9))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(9))
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
                     except:
                         pass
                 if x [i][j] == 'silver-ore':
@@ -663,6 +673,8 @@ while True:
                         if x[i-1][j]=='water' or x[i+1][j]=='water' or x[i][j-1]=='water' or x[i][j+1]=='water':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(10))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(10))
                     except:
                         pass
@@ -684,6 +696,8 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(4))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(4))
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
                     except:
                         pass
 
@@ -701,7 +715,7 @@ while True:
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
                         if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
+                        if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
                         if x[i-1][j]=='water' or x[i+1][j]=='water' or x[i][j-1]=='water' or x[i][j+1]=='water':
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
@@ -762,6 +776,8 @@ while True:
             if x[cursorx-1][cursory]=='water' or x[cursorx+1][cursory]=='water' or x[cursorx][cursory-1]=='water' or x[cursorx][cursory+1]=='water':
                 stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
             if x[cursorx-1][cursory]=='peat' or x[cursorx+1][cursory]=='peat' or x[cursorx][cursory-1]=='peat' or x[cursorx][cursory+1]=='peat':
+                stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
+            if x[cursorx-1][cursory]=='nettle' or x[cursorx+1][cursory]=='nettle' or x[cursorx][cursory-1]=='nettle' or x[cursorx][cursory+1]=='nettle':
                 stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
             
         except:
