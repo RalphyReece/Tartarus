@@ -6,3 +6,5 @@ Important things to note
 Alpha versions are going to be ultra buggy, partially due to my stupid habits
 -Small screen/font will crash the game. Go to fullscreen/ use CMD - or CNTRL - to zoom out.
 -No Error passing. One error crashes the entire game.
+
+Go to Releases for the most up to date code.
