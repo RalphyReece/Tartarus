@@ -1,6 +1,6 @@
 import random
 class Creature:
-    def __init__(self, shape, color, posx, posy, name, strength, agility, size, speed, litter, birth,stalking,health,state,behav):
+    def __init__(self, shape, color, posx, posy, name, strength, agility, size, speed, litter, birth,tame,health,state,behav):
         
         self.shape=shape
         self.golex=None
@@ -14,7 +14,7 @@ class Creature:
         self.agility = agility
         self.time = 1
         self.size=size
-        self.stalking = stalking
+        self.tame = tame
         self.state=state
         self.behav=behav
         
@@ -40,7 +40,7 @@ class Creature:
         return self.posy
     def age(self):
         self.time += 1
-    def goto(x,y):
+    def goto(self,x,y):
         self.posx=x
         self.posy=y
     
@@ -86,7 +86,7 @@ class Dwarf:
         return self.posy
     def age(self):
         self.time += 1
-    def goto(x,y):
+    def goto(self,x,y):
         self.posx=x
         self.posy=y
 

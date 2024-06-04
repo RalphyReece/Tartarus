@@ -521,11 +521,12 @@ while True:
         entities=[]
         playing = 0
         
-        rat= creatures.Creature('Y', 7, 20, 20, 'yak', 1, 1, 1, 1, 1,10000,0,100,0,0)
+        rat= creatures.Creature('Y', 7, 30, 30, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
         entities.append(rat)
-        rat= creatures.Creature('r', 7, 20, 20, 'rat', 1, 1, 1, 2, 3,10000,0,20,0,0)
+        
+        rat= creatures.Creature('r', 7, 30, 30, 'rat', 1, 1, 1, 2, 3,10000,1,20,0,0)
         entities.append(rat)
-        rat= creatures.Creature('d', 7, 20, 20, 'dog', 1, 1, 1, 2, 3,10000,0,50,0,1)
+        rat= creatures.Creature('d', 7, 30, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
         scene='play'
@@ -771,8 +772,12 @@ while True:
         
         
         for i in entities:
+            if i.health <=0:
+                i.goto(10000,10000)
+                entities.remove(i)
+                
             try:
-                if x[i.posx][i.posy] != 'stone' or x[i.posx][i.posy] != 'water' or x[i.posx][i.posy] != 'tree':
+                if x[i.posx][i.posy] != 'stone' and x[i.posx][i.posy] != 'water' and x[i.posx][i.posy] != 'tree' and x[i.posx][i.posy] != 'iron_ore' and x[i.posx][i.posy] != 'silver_ore' and x[i.posx][i.posy] != 'gold_ore':
                     stdscr.addstr(i.posx, i.posy, str(i.shape))
                 else:
                     i.goto(i.oldposx,i.oldposy)
@@ -781,51 +786,141 @@ while True:
             
             if t % 3 == 0:
                 if playing % 2 == 1:
-                    if i.state == 0:
+                    if i.golex == None:
                         i.update_pos()
                     i.age()
             
             
+            
             if t % 3 == 0:
+                if i.golex =='Hunt' and i.goley=='Hunt':
+                        if i.behav==1:
+                            i.golex="Hunt"
+                            i.goley="Hunt"
+                            
+                        
+                        
+                            r=random.random()
+                            if r > -1:
+                                i.state=1
+                            xs=[]
+                            ys=[]
+                        
+                            for j in entities:
+                                if j.tame == 0:
+                                    xs.append(j.posx)
+                                    ys.append(j.posy)
+                            dis=[]
+                            for j in range(len(xs)):
+                                
+                                if entities[j].tame == 0:
+                                    dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
+                                    dis.append(dis)
+                            counter=0
+                            for j in dis:
+                                if j == min(dis):
+                                    break
+                                else:
+                                    counter+=1
+                            try:
+                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
+
+                        
+                                if q == None:
+                                    i.state=0
+                            
+                            
+                                if q != None:
+                                    first_elements = [x[0] for x in q]
+                                    second_elements = [x[1] for x in q]
+                                
+                                
+                            except:
+                                pass
+                            try:
+                                if playing == 1:
+                                    i.goto(first_elements[1],second_elements[1])
+                            except:
+                                for k in entities:
+                                    if k.posx == i.posx:
+                                        if k.posy == i.posy:
+                                            if k != i:
+                                                for v in range(5):
+                                                    r=random.randint(0,10)
+                                                    if r > k.agility:
+                                                        k.health -= i.strength
+                                                        r=random.randint(0,10)
+                                                        if r > i.agility:
+                                                            i.health -= k.strength
+                                                        
+                                                
+                                        
+                                
+                                i.golex=None
+                                i.goley=None
+                                pass
+
+                
                 
                 
                     
                 if i.golex==None and i.goley==None:
-                    if i.behav==1:
-                        r=random.random()
-                        if r > -1:
-                            i.state=1
-                        xs=[]
-                        ys=[]
+                    r=random.randint(0,30)
+                    if r == 3:
                         
-                        for j in entities:
-                            xs.append(j.posx)
-                            ys.append(j.posy)
-                        dis=[]
-                        for j in range(len(entities)):
-                            dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
-                            dis.append(dis)
-                        counter=0
-                        for j in dis:
-                            if j == min(dis):
-                                break
-                            else:
-                                counter+=1
-                        q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
- # Start position
-   # End position
+                    
                         
-                        if q == None:
-                            i.state=0
+                        if i.behav==1:
+                            i.golex="Hunt"
+                            i.goley="Hunt"
+                            
+                        
+                        
+                            r=random.random()
+                            if r > -1:
+                                i.state=1
+                            xs=[]
+                            ys=[]
+                        
+                            for j in entities:
+                                if j.tame == 0:
+                                    xs.append(j.posx)
+                                    ys.append(j.posy)
+                            dis=[]
+                            for j in range(len(xs)):
+                                
+                                if entities[j].tame == 0:
+                                    dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
+                                    dis.append(dis)
+                            counter=0
+                            for j in dis:
+                                if j == min(dis):
+                                    break
+                                else:
+                                    counter+=1
+                            try:
+                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
+
+                        
+                                if q == None:
+                                    i.state=0
                             
                             
-                        if q != None:
-                            first_elements = [x[0] for x in q]
-                            second_elements = [x[1] for x in q]
-                            print(first_elements)
-                            stdscr.refresh()
-                            time.sleep(1000)
-                            #where I stopped may 21. Going to make the animal go forward another step.
+                                if q != None:
+                                    first_elements = [x[0] for x in q]
+                                    second_elements = [x[1] for x in q]
+                                
+                                
+                            except:
+                                pass
+                            try:
+                                if playing == 1:
+                                    i.goto(first_elements[1],second_elements[1])
+                            except:
+                                i.golex=None
+                                i.goley=None
+                                pass
+                            
 
                             
                             
