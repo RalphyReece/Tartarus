@@ -29,7 +29,7 @@ def perlin_array(years=200, shape = (600, 1200),
 
     if not seed:
 
-        seed = np.random.randint(0, 100)
+        seed = np.random.randint(0, 100000)
         print("seed was {}".format(seed))
 
     arr = np.zeros(shape)
@@ -144,6 +144,8 @@ def generate_perlin_noise_2d(shape, res, seed=None):
 
     if seed != 'cotton eyed joe':
         seed = int(time.time())  # Generate a random seed if none is provided
+        seed=random.random()
+        
 
     random.seed(seed)  # Set the seed for the noise function
 
@@ -169,7 +171,7 @@ def iron_gen(x,y):
     maindir = maindir[:-1]   
     width = x
     height = y
-    resolution = random.randint(70,120)
+    resolution = random.randint(7,12)
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_iron.data',arr_iron)
@@ -284,14 +286,29 @@ def crabgrass_gen(x,y,d):
     
     np.savetxt(str(maindir)+'/region/region_crabgrass.data',trees)
 
-
+def densegrass_gen(x,y,d):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    trees = np.zeros((x,y), dtype=object)
+    x=int(x)
+    y=int(y)
+    d=int(d)
+    trees = np.zeros((x,y))
+    for i in range(x):
+        for j in range(y):
+            r=random.randint(1,d)
+            if r == 1:
+                trees[i][j] = 1
+    
+    np.savetxt(str(maindir)+'/region/region_densegrass.data',trees)
 def micro_region(biome,elev):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
     x=180
     y=60
-    xu=60
+    xu=150
     region=np.empty((x,y), dtype=object)
 
 
@@ -338,12 +355,16 @@ def micro_region(biome,elev):
 
 
     iron_gen(x,y)
+    random.uniform(1,3290)
     time.sleep(1)
+    random.random()
     copper_gen(x,y)
     time.sleep(1)
+    random.random()
     silver_gen(x,y)
     time.sleep(1)
     gold_gen(x,y)
+    random.randint(1,45)
     pool_gen(x,y)
 
 
@@ -353,10 +374,12 @@ def micro_region(biome,elev):
         tree_gen(xu,y,50)
         nettle_gen(xu,y,10)
         crabgrass_gen(xu,y,13)
+        densegrass_gen(xu,y,5)
     if biome == 'rainforest':
                 sapling_gen(xu,y,50)
                 tree_gen(xu,y,25)
                 crabgrass_gen(xu,y,20)
+                densegrass_gen(xu,y,3)
     if biome == 'desert':
                 sapling_gen(xu,y,400)
                 tree_gen(xu,y,200)
@@ -389,6 +412,7 @@ def micro_region(biome,elev):
                 sapling_gen(xu,y,240)
                 tree_gen(xu,y,120)
                 crabgrass_gen(xu,y,6)
+                densegrass_gen(xu,y,50)
     for i in range(xu):
         for j in range(y):
             if biome == 'forest':
@@ -446,7 +470,7 @@ def micro_region(biome,elev):
 
     for i in range(x):
         for j in range(y):
-            if trees[i][j] >.15:
+            if trees[i][j] >random.uniform(.2,.3):
                 if region[i][j] == 'stone':
                     region[i][j] = 'iron-ore'
 
@@ -455,7 +479,7 @@ def micro_region(biome,elev):
 
         for i in range(x):
             for j in range(y):
-                if trees[i][j] >.1:
+                if trees[i][j] >random.uniform(.07,.32):
                     if region[i][j] == 'stone':
                         region[i][j] = 'copper-ore'
     if elev > 70:
@@ -463,7 +487,7 @@ def micro_region(biome,elev):
 
         for i in range(x):
             for j in range(y):
-                if trees[i][j] >.2:
+                if trees[i][j] >random.uniform(.15,.38):
                     if region[i][j] == 'stone':
                         region[i][j] = 'silver-ore'
     if elev > 80:
@@ -471,7 +495,7 @@ def micro_region(biome,elev):
 
         for i in range(x):
             for j in range(y):
-                if trees[i][j] >.2:
+                if trees[i][j] >random.uniform(.45,.699):
                     if region[i][j] == 'stone':
                         region[i][j] = 'gold-ore'
 
@@ -521,7 +545,7 @@ def micro_region(biome,elev):
     if biome == 'alpine':
         for i in range(x):
                 for j in range(y):
-                    if trees[i][j] >.18:
+                    if trees[i][j] >.13:
                         if region[i][j] == 'grass':
                             region[i][j] = 'water'
                         if region[i][j] == 'tree':
@@ -542,6 +566,33 @@ def micro_region(biome,elev):
                             region[i][j] = 'water'
                         if region[i][j] == 'nettle':
                             region[i][j] = 'water'
+
+
+
+    #densegrass creation
+    
+    if biome == 'forest':
+        densegrass_gen(xu,y,5)
+        trees=np.loadtxt(str(maindir)+'/region/region_densegrass.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] ==1:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'densegrass'
+                        
+   
+                        
+    if biome == 'alpine':
+        densegrass_gen(xu,y,3)
+        trees=np.loadtxt(str(maindir)+'/region/region_densegrass.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] >.18:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'densegrass'
+                      
+   
+                      
                             
                             
 

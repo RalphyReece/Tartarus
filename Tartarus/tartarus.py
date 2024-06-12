@@ -148,19 +148,24 @@ curses.init_color(12, 800, 600, 0)  # RGB values for brown
 curses.init_pair(12, 12, curses.COLOR_BLACK)
 
 #peat
-brown_approximation = 800 # Value between 0-1000 for approximating brown
-curses.init_color(13, brown_approximation, brown_approximation // 2, 0)  # RGB values for brown
+brown_approximation = 800 
+curses.init_color(13, brown_approximation, brown_approximation // 2, 0)  
 curses.init_pair(13, 13, curses.COLOR_BLACK)
 
 #nettle
-curses.init_color(14, 0, 220, 0)  # RGB values for brown
+curses.init_color(14, 0, 220, 0)  
 curses.init_pair(14, 14, curses.COLOR_BLACK)
 
-curses.init_color(15, 0, 120, 0)  # RGB values for brown
+curses.init_color(15, 0, 120, 0) 
 curses.init_pair(15, 15, curses.COLOR_BLACK)
 
-curses.init_color(16, 0, 120, 0)  # RGB values for brown
+#crabgrass
+curses.init_color(16, 0, 120, 0)  
 curses.init_pair(16, 16, curses.COLOR_BLACK)
+
+#dense grass
+curses.init_color(17, 0, 800, 0)  
+curses.init_pair(17, 17, curses.COLOR_BLACK)
 
 
 
@@ -535,51 +540,68 @@ while True:
         rat= creatures.Creature('Y', 7, 30, 30, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
         entities.append(rat)
         
-        rat= creatures.Creature('r', 7, 30, 30, 'rat', 1, 1, 1, 2, 3,10000,1,20,0,0)
+        rat= creatures.Creature('r', 7, 30, 30, 'rat', 1, 1, 1, 2, 3,10000,0,5,0,0)
         entities.append(rat)
         rat= creatures.Creature('d', 7, 30, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
         scene='play'
+        over=0
     if scene == 'play':
         t+=1
         offset=181
         if key == ord(' '):
             playing+=1
+
+        if key == ord('>'):
+            over-=1
+        if key == ord('<'):
+            over+=1
+        
+        
+        
         
         for j in range(60):
-            stdscr.addstr(cursory,cursorx,"X")
-            stdscr.addstr(cursory,cursorx,"X")
-            for i in range(180):
-                stdscr.addstr(j+1,i,' ')
-                if x[i][j] == 'grass':
-                    stdscr.addstr(j+1,i,'`',curses.color_pair(2))
-                if x[i][j] == 'tree':
-                    stdscr.addstr(j+1,i,'O',curses.color_pair(8))
-                if x[i][j] == 'dead shrub':
-                    stdscr.addstr(j+1,i,'&',curses.color_pair(9))
                 
-                if x[i][j] == 'sapling':
-                    stdscr.addstr(j+1,i,'∂',curses.color_pair(11))
+            stdscr.addstr(cursory,cursorx,"X")
+            
+            for i in range(180):
+                try:
+                    stdscr.addstr(j+1,i,' ')
+                    if x[i][j] == 'grass':
+                        stdscr.addstr(j+1,i+over,'`',curses.color_pair(2))
+                    if x[i][j] == 'tree':
+                        stdscr.addstr(j+1,i+over,'O',curses.color_pair(8))
+                    if x[i][j] == 'dead shrub':
+                        stdscr.addstr(j+1+over,i+over,'&',curses.color_pair(9))
+                    
+                    if x[i][j] == 'sapling':
+                        stdscr.addstr(j+1,i+over,'∂',curses.color_pair(11))
 
-                if x[i][j] == 'mud':
-                    stdscr.addstr(j+1,i,';',curses.color_pair(12))
-                if x[i][j] == 'snow':
-                    stdscr.addstr(j+1,i,'"',curses.color_pair(7))
+                    if x[i][j] == 'mud':
+                        stdscr.addstr(j+1,i+over,';',curses.color_pair(12))
+                    if x[i][j] == 'snow':
+                        stdscr.addstr(j+1,i+over,'"',curses.color_pair(7))
 
-                if x[i][j] == 'dirt':
-                    stdscr.addstr(j+1,i,'#',curses.color_pair(9))
-                if x[i][j] == 'water':
-                    stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
-                if x[i][j]== 'wood-wall':
-                    stdscr.addstr(j+1,i,'#',curses.color_pair(8))
-                if x[i][j]== 'peat':
-                    stdscr.addstr(j+1,i,'&',curses.color_pair(15))
-                if x[i][j] == 'nettle':
-                    stdscr.addstr(j+1,i,'\'',curses.color_pair(14))
-                if x[i][j] == 'crabgrass':
-                    stdscr.addstr(j+1,i,'√',curses.color_pair(16))
-              
+                    if x[i][j] == 'dirt':
+                        stdscr.addstr(j+1,i+over,'#',curses.color_pair(9))
+                    if x[i][j] == 'water':
+                        stdscr.addstr(j+1,i+over,'≈',curses.color_pair(3))
+                    if x[i][j]== 'wood-wall':
+                        stdscr.addstr(j+1,i+over,'#',curses.color_pair(8))
+                    if x[i][j]== 'peat':
+                        stdscr.addstr(j+1,i+over,'&',curses.color_pair(15))
+                    if x[i][j] == 'nettle':
+                        stdscr.addstr(j+1,i+over,'\'',curses.color_pair(14))
+                    if x[i][j] == 'crabgrass':
+                        stdscr.addstr(j+1,i+over,'√',curses.color_pair(16))
+                    if x[i][j] == 'densegrass':
+                        stdscr.addstr(j+1,i+over,'\"',curses.color_pair(17))
+                    
+                except:
+                        pass
+                        
+                
                     
                 if x [i][j] == 'stone':
                     try:
@@ -601,10 +623,15 @@ while True:
                             stdscr.addstr(j+1,i,'&',curses.color_pair(10))
                         if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'&',curses.color_pair(10))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
+                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
                         
 
                     except:
                         pass
+                
                 
                         
 
@@ -630,6 +657,10 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(1))
                         if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(1))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
                             
                     except:
                         pass
@@ -654,6 +685,10 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(9))
                         if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(9))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
                     except:
                         pass
                 if x [i][j] == 'silver-ore':
@@ -675,6 +710,10 @@ while True:
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(10))
                         if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(10))
                     except:
                         pass
@@ -698,6 +737,10 @@ while True:
                             stdscr.addstr(j+1,i,'%',curses.color_pair(4))
                         if x[i-1][j]=='nettle' or x[i+1][j]=='nettle' or x[i][j-1]=='nettle' or x[i][j+1]=='nettle':
                             stdscr.addstr(j+1,i,'%',curses.color_pair(4))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
+                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
                     except:
                         pass
 
@@ -720,6 +763,10 @@ while True:
                         if x[i-1][j]=='water' or x[i+1][j]=='water' or x[i][j-1]=='water' or x[i][j+1]=='water':
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
                         if x[i-1][j]=='peat' or x[i+1][j]=='peat' or x[i][j-1]=='peat' or x[i][j+1]=='peat':
+                            stdscr.addstr(j+1,i,'#',curses.color_pair(9))
+                        if x[i-1][j]=='crabgrass' or x[i+1][j]=='crabgrass' or x[i][j-1]=='crabgrass' or x[i][j+1]=='crabgrass':
+                            stdscr.addstr(j+1,i,'#',curses.color_pair(9))
+                        if x[i-1][j]=='densegrass' or x[i+1][j]=='densegrass' or x[i][j-1]=='densegrass' or x[i][j+1]=='densegrass':
                             stdscr.addstr(j+1,i,'#',curses.color_pair(9))
                         
                         
@@ -779,6 +826,11 @@ while True:
                 stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
             if x[cursorx-1][cursory]=='nettle' or x[cursorx+1][cursory]=='nettle' or x[cursorx][cursory-1]=='nettle' or x[cursorx][cursory+1]=='nettle':
                 stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
+            if x[cursorx-1][cursory]=='crabgrass' or x[cursorx+1][cursory]=='crabgrass' or x[cursorx][cursory-1]=='crabgrass' or x[cursorx][cursory+1]=='crabgrass':
+                stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
+            if x[cursorx-1][cursory]=='densegrass' or x[cursorx+1][cursory]=='densegrass' or x[cursorx][cursory-1]=='densegrass' or x[cursorx][cursory+1]=='densegrass':
+                stdscr.addstr(10, offset, "Tile: " + str(x[cursorx][cursory-1]))
+                
             
         except:
             pass
@@ -981,9 +1033,7 @@ while True:
         
             
         stdscr.refresh()
-        
-        
-        
+
         
             
             
@@ -1003,7 +1053,7 @@ while True:
 
 
     
-    stdscr.refresh()
+    #stdscr.refresh()
 
 
 
