@@ -308,7 +308,7 @@ def micro_region(biome,elev):
     maindir = maindir[:-1]   
     x=180
     y=60
-    xu=150
+    xu=160
     region=np.empty((x,y), dtype=object)
 
 
@@ -356,13 +356,13 @@ def micro_region(biome,elev):
 
     iron_gen(x,y)
     random.uniform(1,3290)
-    time.sleep(1)
+    
     random.random()
     copper_gen(x,y)
-    time.sleep(1)
+    
     random.random()
     silver_gen(x,y)
-    time.sleep(1)
+    
     gold_gen(x,y)
     random.randint(1,45)
     pool_gen(x,y)
@@ -565,6 +565,8 @@ def micro_region(biome,elev):
                         if region[i][j] == 'sapling':
                             region[i][j] = 'water'
                         if region[i][j] == 'nettle':
+                            region[i][j] = 'water'
+                        if region[i][j] == 'crabgrass':
                             region[i][j] = 'water'
 
 

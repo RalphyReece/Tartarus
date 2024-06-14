@@ -25,10 +25,10 @@ class Creature:
         
     
     def update_pos(self):
-        r=random.randint(1,3)
+        r=random.randint(1,2)
         if r == 1:
-            x=random.randint(-1*self.speed,self.speed)
-            y=random.randint(-1*self.speed,self.speed)
+            x=random.randint(-1,1)
+            y=random.randint(-1,1)
         
             self.oldposx=self.posx
             self.posx += x
