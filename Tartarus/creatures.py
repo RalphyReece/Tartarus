@@ -31,9 +31,11 @@ class Creature:
             y=random.randint(-1,1)
         
             self.oldposx=self.posx
-            self.posx += x
             self.oldposy=self.posy
-            self.posy += y
+            return [self.posx+x,self.posy+y]
+        else:
+            return [self.posx,self.posy]
+            
     def px(self):
         return self.posx
     def py(self):

@@ -1,5 +1,5 @@
-X=180
-Y=60
+X=1000
+Y=30
 import cProfile
 import pstats
 import io
@@ -29,6 +29,8 @@ scene=0 is start
 
 
 '''
+startt=time.time()
+
 
 tile_types = [
                 'grass', 'sapling', 'tree', 'mud', 'water', 'peat', 
@@ -125,6 +127,7 @@ stdscr.keypad(True)
 curses.curs_set(0)  # Hide the cursor
 curses.start_color()
 stdscr.nodelay(1)  # Make getch non-blocking
+stdscr.timeout(10)
 ##Colors
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -177,12 +180,7 @@ curses.init_pair(16, 16, curses.COLOR_BLACK)
 curses.init_color(17, 0, 800, 0)  
 curses.init_pair(17, 17, curses.COLOR_BLACK)
 
-def reset_curses(stdscr):
-            # End and restart the curses session
-            curses.endwin()
-            stdscr.refresh()
-            curses.doupdate()
-            time.sleep(0.1)  # Small delay to ensure the terminal resets
+
 
 # Main loop
 while True:
@@ -391,11 +389,12 @@ while True:
                         os.system('clear')
     if scene == 'micro_region':
         os.system('clear')
+        
         worldgen.micro_region(biome,elev[embarky,embarkx])
         x=np.loadtxt(str(maindir)+'/region/region.data',dtype=object)
-        for j in range(60):
+        for j in range(1):
             stdscr.refresh()
-            for i in range(180):
+            for i in range(1):
                 if x[i][j] == 'grass':
                     stdscr.addstr(j+1,i,'`',curses.color_pair(2))
                 if x[i][j] == 'tree':
@@ -552,47 +551,62 @@ while True:
         entities=[]
         playing = 0
         
-        rat= creatures.Creature('Y', 7, 30, 30, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
+        rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,10000,0,3,0,0)
         entities.append(rat)
+        '''
         for i in range(10):
-                rat= creatures.Creature('r', 7, 30, 160, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
+                rat= creatures.Creature('Y', 7, 15, i*10, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
+                #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
-        rat= creatures.Creature('d', 7, 30, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        '''
+        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,1,50,0,1)
         
         entities.append(rat)
         scene='play'
         over=0
+        tim=time.time()
     if scene == 'play':
-        if t % 100 == 0:
+        time.sleep(.03)
+
+        if t == 800:
+                beg1=time.time()
+        
+        if t % 10 == 0:
                 stdscr.clear()
         
         
         t+=1
-        offset=181
+        offset=90
+        if key == curses.KEY_F1:
+                for i in entities:
+                        i.goto(i.posx,i.posy+over)
+                over=0
         if key == ord(' '):
             playing+=1
+            
             
                     
 
         if key == ord('>'):
-            over+=5
+            over+=10
             for i in entities:
                 i.goto(i.posx,i.posy-5)
         if key == ord('<'):
-            over-=5
-            for i in entities:
-                i.goto(i.posx,i.posy+5)
+            if over >= 5:
+                over-=10
+                for i in entities:
+                    i.goto(i.posx,i.posy+5)
         
         
-        
+         
         
         for j in range(Y):
                 
                 stdscr.addstr(cursory,cursorx,"X")
             
-                for i in range(180):
+                for i in range(60):
                         try:
-                            stdscr.addstr(j+1,i,' ')
+                            
                             if x[i+over][j] == 'grass':
                                 stdscr.addstr(j+1,i,'`',curses.color_pair(2))
                             if x[i+over][j] == 'tree':
@@ -657,10 +671,20 @@ while True:
                         except:
                             break
 
-                
-                
-        np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
+        
+        
+
+        if t == 800:
+                beg2=time.time()
+        
+
+        if t % 1000 == 0:       
+                np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
         stdscr.addstr(cursory,cursorx,"X")
+
+        #t test
+        stdscr.addstr(30,90,'       ')
+        stdscr.addstr(30,90,str(t))
 
         if key == curses.KEY_UP:
               
@@ -691,7 +715,7 @@ while True:
                     cursorx +=1
         if key == ord('d'):
             x[cursorx+over][cursory-1] = 'grass'
-            
+        
         try:
         
             stdscr.addstr(10,offset,"                     ")
@@ -710,6 +734,8 @@ while True:
             pass
         
         #test animal
+        if t == 800:
+                beg3=time.time()
         
         
         
@@ -717,7 +743,7 @@ while True:
             if i.health <=0:
                 i.goto(10000,10000)
                 entities.remove(i)
-                
+            '''    
             try:
                 if x[i.posx+over][i.posy] != 'stone' and x[i.posx+over][i.posy] != 'water' and x[i.posx+over][i.posy] != 'tree' and x[i.posx+over][i.posy] != 'iron_ore' and x[i.posx+over][i.posy] != 'silver_ore' and x[i.posx+over][i.posy] != 'gold_ore':
                     qqqq=1
@@ -727,17 +753,24 @@ while True:
             except:
                 pass
             
-            
+            '''
             if playing % 2 == 1:
                     if i.golex == None:
                             if t % i.speed == 0:
-                                i.update_pos()
                                 i.age()
+                                qq=i.update_pos()
+                                try:
+                                        if x[qq[1]+over,qq[0]] != 'tree' and x[qq[1]+over,qq[0]] != 'stone' and x[qq[1]+over,qq[0]] != 'copper-ore' and x[qq[1]+over,qq[0]] != 'water':
+                                                i.goto(qq[0],qq[1])
+                                except:
+                                        pass
+                                
+                                        
+                                
             
             
-            
-            if t % 3 == 0:
-                if i.golex =='Hunt' and i.goley=='Hunt':
+            if t % 1 == 0:
+                if i.golex !='Hukjlnt' and i.goley!='Hunfsdt':
                         if i.behav==1:
                             i.golex="Hunt"
                             i.goley="Hunt"
@@ -807,10 +840,12 @@ while True:
                 
                 
                 
-                    
+                '''   
                 if i.golex==None and i.goley==None:
-                    r=random.randint(0,30)
+                    
+                    r=random.randint(0,4)
                     if r == 3:
+                        
                         
                     
                         
@@ -869,7 +904,7 @@ while True:
                             
                             
                         
-                        
+                '''        
                         
             
             
@@ -878,8 +913,10 @@ while True:
                             
                             
                         
-                
-
+        if t == 800:
+                beg5=time.time()
+        
+        
         # Next, spawn new entities
         new_entities = []
         for i in entities:
@@ -893,10 +930,9 @@ while True:
         # After iterating over all entities, add the new entities to the main list
         entities.extend(new_entities)
 
-        if t % 50 == 0:
-            gc.collect()
+        
         #save pathfinding
-        if t % 100 == 0:
+        if t % 300 == 0:
             x_2=np.zeros((X,Y))
             for j in range(X):
                 for i in range(Y):
@@ -905,20 +941,26 @@ while True:
                     
             np.savetxt(str(maindir)+'/region/pathfind.data',x_2)
         
-                
-        try:
-                
-                for i in entities:
+        
+        
+        
+        
+        for i in entities:
+                if i.posy < 60:
+                    try:
+                                
                         stdscr.addstr(i.posx,i.posy,i.shape)
-        except:
-                pass
+                    except curses.error:
+                        pass
+        
             
         stdscr.refresh()
-        '''
-        if t % 10 == 0:
         
-                reset_curses(stdscr)
-        '''
+        if t == 500:
+                f=open('milestone','a')
+                f.write('\n'+str(time.time()-tim))
+                f.close()
+        time.sleep(.01)
             
             
         
@@ -926,6 +968,11 @@ while True:
         
         
         
+
+       
+                
+                
+                
         
         
         

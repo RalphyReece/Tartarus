@@ -306,9 +306,9 @@ def micro_region(biome,elev):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
-    x=180
-    y=60
-    xu=160
+    x=1000
+    y=30
+    xu=100
     region=np.empty((x,y), dtype=object)
 
 
@@ -530,6 +530,8 @@ def micro_region(biome,elev):
                             region[i][j] = 'water'
                         if region[i][j] == 'nettle':
                             region[i][j] = 'water'
+                        if region[i][j] == 'crabgrass':
+                            region[i][j] = 'water'
     if biome == 'marsh':
         for i in range(x):
                 for j in range(y):
@@ -542,6 +544,8 @@ def micro_region(biome,elev):
                             region[i][j] = 'water'
                         if region[i][j] == 'nettle':
                             region[i][j] = 'water'
+                        if region[i][j] == 'crabgrass':
+                            region[i][j] = 'water'
     if biome == 'alpine':
         for i in range(x):
                 for j in range(y):
@@ -553,6 +557,8 @@ def micro_region(biome,elev):
                         if region[i][j] == 'sapling':
                             region[i][j] = 'water'
                         if region[i][j] == 'nettle':
+                            region[i][j] = 'water'
+                        if region[i][j] == 'crabgrass':
                             region[i][j] = 'water'
     if biome == 'slop':
         for j in range(x):
