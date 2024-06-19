@@ -114,11 +114,6 @@ def scene_micro():
     
     key='9'
 
-    
-    
-    
-    
-
 
 
 
@@ -127,7 +122,9 @@ stdscr.keypad(True)
 curses.curs_set(0)  # Hide the cursor
 curses.start_color()
 stdscr.nodelay(1)  # Make getch non-blocking
+###Another Overclocking Option
 stdscr.timeout(10)
+###
 ##Colors
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -551,7 +548,7 @@ while True:
         entities=[]
         playing = 0
         
-        rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,10000,0,3,0,0)
+        rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,400,0,3,0,0)
         entities.append(rat)
         '''
         for i in range(10):
@@ -590,12 +587,12 @@ while True:
         if key == ord('>'):
             over+=10
             for i in entities:
-                i.goto(i.posx,i.posy-5)
+                i.goto(i.posx,i.posy-10)
         if key == ord('<'):
-            if over >= 5:
+            if over >= 10:
                 over-=10
                 for i in entities:
-                    i.goto(i.posx,i.posy+5)
+                    i.goto(i.posx,i.posy+10)
         
         
          
@@ -815,7 +812,7 @@ while True:
                             except:
                                 pass
                             try:
-                                if playing == 1:
+                                if playing % 2 == 1:
                                     i.goto(first_elements[1],second_elements[1])
                             except:
                                 for k in entities:
@@ -960,6 +957,9 @@ while True:
                 f=open('milestone','a')
                 f.write('\n'+str(time.time()-tim))
                 f.close()
+
+
+        #Overclocking
         time.sleep(.01)
             
             
