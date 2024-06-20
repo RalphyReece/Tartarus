@@ -1,8 +1,8 @@
 import numpy as np
 import heapq
 import multiprocessing
-import threading
 import time
+
 class Node:
     def __init__(self, parent=None, position=None):
         self.parent = parent
@@ -83,30 +83,35 @@ def astar_search(grid, start, end):
 
     return None  # No path found
 
-# Example usage
-def main(grid_array, start, end):
-    # Define a function to run astar_search with a timeout
-    def run_astar_search(grid_array, start, end):
-        nonlocal path
+def main(grid_array, start, end, timeout=1):
+    # Define a function to run astar_search
+    def run_astar_search(queue, grid_array, start, end):
         path = astar_search(grid_array, start, end)
+        queue.put(path)
     
-    # Initialize path variable
-    path = None
+    # Create a queue to get the result
+    queue = multiprocessing.Queue()
     
-    # Create a new thread to run astar_search
-    search_thread = threading.Thread(target=run_astar_search, args=(grid_array, start, end))
-    search_thread.start()
+    # Create a new process to run astar_search
+    search_process = multiprocessing.Process(target=run_astar_search, args=(queue, grid_array, start, end))
+    search_process.start()
     
-    # Wait for the thread to finish or timeout
-    search_thread.join(timeout=0.1)
+    # Wait for the process to finish or timeout
+    search_process.join(timeout)
     
-    # If the thread is still alive (timeout occurred), set path to None
-    if search_thread.is_alive():
+    # If the process is still alive (timeout occurred), terminate it
+    if search_process.is_alive():
+        search_process.terminate()
+        search_process.join()
+        return None
+    
+    # Get the result from the queue
+    if not queue.empty():
+        path = queue.get()
+    else:
         path = None
-        
     
     return path
 
 # Example usage:
 # result = main(grid_array, start, end)
-

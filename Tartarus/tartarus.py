@@ -24,11 +24,24 @@ gc.enable()
 scene=0 is start
 1 is main menu
 2 is world creation
-
-
-
-
 '''
+class FPSCounter:
+    def __init__(self):
+        self.start_time = time.time()
+        self.frame_count = 0
+
+    def update(self):
+        self.frame_count += 1
+        if self.frame_count >= 10:  # Update FPS every 10 frames
+            end_time = time.time()
+            elapsed_time = end_time - self.start_time
+            fps = self.frame_count / elapsed_time
+            return f"FPS: {fps:.2f}"
+            self.start_time = end_time
+            self.frame_count = 0
+
+
+
 startt=time.time()
 
 
@@ -178,7 +191,7 @@ curses.init_color(17, 0, 800, 0)
 curses.init_pair(17, 17, curses.COLOR_BLACK)
 
 
-
+fps_counter = FPSCounter()
 # Main loop
 while True:
     key='sdsdsd'
@@ -550,12 +563,12 @@ while True:
         
         rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,400,0,3,0,0)
         entities.append(rat)
-        '''
+        
         for i in range(10):
-                rat= creatures.Creature('Y', 7, 15, i*10, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
+                rat= creatures.Creature('Y', 7, 15, 95, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
                 #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
-        '''
+        
         rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,1,50,0,1)
         
         entities.append(rat)
@@ -585,14 +598,17 @@ while True:
                     
 
         if key == ord('>'):
+            
             over+=10
             for i in entities:
                 i.goto(i.posx,i.posy-10)
+            
         if key == ord('<'):
             if over >= 10:
                 over-=10
                 for i in entities:
                     i.goto(i.posx,i.posy+10)
+            
         
         
          
@@ -638,6 +654,8 @@ while True:
                                 break
                         ###make the below look like above. Remove +over. Replace with correct
                         
+                        
+                
                         try:
                     
                             if x[i+over][j] == 'stone' or x[i+over][j] == 'iron-ore' or x[i+over][j] == 'copper-ore' or x[i+over][j] == 'silver-ore' or x[i+over][j] == 'gold-ore' or x[i+over][j] == 'mudstone':
@@ -949,7 +967,12 @@ while True:
                         stdscr.addstr(i.posx,i.posy,i.shape)
                     except curses.error:
                         pass
-        
+        if t % 2 == 0:
+            qqqq=fps_counter.update()
+        try:
+            stdscr.addstr(0,0,qqqq,curses.color_pair(6))
+        except:
+            pass
             
         stdscr.refresh()
         
@@ -961,6 +984,11 @@ while True:
 
         #Overclocking
         time.sleep(.01)
+        
+        #CPU rest testing
+        
+        
+        
             
             
         
