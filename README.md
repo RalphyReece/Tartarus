@@ -1,4 +1,5 @@
 # Tartarus
+###CURRENTLY IN ALPHA, AND NO GAMEPLAY IS YET ADDED###
 Based on Dwarffortress. A very simplified approach meant to run inside the terminal.
 
 Important things to note
