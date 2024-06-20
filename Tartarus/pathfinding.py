@@ -1,6 +1,6 @@
 import numpy as np
 import heapq
-import multiprocessing
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
 class Node:
@@ -19,99 +19,75 @@ class Node:
 
 def astar_search(grid, start, end):
     def heuristic(a, b):
-        # Manhattan distance heuristic
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-    # Initialize start and end nodes
     start_node = Node(None, start)
     end_node = Node(None, end)
 
-    # Initialize open and closed lists
     open_list = []
     closed_list = set()
+    open_dict = {}
 
-    # Add the start node
     heapq.heappush(open_list, start_node)
+    open_dict[start_node.position] = start_node
 
-    # Loop until end node is found
     while open_list:
-        # Pop node with lowest f value from open list
         current_node = heapq.heappop(open_list)
+        open_dict.pop(current_node.position, None)
 
-        # Add current node to closed list
-        closed_list.add(current_node.position)
-
-        # Found the goal
         if current_node == end_node:
             path = []
             while current_node is not None:
                 path.append(current_node.position)
                 current_node = current_node.parent
-            return path[::-1]  # Return reversed path
+            return path[::-1]
 
-        # Generate neighbors
+        closed_list.add(current_node.position)
+
         for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
             node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
-            # Ensure within grid bounds
             if node_position[0] < 0 or node_position[0] >= grid.shape[0] or node_position[1] < 0 or node_position[1] >= grid.shape[1]:
                 continue
 
-            # Skip obstacles
             if grid[node_position[0], node_position[1]] == 1:
                 continue
 
-            # Create neighbor node
-            neighbor_node = Node(current_node, node_position)
-
-            # Skip if neighbor node is in the closed list
-            if neighbor_node.position in closed_list:
+            if node_position in closed_list:
                 continue
 
-            # Calculate g, h, and f values
+            neighbor_node = Node(current_node, node_position)
             neighbor_node.g = current_node.g + 1
             neighbor_node.h = heuristic(neighbor_node.position, end)
             neighbor_node.f = neighbor_node.g + neighbor_node.h
 
-            # Skip if neighbor node is already in the open list with lower f value
-            for open_node in open_list:
-                if neighbor_node == open_node and neighbor_node.f > open_node.f:
-                    break
-            else:
-                # Add neighbor node to open list
-                heapq.heappush(open_list, neighbor_node)
+            if node_position in open_dict and open_dict[node_position].f <= neighbor_node.f:
+                continue
 
-    return None  # No path found
+            heapq.heappush(open_list, neighbor_node)
+            open_dict[node_position] = neighbor_node
 
-def main(grid_array, start, end, timeout=1):
-    # Define a function to run astar_search
-    def run_astar_search(queue, grid_array, start, end):
-        path = astar_search(grid_array, start, end)
-        queue.put(path)
+    return None
+
+def main(grid_array, start, end):
+    def run_astar_search():
+        return astar_search(grid_array, start, end)
     
-    # Create a queue to get the result
-    queue = multiprocessing.Queue()
-    
-    # Create a new process to run astar_search
-    search_process = multiprocessing.Process(target=run_astar_search, args=(queue, grid_array, start, end))
-    search_process.start()
-    
-    # Wait for the process to finish or timeout
-    search_process.join(timeout)
-    
-    # If the process is still alive (timeout occurred), terminate it
-    if search_process.is_alive():
-        search_process.terminate()
-        search_process.join()
-        return None
-    
-    # Get the result from the queue
-    if not queue.empty():
-        path = queue.get()
-    else:
-        path = None
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(run_astar_search)
+        try:
+            path = future.result(timeout=1)
+        except Exception:
+            path = None
     
     return path
 
 # Example usage:
+# grid_array = np.array([[0, 1, 0, 0],
+#                        [0, 1, 0, 1],
+#                        [0, 0, 0, 0],
+#                        [0, 1, 1, 0]])
+# start = (0, 0)
+# end = (3, 3)
 # result = main(grid_array, start, end)
+# print(result)

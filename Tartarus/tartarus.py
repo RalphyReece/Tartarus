@@ -576,7 +576,7 @@ while True:
         over=0
         tim=time.time()
     if scene == 'play':
-        time.sleep(.03)
+        time.sleep(.02)
 
         if t == 800:
                 beg1=time.time()
@@ -782,10 +782,17 @@ while True:
                                 
                                         
                                 
+            for i in entities:
+                if i.behav==1:
+                    r=random.randint(0,30)
+                    if r == 25:
+                        i.golex = 'SHunt'
+                        i.goley = 'SHunt'
+                        
             
             
-            if t % 1 == 0:
-                if i.golex !='Hukjlnt' and i.goley!='Hunfsdt':
+            if t % 4 <= 2:
+                if i.golex == 'SHunt' and i.goley == 'SHunt':
                         if i.behav==1:
                             i.golex="Hunt"
                             i.goley="Hunt"
@@ -807,28 +814,30 @@ while True:
                                 
                                 if entities[j].tame == 0:
                                     dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
-                                    dis.append(dis)
+                                    if dist != 0:
+                                        dis.append(dist)
                             counter=0
                             for j in dis:
                                 if j == min(dis):
                                     break
                                 else:
                                     counter+=1
-                            try:
-                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
+                            
+                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
 
                         
-                                if q == None:
+                            if q == None:
                                     i.state=0
+                                    
                             
                             
-                                if q != None:
+                            if q != None:
                                     first_elements = [x[0] for x in q]
                                     second_elements = [x[1] for x in q]
+                                    
                                 
                                 
-                            except:
-                                pass
+                            
                             try:
                                 if playing % 2 == 1:
                                     i.goto(first_elements[1],second_elements[1])
