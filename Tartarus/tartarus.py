@@ -1,4 +1,4 @@
-X=1000
+X=3000
 Y=30
 import cProfile
 import pstats
@@ -39,15 +39,18 @@ class FPSCounter:
             return f"FPS: {fps:.2f}"
             self.start_time = end_time
             self.frame_count = 0
-
+solids = [
+                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore'
+        ]
 
 
 startt=time.time()
 
 
 tile_types = [
-                'grass', 'sapling', 'tree', 'mud', 'water', 'peat', 
-                'nettle', 'crabgrass', 'densegrass'
+                'grass', 'sapling', 'mud', 'water', 'peat', 
+                'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
+                'dead_shrub'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -179,7 +182,8 @@ curses.init_pair(13, 13, curses.COLOR_BLACK)
 curses.init_color(14, 0, 220, 0)  
 curses.init_pair(14, 14, curses.COLOR_BLACK)
 
-curses.init_color(15, 0, 120, 0) 
+#marsh soil
+curses.init_color(15, 0, 200, 0) 
 curses.init_pair(15, 15, curses.COLOR_BLACK)
 
 #crabgrass
@@ -190,7 +194,9 @@ curses.init_pair(16, 16, curses.COLOR_BLACK)
 curses.init_color(17, 0, 800, 0)  
 curses.init_pair(17, 17, curses.COLOR_BLACK)
 
-
+#snow
+curses.init_color(18, 900, 900, 1000)  
+curses.init_pair(18, 18, curses.COLOR_BLACK)
 fps_counter = FPSCounter()
 # Main loop
 while True:
@@ -559,7 +565,7 @@ while True:
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
         #text animal
         entities=[]
-        playing = 0
+        playing = 1
         
         rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,400,0,3,0,0)
         entities.append(rat)
@@ -573,10 +579,24 @@ while True:
         
         entities.append(rat)
         scene='play'
-        over=0
+        over=5
         tim=time.time()
+        kshown=0
+
+        ##Testing Area
+        '''
+        for i in range(X):
+            for j in range(Y):
+                if x[i][j] == 'stone':
+                    x[i][j]='grass'
+        '''
     if scene == 'play':
         time.sleep(.02)
+        
+
+        if t == 2:
+            over=0
+            playing=0
 
         if t == 800:
                 beg1=time.time()
@@ -595,15 +615,18 @@ while True:
             playing+=1
             
             
-                    
+        if key == ord('k'):
+            kshown+=1
+            
 
         if key == ord('>'):
-            
+            stdscr.clear()
             over+=10
             for i in entities:
                 i.goto(i.posx,i.posy-10)
             
         if key == ord('<'):
+            stdscr.clear()
             if over >= 10:
                 over-=10
                 for i in entities:
@@ -615,15 +638,14 @@ while True:
         
         for j in range(Y):
                 
-                stdscr.addstr(cursory,cursorx,"X")
+                
             
                 for i in range(60):
                         try:
                             
                             if x[i+over][j] == 'grass':
                                 stdscr.addstr(j+1,i,'`',curses.color_pair(2))
-                            if x[i+over][j] == 'tree':
-                                stdscr.addstr(j+1,i,'O',curses.color_pair(8))
+                            
                             if x[i+over][j] == 'dead shrub':
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(9))
                     
@@ -649,6 +671,10 @@ while True:
                                 stdscr.addstr(j+1,i,'√',curses.color_pair(16))
                             if x[i+over][j] == 'densegrass':
                                 stdscr.addstr(j+1,i,'\"',curses.color_pair(17))
+                            if x[i+over][j] == 'snow':
+                                stdscr.addstr(j+1,i,'~',curses.color_pair(18))
+                            if x[i+over][j] == 'aerath':
+                                stdscr.addstr(j+1,i,'º',curses.color_pair(5))
                     
                         except:
                                 break
@@ -658,7 +684,7 @@ while True:
                 
                         try:
                     
-                            if x[i+over][j] == 'stone' or x[i+over][j] == 'iron-ore' or x[i+over][j] == 'copper-ore' or x[i+over][j] == 'silver-ore' or x[i+over][j] == 'gold-ore' or x[i+over][j] == 'mudstone':
+                            if x[i+over][j] in solids:
                             
                                 symbol = '&'
                                 color = curses.color_pair(10)
@@ -677,11 +703,23 @@ while True:
                                 elif x[i+over][j] == 'mudstone':
                                     symbol = '#'
                                     color = curses.color_pair(9)
+                                elif x[i+over][j] == 'ozone':
+                                    symbol = '‰'
+                                    color = curses.color_pair(6)
+                                elif x[i+over][j] == 'magnesite-ore':
+                                    symbol = '%'
+                                    color = curses.color_pair(1)
+                                elif x[i+over][j] == 'tin-ore':
+                                    symbol = '%'
+                                    color = curses.color_pair(13)
+                                if x[i+over][j] == 'tree':
+                                    symbol = 'O'
+                                    color = curses.color_pair(8)
         
-                                if x[i-1+over][j] in ['grass', 'sapling', 'tree', 'mud', 'water', 'peat', 'nettle', 'crabgrass', 'densegrass'] or \
-                                   x[i+1+over][j] in ['grass', 'sapling', 'tree', 'mud', 'water', 'peat', 'nettle', 'crabgrass', 'densegrass'] or \
-                                   x[i+over][j-1] in ['grass', 'sapling', 'tree', 'mud', 'water', 'peat', 'nettle', 'crabgrass', 'densegrass'] or \
-                                   x[i+over][j+1] in ['grass', 'sapling', 'tree', 'mud', 'water', 'peat', 'nettle', 'crabgrass', 'densegrass']:
+                                if x[i-1+over][j] in tile_types or \
+                                   x[i+1+over][j] in tile_types or \
+                                   x[i+over][j-1] in tile_types or \
+                                   x[i+over][j+1] in tile_types:
                                     stdscr.addstr(j+1, i, symbol, color)
                         except:
                             break
@@ -695,7 +733,9 @@ while True:
 
         if t % 1000 == 0:       
                 np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
-        stdscr.addstr(cursory,cursorx,"X")
+
+        if kshown % 2 == 1:
+            stdscr.addstr(cursory,cursorx,"X")
 
         #t test
         stdscr.addstr(30,90,'       ')
@@ -775,7 +815,7 @@ while True:
                                 i.age()
                                 qq=i.update_pos()
                                 try:
-                                        if x[qq[1]+over,qq[0]] != 'tree' and x[qq[1]+over,qq[0]] != 'stone' and x[qq[1]+over,qq[0]] != 'copper-ore' and x[qq[1]+over,qq[0]] != 'water':
+                                        if x[qq[1]+over, qq[0]] not in solids:
                                                 i.goto(qq[0],qq[1])
                                 except:
                                         pass
@@ -784,14 +824,29 @@ while True:
                                 
             for i in entities:
                 if i.behav==1:
-                    r=random.randint(0,30)
-                    if r == 25:
-                        i.golex = 'SHunt'
-                        i.goley = 'SHunt'
+                    r=random.randint(0,5)
+                    xs=[]
+                    ys=[]
+                        
+                    for j in entities:
+                        if j.tame == 0:
+                            xs.append(j.posx)
+                            ys.append(j.posy)
+                    dis=[]
+                    for j in range(len(xs)):
+                                
+                        if entities[j].tame == 0:
+                            dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
+                            if dist != 0:
+                                dis.append(dist)
+                    if min(dis) <= 20:
+                        if r == 2:
+                            i.golex = 'SHunt'
+                            i.goley = 'SHunt'
                         
             
             
-            if t % 4 <= 2:
+            if t % 4 <= 1:
                 if i.golex == 'SHunt' and i.goley == 'SHunt':
                         if i.behav==1:
                             i.golex="Hunt"
@@ -822,18 +877,20 @@ while True:
                                     break
                                 else:
                                     counter+=1
-                            
-                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
+                            try:
+                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
 
                         
-                            if q == None:
+                                if q == None:
                                     i.state=0
                                     
                             
                             
-                            if q != None:
+                                if q != None:
                                     first_elements = [x[0] for x in q]
                                     second_elements = [x[1] for x in q]
+                            except:
+                                pass
                                     
                                 
                                 
@@ -841,7 +898,6 @@ while True:
                             try:
                                 if playing % 2 == 1:
                                     i.goto(first_elements[1],second_elements[1])
-                            except:
                                 for k in entities:
                                     if k.posx == i.posx:
                                         if k.posy == i.posy:
@@ -850,9 +906,16 @@ while True:
                                                     r=random.randint(0,10)
                                                     if r > k.agility:
                                                         k.health -= i.strength
+                                                        if k.health <= 0:
+                                                            
+                                                            i.golex=None
+                                                            i.goley=None
+                                                            state=0
                                                         r=random.randint(0,10)
                                                         if r > i.agility:
                                                             i.health -= k.strength
+                            except:
+                                
                                                         
                                                 
                                         
@@ -960,7 +1023,7 @@ while True:
             x_2=np.zeros((X,Y))
             for j in range(X):
                 for i in range(Y):
-                    if x[j][i] == 'stone' or x[j][i] == 'water' or x[j][i] == 'tree' or x[j][i] == 'copper-ore' or x[j][i] == 'silver-ore':
+                    if x[j][i] in solids:
                         x_2[j][i] = 1
                     
             np.savetxt(str(maindir)+'/region/pathfind.data',x_2)

@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 import random
 import math
 import time
+import cave_gen
 
-
+def ore_probability_curve(x):
+    return ((5*(x**.8))+((.34*x)+7))/(x**.2)
 def simulate_rain(arr,shape,years):
     for k in range(years):
         for i in range(shape[0]):
@@ -133,8 +135,8 @@ def perlin_array(years=200, shape = (600, 1200),
     np.savetxt(str(maindir)+'/world/world_temp.data',arr_temp)
 
     
-#update as game development progresses
-#To do: River,Cave,Lava,Fun
+
+
 
 def generate_perlin_noise_2d(shape, res, seed=None):
     scale = 1
@@ -143,11 +145,11 @@ def generate_perlin_noise_2d(shape, res, seed=None):
     lacunarity = 2.0
 
     if seed != 'cotton eyed joe':
-        seed = int(time.time())  # Generate a random seed if none is provided
+        seed = int(time.time())  
         seed=random.random()
         
 
-    random.seed(seed)  # Set the seed for the noise function
+    random.seed(seed)  
 
     world = np.zeros(shape)
     for i in range(shape[0]):
@@ -181,7 +183,7 @@ def gold_gen(x,y):
     maindir = maindir[:-1]   
     width = x
     height = y
-    resolution = random.randint(10,32)
+    resolution = random.randint(90,95)
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_gold.data',arr_iron)
@@ -201,7 +203,7 @@ def copper_gen(x,y):
     maindir = maindir[:-1]   
     width = x
     height = y
-    resolution = random.randint(10,50)
+    resolution = random.randint(80,90)
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_copper.data',arr_iron)
@@ -216,7 +218,53 @@ def pool_gen(x,y):
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_pool.data',arr_iron)
     
-    
+
+
+
+def tin_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(10,32)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_tin.data',arr_iron)
+def aluminum_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(10,32)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_aluminum.data',arr_iron)
+def mythril_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(80,90)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_mythril.data',arr_iron)
+def magnesite_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(10,32)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_magnesite.data',arr_iron)
+
+
+
+   
 
 def tree_gen(x,y,d):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
@@ -300,13 +348,28 @@ def densegrass_gen(x,y,d):
             r=random.randint(1,d)
             if r == 1:
                 trees[i][j] = 1
+
+def flower_gen(x,y,d):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    trees = np.zeros((x,y), dtype=object)
+    x=int(x)
+    y=int(y)
+    d=int(d)
+    trees = np.zeros((x,y))
+    for i in range(x):
+        for j in range(y):
+            r=random.randint(1,d)
+            if r == 1:
+                trees[i][j] = 1
     
-    np.savetxt(str(maindir)+'/region/region_densegrass.data',trees)
+    np.savetxt(str(maindir)+'/region/region_flower.data',trees)
 def micro_region(biome,elev):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
-    x=1000
+    x=3000
     y=30
     xu=100
     region=np.empty((x,y), dtype=object)
@@ -367,7 +430,18 @@ def micro_region(biome,elev):
     random.randint(1,45)
     pool_gen(x,y)
 
+    ##
+    tin_gen(x,y)
+    r=random.random()
+    aluminum_gen(x,y)
+    r=random.random()
+    magnesite_gen(x,y)
+    r=random.random()
+    mythril_gen(x,y)
 
+
+
+    ##
     
     if biome == 'forest':
         sapling_gen(xu,y,100)
@@ -378,6 +452,7 @@ def micro_region(biome,elev):
     if biome == 'rainforest':
                 sapling_gen(xu,y,50)
                 tree_gen(xu,y,25)
+                nettle_gen(xu,y,13)
                 crabgrass_gen(xu,y,20)
                 densegrass_gen(xu,y,3)
     if biome == 'desert':
@@ -385,6 +460,7 @@ def micro_region(biome,elev):
                 tree_gen(xu,y,200)
                 crabgrass_gen(xu,y,100)
     if biome == 'glacier':
+                nettle_gen(xu,y,130)
                 sapling_gen(xu,y,320)
                 tree_gen(xu,y,160)
                 crabgrass_gen(xu,y,1000)
@@ -394,8 +470,10 @@ def micro_region(biome,elev):
                 nettle_gen(xu,y,20)
                 crabgrass_gen(xu,y,10)
     if biome == 'savannah':
+                densegrass_gen(xu,y,62)
+                nettle_gen(xu,y,23)
                 sapling_gen(xu,y,220)
-                tree_gen(xu,y,110)
+                tree_gen(xu,y,300)
                 nettle_gen(xu,y,50)
                 crabgrass_gen(xu,y,10)
     if biome == 'marsh':
@@ -432,7 +510,7 @@ def micro_region(biome,elev):
                 region[i][j]='grass'
             if biome == 'savannah':
                
-                region[i][j]='dead shrub'
+                region[i][j]='grass'
             if biome == 'marsh':
                
                 region[i][j]='peat'
@@ -465,39 +543,76 @@ def micro_region(biome,elev):
 
 
     #ore
+    
+    irone=int((400+(3*elev))//1)
+    golds=600
+    silvers=int(300-(2*elev //1))
+    silvere=1199
+    coppere=600
+    magnesites=1100
+    magnesitee=int((1500+(12*elev))//1)
+    mythrils=2200
+    tins=int((600-(5*elev)) // 1)
+    tine=int(1000+(2*elev // 1))
+    
+    
                 
     trees=np.loadtxt(str(maindir)+'/region/region_iron.data')
 
-    for i in range(x):
+    for i in range(irone):
         for j in range(y):
-            if trees[i][j] >random.uniform(.2,.3):
+            if trees[i][j] >random.uniform(.14,.28):
                 if region[i][j] == 'stone':
                     region[i][j] = 'iron-ore'
 
-    if elev > 60:
-        trees=np.loadtxt(str(maindir)+'/region/region_copper.data')
+    
+    trees=np.loadtxt(str(maindir)+'/region/region_copper.data')
 
-        for i in range(x):
-            for j in range(y):
-                if trees[i][j] >random.uniform(.07,.32):
-                    if region[i][j] == 'stone':
-                        region[i][j] = 'copper-ore'
-    if elev > 70:
-        trees=np.loadtxt(str(maindir)+'/region/region_silver.data')
+    for i in range(coppere):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.07+(2.5/elev),.23):
+                if region[i][j] == 'stone':
+                    region[i][j] = 'copper-ore'
+    
+    trees=np.loadtxt(str(maindir)+'/region/region_silver.data')
 
-        for i in range(x):
-            for j in range(y):
-                if trees[i][j] >random.uniform(.15,.38):
-                    if region[i][j] == 'stone':
-                        region[i][j] = 'silver-ore'
-    if elev > 80:
-        trees=np.loadtxt(str(maindir)+'/region/region_gold.data')
 
-        for i in range(x):
-            for j in range(y):
-                if trees[i][j] >random.uniform(.45,.699):
-                    if region[i][j] == 'stone':
-                        region[i][j] = 'gold-ore'
+    for i in range(int(silvere-silvers)):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.12+(3/elev),.2):
+                if region[i+silvers][j] == 'stone':
+                    region[i+silvers][j] = 'silver-ore'
+    
+    trees=np.loadtxt(str(maindir)+'/region/region_gold.data')
+
+    for i in range(int(x-golds)):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.15+(2/elev),.3):
+                if region[i+golds][j] == 'stone' or region[i+golds][j] == 'silver-ore':
+                    region[i+golds][j] = 'gold-ore'
+
+    trees=np.loadtxt(str(maindir)+'/region/region_tin.data')
+
+    for i in range(int(tine-tins)):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.12+(2/elev),.3):
+                if region[i+tins][j] == 'stone':
+                    region[i+tins][j] = 'tin-ore'
+    trees=np.loadtxt(str(maindir)+'/region/region_magnesite.data')
+
+    for i in range(int(magnesitee-magnesites)):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.12+(2/elev),.3):
+                if region[i+magnesites][j] == 'stone':
+                    region[i+magnesites][j] = 'magnesite-ore'
+
+    trees=np.loadtxt(str(maindir)+'/region/region_mythril.data')
+
+    for i in range(int(x-mythrils)):
+        for j in range(y):
+            if trees[i][j] >random.uniform(.12+(2/elev),.3):
+                if region[i+mythrils][j] == 'stone':
+                    region[i+mythrils][j] = 'mythril-ore'
 
 
 
@@ -598,13 +713,56 @@ def micro_region(biome,elev):
                     if trees[i][j] >.18:
                         if region[i][j] == 'grass':
                             region[i][j] = 'densegrass'
+    if biome == 'marsh':
+        densegrass_gen(xu,y,2)
+        trees=np.loadtxt(str(maindir)+'/region/region_densegrass.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] >.18:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'densegrass'
+    if biome == 'plain':
+        densegrass_gen(xu,y,17)
+        trees=np.loadtxt(str(maindir)+'/region/region_densegrass.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] >.18:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'densegrass'
+                            
                       
    
                       
+     #flowers creation
+    if biome == 'forest':
+        flower_gen(xu,y,50)
+        trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] ==1:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'aerath'
+    if biome == 'alpine':
+        flower_gen(xu,y,30)
+        trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
+        for i in range(xu):
+                for j in range(y):
+                    if trees[i][j] ==1:
+                        if region[i][j] == 'grass':
+                            region[i][j] = 'aerath'
                             
                             
 
-
+    #cave generation
+    #60 and 200 must be changed in both files
+    cavex=300
+    cave=cave_gen.main()
+    for j in range(200):
+        for i in range(30):
+            if cave[i][j] == 1:
+                region[j+cavex][i] = 'grass'
+            
+    
     
 
     
@@ -617,6 +775,23 @@ def micro_region(biome,elev):
 
                 
     np.savetxt(str(maindir)+'/region/region.data',region,fmt='%s')
+    f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
+
+    solids = [
+                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore'
+        ]
+    #resource counter
+    for k in solids:
+        c=0
+        for i in range(x):
+            for j in range(y):
+                if region[i][j] == k:
+                    c+=1
+    
+        f.write(str(k)+str(c)+'\n')
+    f.close
+    
+                
 
 
 
