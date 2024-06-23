@@ -40,17 +40,29 @@ class FPSCounter:
             self.start_time = end_time
             self.frame_count = 0
 solids = [
-                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore'
+                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1'
         ]
+
+
+
+undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undiscovered_dense_moss1'
+
+                          ]
+
+
+                       
 
 
 startt=time.time()
 
 
+
+
 tile_types = [
-                'grass', 'sapling', 'mud', 'water', 'peat', 
+                'grass', 'sapling', 'mud', 'peat', 
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
-                'dead_shrub'
+                'dead_shrub','cave_moss','rock_bush','dense_moss'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -113,6 +125,7 @@ def scene2():
     
     scene=3
 def gen_micro():
+    
     world=worldgen.perlin_array(shape = (200, 200),
 			scale=100, octaves = 6, 
 			persistence = .5, 
@@ -130,7 +143,22 @@ def scene_micro():
     
     key='9'
 
+def create_popup(stdscr, message):
+    stdscr.clear()
+    height, width = stdscr.getmaxyx()
 
+    popup_height = 5
+    popup_width = len(message) + 4
+    popup_y = (height // 2) - (popup_height // 2)
+    popup_x = (width // 2) - (popup_width // 2)
+
+    popup_win = curses.newwin(popup_height, popup_width, popup_y, popup_x)
+    popup_win.border(0)
+    popup_win.addstr(2, 2, message)
+    stdscr.refresh()
+    popup_win.refresh()
+    time.sleep(2)
+    popup_win.getch()
 
 
 stdscr = curses.initscr()
@@ -197,7 +225,60 @@ curses.init_pair(17, 17, curses.COLOR_BLACK)
 #snow
 curses.init_color(18, 900, 900, 1000)  
 curses.init_pair(18, 18, curses.COLOR_BLACK)
+
+#fungi tree
+
+curses.init_color(19, 0, 400, 200)  
+curses.init_pair(19, 19, curses.COLOR_BLACK)
+
+#dark cyan
+
+curses.init_color(20, 0, 170, 200)  
+curses.init_pair(20, 20, curses.COLOR_BLACK)
+
+
 fps_counter = FPSCounter()
+def write_announcement(string):
+    f=open(str(maindir)+'/fort/announcements.data','a')
+    f.write(string)
+    f.close()
+
+def announcement_window(stdscr):
+    stdscr.clear()
+    
+    file = open(str(maindir)+'/fort/announcements.data','r') 
+  
+    
+    content = file.readlines() 
+  
+    x=len(content)
+
+    for i in range(x):
+        try:
+            stdscr.addstr(int(30-i),0,content[(x-1-i)])
+        except:
+            pass
+    stdscr.refresh()
+    while True:
+
+        key = stdscr.getch()
+
+        if key != -1:
+        
+            
+            break
+            
+
+    
+    
+    
+  
+    
+     
+  
+    
+
+
 # Main loop
 while True:
     key='sdsdsd'
@@ -215,9 +296,6 @@ while True:
         
         if key == ord('`'):
             break
-
-
-
 
 
 
@@ -549,7 +627,11 @@ while True:
             
             
         
-            
+        
+
+
+
+
         
         
 
@@ -559,6 +641,8 @@ while True:
         cursorx,cursory=1,1
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
     if scene == 'preplay':
+        
+        menu='main'
         t=0
         t2=0
         cursorx,cursory=1,1
@@ -575,11 +659,14 @@ while True:
                 #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
         
-        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,1,50,0,1)
+        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        entities.append(rat)
+        rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
         scene='play'
         over=5
+        overy=0
         tim=time.time()
         kshown=0
 
@@ -590,7 +677,47 @@ while True:
                 if x[i][j] == 'stone':
                     x[i][j]='grass'
         '''
+        x[290][15]='grass'
+        ##
+        discover1=False
     if scene == 'play':
+            
+        if t % 10 == 0:
+            for j in range(Y):
+                
+                
+            
+                for i in range(X):
+                    if x[i][j] in undiscovered_tiletypes:
+                        try:
+                            
+                                
+                             if x[i-1][j] in tile_types or \
+                                x[i+1][j] in tile_types or \
+                                x[i][j-1] in tile_types or \
+                                x[i][j+1] in tile_types:
+                                discover1=True
+                        except:
+                            pass
+                        
+
+        #discover cave
+        if discover1 == True:
+            create_popup(stdscr,'You have discovered a cavern deep inside the mountain')
+            write_announcement('You have discovered a cavern deep inside the mountain \n')
+            discover1 = False
+            for j in range(Y):
+                for i in range(X):
+                    if x[i][j] == 'undiscovered_moss1':
+                        x[i][j] = 'cave_moss'
+                    if x[i][j] == 'undiscovered_rock_bush1':
+                        x[i][j] = 'rock_bush'
+                    if x[i][j] == 'undiscovered_dense_moss1':
+                        x[i][j] = 'dense_moss'
+                    
+                        
+
+            
         time.sleep(.02)
         
 
@@ -601,22 +728,30 @@ while True:
         if t == 800:
                 beg1=time.time()
         
-        if t % 10 == 0:
+        if t % 2 == 0:
                 stdscr.clear()
+
+        if playing % 2 ==0:
+            stdscr.addstr(0,18,"PAUSED",curses.color_pair(6))
         
         
         t+=1
         offset=90
         if key == curses.KEY_F1:
                 for i in entities:
-                        i.goto(i.posx,i.posy+over)
+                        i.goto(i.posx+overy,i.posy+over)
                 over=0
+
+        if key == ord('a'):
+            announcement_window(stdscr)
+        
         if key == ord(' '):
             playing+=1
             
             
         if key == ord('k'):
-            kshown+=1
+            if menu == 'main':
+                kshown+=1
             
 
         if key == ord('>'):
@@ -643,38 +778,44 @@ while True:
                 for i in range(60):
                         try:
                             
-                            if x[i+over][j] == 'grass':
+                            if x[i+over][j+overy] == 'grass':
                                 stdscr.addstr(j+1,i,'`',curses.color_pair(2))
                             
-                            if x[i+over][j] == 'dead shrub':
+                            if x[i+over][j+overy] == 'dead shrub':
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(9))
                     
-                            if x[i+over][j] == 'sapling':
+                            if x[i+over][j+overy] == 'sapling':
                                 stdscr.addstr(j+1,i,'∂',curses.color_pair(11))
 
-                            if x[i+over][j] == 'mud':
+                            if x[i+over][j+overy] == 'mud':
                                 stdscr.addstr(j+1,i,';',curses.color_pair(12))
-                            if x[i+over][j] == 'snow':
+                            if x[i+over][j+overy] == 'snow':
                                 stdscr.addstr(j+1,i,'"',curses.color_pair(7))
 
-                            if x[i+over][j] == 'dirt':
+                            if x[i+over][j+overy] == 'dirt':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(9))
-                            if x[i+over][j] == 'water':
-                                stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
-                            if x[i+over][j]== 'wood-wall':
+                            
+                            if x[i+over][j+overy]== 'wood-wall':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(8))
-                            if x[i+over][j]== 'peat':
+                            if x[i+over][j+overy]== 'peat':
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(15))
-                            if x[i+over][j] == 'nettle':
+                            if x[i+over][j+overy] == 'nettle':
                                 stdscr.addstr(j+1,i,'\'',curses.color_pair(14))
-                            if x[i+over][j] == 'crabgrass':
+                            if x[i+over][j+overy] == 'crabgrass':
                                 stdscr.addstr(j+1,i,'√',curses.color_pair(16))
-                            if x[i+over][j] == 'densegrass':
+                            if x[i+over][j+overy] == 'densegrass':
                                 stdscr.addstr(j+1,i,'\"',curses.color_pair(17))
-                            if x[i+over][j] == 'snow':
+                            if x[i+over][j+overy] == 'snow':
                                 stdscr.addstr(j+1,i,'~',curses.color_pair(18))
-                            if x[i+over][j] == 'aerath':
+                            if x[i+over][j+overy] == 'aerath':
                                 stdscr.addstr(j+1,i,'º',curses.color_pair(5))
+                            if x[i+over][j+overy] == 'cave_moss':
+                                stdscr.addstr(j+1,i,',',curses.color_pair(6))
+                            if x[i+over][j+overy] == 'rock_bush':
+                                stdscr.addstr(j+1,i,'ı',curses.color_pair(10))
+                            if x[i+over][j+overy] == 'dense_moss':
+                                stdscr.addstr(j+1,i,'‰',curses.color_pair(20))
+                            
                     
                         except:
                                 break
@@ -684,48 +825,55 @@ while True:
                 
                         try:
                     
-                            if x[i+over][j] in solids:
+                            if x[i+over][j+overy] in solids:
                             
                                 symbol = '&'
                                 color = curses.color_pair(10)
-                                if x[i+over][j] == 'iron-ore':
+                                if x[i+over][j+overy] == 'iron-ore':
                                     symbol = '%'
                                     color = curses.color_pair(1)
-                                elif x[i+over][j] == 'copper-ore':
+                                elif x[i+over][j+overy] == 'copper-ore':
                                     symbol = '%'
                                     color = curses.color_pair(9)
-                                elif x[i+over][j] == 'silver-ore':
+                                elif x[i+over][j+overy] == 'silver-ore':
                                     symbol = '%'
                                     color = curses.color_pair(10)
-                                elif x[i+over][j] == 'gold-ore':
+                                elif x[i+over][j+overy] == 'gold-ore':
                                     symbol = '%'
                                     color = curses.color_pair(4)
-                                elif x[i+over][j] == 'mudstone':
+                                elif x[i+over][j+overy] == 'mudstone':
                                     symbol = '#'
                                     color = curses.color_pair(9)
-                                elif x[i+over][j] == 'ozone':
+                                elif x[i+over][j+overy] == 'ozone':
                                     symbol = '‰'
                                     color = curses.color_pair(6)
-                                elif x[i+over][j] == 'magnesite-ore':
+                                elif x[i+over][j+overy] == 'magnesite-ore':
                                     symbol = '%'
                                     color = curses.color_pair(1)
-                                elif x[i+over][j] == 'tin-ore':
+                                elif x[i+over][j+overy] == 'tin-ore':
                                     symbol = '%'
                                     color = curses.color_pair(13)
-                                if x[i+over][j] == 'tree':
+                                if x[i+over][j+overy] == 'tree':
                                     symbol = 'O'
                                     color = curses.color_pair(8)
+                                if x[i+over][j+overy] == 'fungi-tree':
+                                    symbol = 'Ø'
+                                    color = curses.color_pair(19)
         
-                                if x[i-1+over][j] in tile_types or \
-                                   x[i+1+over][j] in tile_types or \
-                                   x[i+over][j-1] in tile_types or \
-                                   x[i+over][j+1] in tile_types:
+                                if x[i-1+over][j+overy] in tile_types or \
+                                   x[i+1+over][j+overy] in tile_types or \
+                                   x[i+over][j-1+overy] in tile_types or \
+                                   x[i+over][j+1+overy] in tile_types:
                                     stdscr.addstr(j+1, i, symbol, color)
                         except:
                             break
 
-        
-        
+                        #solid but seeable
+                        try:
+                            if x[i+over][j+overy] == 'water':
+                                    stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
+                        except:
+                            pass
 
         if t == 800:
                 beg2=time.time()
@@ -742,6 +890,7 @@ while True:
         stdscr.addstr(30,90,str(t))
 
         if key == curses.KEY_UP:
+            if menu =='main':
               
             
 
@@ -749,6 +898,7 @@ while True:
                     cursory-=1
                     
         if key == curses.KEY_DOWN:
+            if menu =='main':
                 
            
                 
@@ -758,28 +908,31 @@ while True:
 
             
         if key == curses.KEY_LEFT:
+            if menu =='main':
             
                 if cursorx > 1:
                     cursorx-=1
                     
             
         if key == curses.KEY_RIGHT:
+            if menu =='main':
                 
                 stdscr.refresh()
                 if cursorx < 179:
                     cursorx +=1
         if key == ord('d'):
-            x[cursorx+over][cursory-1] = 'grass'
+            if menu =='main':
+                x[cursorx+over][cursory-1+overy] = 'grass'
         
         try:
         
             stdscr.addstr(10,offset,"                     ")
             for tile_type in tile_types:
                     if (
-                        x[cursorx-1+over][cursory] == tile_type or 
-                        x[cursorx+1+over][cursory] == tile_type or 
-                        x[cursorx+over][cursory-1] == tile_type or 
-                        x[cursorx+over][cursory+1] == tile_type
+                        x[cursorx-1+over][cursory+overy] == tile_type or 
+                        x[cursorx+1+over][cursory+overy] == tile_type or 
+                        x[cursorx+over][cursory-1+overy] == tile_type or 
+                        x[cursorx+over][cursory+1+overy] == tile_type
                     ):
                         stdscr.addstr(10, offset, f"Tile: {x[cursorx+over][cursory-1]}")
                         break
@@ -815,7 +968,7 @@ while True:
                                 i.age()
                                 qq=i.update_pos()
                                 try:
-                                        if x[qq[1]+over, qq[0]] not in solids:
+                                        if x[qq[1]+over, qq[0]+overy] not in solids:
                                                 i.goto(qq[0],qq[1])
                                 except:
                                         pass
@@ -839,7 +992,7 @@ while True:
                             dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
                             if dist != 0:
                                 dis.append(dist)
-                    if min(dis) <= 20:
+                    if min(dis) <= 30:
                         if r == 2:
                             i.golex = 'SHunt'
                             i.goley = 'SHunt'
@@ -902,12 +1055,12 @@ while True:
                                     if k.posx == i.posx:
                                         if k.posy == i.posy:
                                             if k != i:
+                                                write_announcement(str(i.name)+' has engaged '+str(k.name)+' in conflict'+'\n')
                                                 for v in range(5):
                                                     r=random.randint(0,10)
                                                     if r > k.agility:
                                                         k.health -= i.strength
                                                         if k.health <= 0:
-                                                            
                                                             i.golex=None
                                                             i.goley=None
                                                             state=0
@@ -927,71 +1080,7 @@ while True:
                 
                 
                 
-                '''   
-                if i.golex==None and i.goley==None:
-                    
-                    r=random.randint(0,4)
-                    if r == 3:
-                        
-                        
-                    
-                        
-                        if i.behav==1:
-                            i.golex="Hunt"
-                            i.goley="Hunt"
-                            
-                        
-                        
-                            r=random.random()
-                            if r > -1:
-                                i.state=1
-                            xs=[]
-                            ys=[]
-                        
-                            for j in entities:
-                                if j.tame == 0:
-                                    xs.append(j.posx)
-                                    ys.append(j.posy)
-                            dis=[]
-                            for j in range(len(xs)):
-                                
-                                if entities[j].tame == 0:
-                                    dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
-                                    dis.append(dis)
-                            counter=0
-                            for j in dis:
-                                if j == min(dis):
-                                    break
-                                else:
-                                    counter+=1
-                            try:
-                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
-
-                        
-                                if q == None:
-                                    i.state=0
-                            
-                            
-                                if q != None:
-                                    first_elements = [x[0] for x in q]
-                                    second_elements = [x[1] for x in q]
-                                
-                                
-                            except:
-                                pass
-                            try:
-                                if playing == 1:
-                                    i.goto(first_elements[1],second_elements[1])
-                            except:
-                                i.golex=None
-                                i.goley=None
-                                pass
-                            
-
-                            
-                            
-                        
-                '''        
+               
                         
             
             
@@ -1036,7 +1125,7 @@ while True:
                 if i.posy < 60:
                     try:
                                 
-                        stdscr.addstr(i.posx,i.posy,i.shape)
+                        stdscr.addstr(i.posx+1,i.posy,i.shape)
                     except curses.error:
                         pass
         if t % 2 == 0:

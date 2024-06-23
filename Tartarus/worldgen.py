@@ -217,6 +217,17 @@ def pool_gen(x,y):
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_pool.data',arr_iron)
+
+def dense_moss_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(30,52)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_moss.data',arr_iron)
     
 
 
@@ -755,12 +766,40 @@ def micro_region(biome,elev):
 
     #cave generation
     #60 and 200 must be changed in both files
-    cavex=300
+    cavex=random.randint(170,352)
     cave=cave_gen.main()
     for j in range(200):
         for i in range(30):
             if cave[i][j] == 1:
-                region[j+cavex][i] = 'grass'
+                region[j+cavex][i] = 'undiscovered_moss1'
+
+    tree_gen(x,y,32)
+    trees=np.loadtxt(str(maindir)+'/region/region_trees.data')
+    for i in range(x):
+        for j in range(y):
+            if region[i][j] == 'undiscovered_moss1':
+                if trees[i][j] == 1:
+                    region[i][j] = 'fungi-tree'
+    flower_gen(x,y,50)
+    trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
+    for i in range(x):
+                for j in range(y):
+                    if region[i][j]=='undiscovered_moss1':
+                        if trees[i][j] ==1:
+                            region[i][j] = 'undiscovered_rock_bush1'
+
+    dense_moss_gen(x,y)                       
+    trees=np.loadtxt(str(maindir)+'/region/region_moss.data')
+    
+    for i in range(x):
+                for j in range(y):
+                    if trees[i][j] >.12:
+                        if region[i][j] == 'undiscovered_moss1':
+                            region[i][j] = 'undiscovered_dense_moss1'
+                        
+    
+    
+        
             
     
     
@@ -778,7 +817,7 @@ def micro_region(biome,elev):
     f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
 
     solids = [
-                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore'
+                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore','undiscovered_moss1'
         ]
     #resource counter
     for k in solids:

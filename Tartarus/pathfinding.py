@@ -83,11 +83,10 @@ def main(grid_array, start, end):
     return path
 
 # Example usage:
-# grid_array = np.array([[0, 1, 0, 0],
-#                        [0, 1, 0, 1],
-#                        [0, 0, 0, 0],
-#                        [0, 1, 1, 0]])
-# start = (0, 0)
-# end = (3, 3)
-# result = main(grid_array, start, end)
-# print(result)
+'''
+grid_array = np.zeros((1000,1000))
+start = (0, 0)
+end = (300, 300)
+result = main(grid_array, start, end)
+print(result)
+'''

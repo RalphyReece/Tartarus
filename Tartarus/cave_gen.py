@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from noise import pnoise2
+import random
 
 def generate_perlin_noise_2d(shape, scale, octaves, persistence, lacunarity, seed=None):
     if seed is not None:
@@ -30,12 +31,12 @@ def main():
         'octaves': 20,
         'persistence': 0.64,
         'lacunarity': 6.0,
-        'seed': 42
+        'seed': random.randint(0,1000)
     }
 
 
     shape = (30, 200)
-    threshold = 0.08
+    threshold = 0.075
     cave = generate_cave(shape, threshold, noise_params)
     return cave
 
