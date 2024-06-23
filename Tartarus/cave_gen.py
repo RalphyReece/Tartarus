@@ -35,7 +35,7 @@ def main():
     }
 
 
-    shape = (30, 200)
+    shape = (100, 200)
     threshold = 0.075
     cave = generate_cave(shape, threshold, noise_params)
     return cave

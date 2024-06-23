@@ -1,5 +1,5 @@
-X=3000
-Y=30
+X=800
+Y=100
 import cProfile
 import pstats
 import io
@@ -41,7 +41,7 @@ class FPSCounter:
             self.frame_count = 0
 solids = [
                 'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1'
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore'
         ]
 
 
@@ -671,12 +671,12 @@ while True:
         kshown=0
 
         ##Testing Area
-        '''
+        
         for i in range(X):
             for j in range(Y):
                 if x[i][j] == 'stone':
                     x[i][j]='grass'
-        '''
+        
         x[290][15]='grass'
         ##
         discover1=False
@@ -751,7 +751,13 @@ while True:
             
         if key == ord('k'):
             if menu == 'main':
-                kshown+=1
+                kshown += 1
+                menu = 'k'
+            elif menu == 'k':
+                kshown += 1
+                menu = 'main'
+
+                
             
 
         if key == ord('>'):
@@ -766,12 +772,14 @@ while True:
                 over-=10
                 for i in entities:
                     i.goto(i.posx,i.posy+10)
-            
+        if key == 27:
+            menu='main'
+            kshown=0
         
         
          
         
-        for j in range(Y):
+        for j in range(30):
                 
                 
             
@@ -859,6 +867,9 @@ while True:
                                 if x[i+over][j+overy] == 'fungi-tree':
                                     symbol = 'Ø'
                                     color = curses.color_pair(19)
+                                if x[i+over][j+overy] == 'fracter-ore':
+                                    symbol = '%'
+                                    color = curses.color_pair(5)
         
                                 if x[i-1+over][j+overy] in tile_types or \
                                    x[i+1+over][j+overy] in tile_types or \
@@ -890,36 +901,62 @@ while True:
         stdscr.addstr(30,90,str(t))
 
         if key == curses.KEY_UP:
-            if menu =='main':
+            if menu !='main':
               
             
 
                 if cursory > 1:
                     cursory-=1
+            if menu == 'main':
+                if overy >= 10:
+                
+                    overy-=10
+                    for i in entities:
+                        i.goto(i.posx+10,i.posy)
                     
         if key == curses.KEY_DOWN:
-            if menu =='main':
+            if menu !='main':
                 
            
                 
                 if cursory < 59:
                     cursory+=1
+            
+            if menu == 'main':
+                if overy <= Y-10:
+
+                
+                    overy+=10
+                    for i in entities:
+                        i.goto(i.posx-10,i.posy)
                     
 
             
         if key == curses.KEY_LEFT:
-            if menu =='main':
+            if menu !='main':
             
                 if cursorx > 1:
                     cursorx-=1
+            if menu =='main':
+    
+                if over >= 10:
+                    over-=10
+                    for i in entities:
+                        i.goto(i.posx,i.posy+10)
                     
             
         if key == curses.KEY_RIGHT:
-            if menu =='main':
+            if menu !='main':
                 
                 stdscr.refresh()
                 if cursorx < 179:
                     cursorx +=1
+            if menu == 'main':
+                
+                over+=10
+                for i in entities:
+                    i.goto(i.posx,i.posy-10)
+                    
         if key == ord('d'):
             if menu =='main':
                 x[cursorx+over][cursory-1+overy] = 'grass'
@@ -1144,7 +1181,7 @@ while True:
                 f.write('\n'+str(time.time()-tim))
                 f.close()
 
-
+        stdscr.addstr(0,30,str(menu))
         #Overclocking
         time.sleep(.01)
         

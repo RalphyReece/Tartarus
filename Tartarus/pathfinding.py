@@ -82,6 +82,21 @@ def main(grid_array, start, end):
     
     return path
 
+def dwarf_path(grid_array, start, end,file):
+    def run_astar_search():
+        return astar_search(grid_array, start, end)
+    
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(run_astar_search)
+        try:
+            path = future.result(timeout=1)
+        except Exception:
+            path = None
+    f=open(str(file),'w')
+    f.write(path)
+    f.close()
+    
+
 # Example usage:
 '''
 grid_array = np.zeros((1000,1000))

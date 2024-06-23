@@ -8,9 +8,10 @@ import random
 import math
 import time
 import cave_gen
-
+import secrets
 def ore_probability_curve(x):
-    return ((5*(x**.8))+((.34*x)+7))/(x**.2)
+    return .19*x +45
+
 def simulate_rain(arr,shape,years):
     for k in range(years):
         for i in range(shape[0]):
@@ -224,7 +225,7 @@ def dense_moss_gen(x,y):
     maindir = maindir[:-1]   
     width = x
     height = y
-    resolution = random.randint(30,52)
+    resolution = random.randint(10,20)
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_moss.data',arr_iron)
@@ -263,6 +264,7 @@ def mythril_gen(x,y):
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_mythril.data',arr_iron)
 def magnesite_gen(x,y):
+    
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
@@ -272,6 +274,17 @@ def magnesite_gen(x,y):
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_magnesite.data',arr_iron)
+    
+def fracter_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(80,100)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_fracter.data',arr_iron)
 
 
 
@@ -381,8 +394,8 @@ def micro_region(biome,elev):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
-    x=3000
-    y=30
+    x=800
+    y=100
     xu=100
     region=np.empty((x,y), dtype=object)
 
@@ -553,78 +566,98 @@ def micro_region(biome,elev):
             if trees[i][j] == 1:
                 region[i][j] = 'crabgrass'
 
-
+    
     #ore
-    
-    irone=int((400+(3*elev))//1)
+    fracter_gen(x,y)
+    random.seed(time.time())
+    irone=int((100+(3*elev))//1)
     golds=600
-    silvers=int(300-(2*elev //1))
-    silvere=1199
-    coppere=600
-    magnesites=1100
-    magnesitee=int((1500+(12*elev))//1)
-    mythrils=2200
-    tins=int((600-(5*elev)) // 1)
-    tine=int(1000+(2*elev // 1))
+    silvers=int(400-(2*elev //1))
+    silvere=500
+    coppere=420
+    coppers=300
+    magnesites=600
+    magnesitee=int((400+(4*elev))//1)
+    mythrils=700
+    tins=300
+    tine=500
+    fracters=270
+    fractere=410
     
-    
-                
-    trees=np.loadtxt(str(maindir)+'/region/region_iron.data')
+    prob=ore_probability_curve(elev)
+    r=secrets.randbelow(101)
+    if prob >= r:
+        trees=np.loadtxt(str(maindir)+'/region/region_iron.data')
 
-    for i in range(irone):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.14,.28):
-                if region[i][j] == 'stone':
-                    region[i][j] = 'iron-ore'
+        for i in range(irone):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.14,.28):
+                    if region[i][j] == 'stone':
+                        region[i][j] = 'iron-ore'
 
     
     trees=np.loadtxt(str(maindir)+'/region/region_copper.data')
-
-    for i in range(coppere):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.07+(2.5/elev),.23):
-                if region[i][j] == 'stone':
-                    region[i][j] = 'copper-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(coppere-coppers):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.07+(2.5/elev),.23):
+                    if region[i+coppers][j] == 'stone':
+                        region[i+coppers][j] = 'copper-ore'
     
     trees=np.loadtxt(str(maindir)+'/region/region_silver.data')
 
-
-    for i in range(int(silvere-silvers)):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.12+(3/elev),.2):
-                if region[i+silvers][j] == 'stone':
-                    region[i+silvers][j] = 'silver-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(silvere-silvers)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.12+(3/elev),.2):
+                    if region[i+silvers][j] == 'stone':
+                        region[i+silvers][j] = 'silver-ore'
     
     trees=np.loadtxt(str(maindir)+'/region/region_gold.data')
-
-    for i in range(int(x-golds)):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.15+(2/elev),.3):
-                if region[i+golds][j] == 'stone' or region[i+golds][j] == 'silver-ore':
-                    region[i+golds][j] = 'gold-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(x-golds)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.15+(2/elev),.3):
+                    if region[i+golds][j] == 'stone' or region[i+golds][j] == 'silver-ore':
+                        region[i+golds][j] = 'gold-ore'
 
     trees=np.loadtxt(str(maindir)+'/region/region_tin.data')
-
-    for i in range(int(tine-tins)):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.12+(2/elev),.3):
-                if region[i+tins][j] == 'stone':
-                    region[i+tins][j] = 'tin-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(tine-tins)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.12+(2/elev),.3):
+                    if region[i+tins][j] == 'stone':
+                        region[i+tins][j] = 'tin-ore'
     trees=np.loadtxt(str(maindir)+'/region/region_magnesite.data')
-
-    for i in range(int(magnesitee-magnesites)):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.12+(2/elev),.3):
-                if region[i+magnesites][j] == 'stone':
-                    region[i+magnesites][j] = 'magnesite-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(magnesitee-magnesites)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.12+(2/elev),.35):
+                    if region[i+magnesites][j] == 'stone':
+                        region[i+magnesites][j] = 'magnesite-ore'
 
     trees=np.loadtxt(str(maindir)+'/region/region_mythril.data')
-
-    for i in range(int(x-mythrils)):
-        for j in range(y):
-            if trees[i][j] >random.uniform(.12+(2/elev),.3):
-                if region[i+mythrils][j] == 'stone':
-                    region[i+mythrils][j] = 'mythril-ore'
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(x-mythrils)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.12+(2/elev),.3):
+                    if region[i+mythrils][j] == 'stone':
+                        region[i+mythrils][j] = 'mythril-ore'
+    trees=np.loadtxt(str(maindir)+'/region/region_fracter.data')
+    r=secrets.randbelow(101)
+    if prob >= r:
+        for i in range(int(fractere-fracters)):
+            for j in range(y):
+                if trees[i][j] >random.uniform(.1,.2):
+                    if region[i+fracters][j] == 'stone':
+                        region[i+fracters][j] = 'fracter-ore'
+    
 
 
 
@@ -770,7 +803,7 @@ def micro_region(biome,elev):
     cavex=random.randint(170,352)
     cave=cave_gen.main()
     for j in range(200):
-        for i in range(30):
+        for i in range(100):
             if cave[i][j] == 1:
                 region[j+cavex][i] = 'undiscovered_moss1'
 
@@ -794,7 +827,7 @@ def micro_region(biome,elev):
     
     for i in range(x):
                 for j in range(y):
-                    if trees[i][j] >.12:
+                    if trees[i][j] >.10:
                         if region[i][j] == 'undiscovered_moss1':
                             region[i][j] = 'undiscovered_dense_moss1'
                         
@@ -818,7 +851,8 @@ def micro_region(biome,elev):
     f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
 
     solids = [
-                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore','undiscovered_moss1'
+                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore'
         ]
     #resource counter
     for k in solids:
@@ -832,7 +866,6 @@ def micro_region(biome,elev):
     f.close
     
                 
-
 
 
     
