@@ -641,6 +641,7 @@ while True:
         cursorx,cursory=1,1
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
     if scene == 'preplay':
+        items=np.zeros((X,Y))
         
         menu='main'
         t=0
@@ -678,7 +679,11 @@ while True:
                     x[i][j]='grass'
         
         x[290][15]='grass'
+        items[5][5]=1
+        
         ##
+
+        
         discover1=False
     if scene == 'play':
             
@@ -786,6 +791,12 @@ while True:
                 for i in range(60):
                         try:
                             
+
+
+
+
+                            
+                            
                             if x[i+over][j+overy] == 'grass':
                                 stdscr.addstr(j+1,i,'`',curses.color_pair(2))
                             
@@ -824,7 +835,12 @@ while True:
                             if x[i+over][j+overy] == 'dense_moss':
                                 stdscr.addstr(j+1,i,'‰',curses.color_pair(20))
                             
-                    
+
+
+                            #items
+                            if items[i+over][j+overy] == 1:
+                                stdscr.addstr(j+1,i,'≠',curses.color_pair(8))
+
                         except:
                                 break
                         ###make the below look like above. Remove +over. Replace with correct
@@ -1184,32 +1200,13 @@ while True:
         stdscr.addstr(0,30,str(menu))
         #Overclocking
         time.sleep(.01)
-        
-        #CPU rest testing
-        
-        
-        
-            
-            
-        
-        
-        
-        
-        
 
-       
-                
-                
-                
-        
-        
+        #Item saving
+        if t % 200 == 0:
+            np.savetxt(str(maindir)+'/fort/items.data',items)
         
     
-            
-
-
-
-
+     
     
     #stdscr.refresh()
 
