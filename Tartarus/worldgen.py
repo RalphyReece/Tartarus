@@ -359,6 +359,7 @@ def densegrass_gen(x,y,d):
             r=random.randint(1,d)
             if r == 1:
                 trees[i][j] = 1
+    np.savetxt(str(maindir)+'/region/region_densegrass.data',trees)
 
 def flower_gen(x,y,d):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)

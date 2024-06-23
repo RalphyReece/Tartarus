@@ -659,8 +659,8 @@ while True:
                 #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
         
-        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
-        entities.append(rat)
+        #rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        #entities.append(rat)
         rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
@@ -990,7 +990,9 @@ while True:
                                 
                         if entities[j].tame == 0:
                             dist=math.sqrt((xs[j]-i.posx)**2 + (ys[j]-i.posy)**2)
-                            if dist != 0:
+                            if dist == 0:
+                                dis.append(10000)
+                            else:
                                 dis.append(dist)
                     if min(dis) <= 30:
                         if r == 2:
