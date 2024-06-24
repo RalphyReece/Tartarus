@@ -650,6 +650,7 @@ while True:
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
         #text animal
         entities=[]
+        dwarves=[]
         playing = 1
         
         rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,400,0,3,0,0)
@@ -665,6 +666,9 @@ while True:
         rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
+
+        dorf=creatures.Dwarf(7, 9, 9, 'Gimli', 5, 5, ['pickaxe'])
+        dwarves.append(dorf)
         scene='play'
         over=5
         overy=0
@@ -998,12 +1002,27 @@ while True:
         if t == 800:
                 beg3=time.time()
         
-        
+        for i in dwarves:
+            if i.health <=0:
+                i.goto(10000,10000)
+                dwarves.remove(i)
+
+            
+            i.path_to(np.loadtxt(str(maindir)+'/region/pathfind.data'),5,5)
+            i.posy+=1
+                
+
+
+
+
+
+            
         
         for i in entities:
             if i.health <=0:
                 i.goto(10000,10000)
                 entities.remove(i)
+        
             '''    
             try:
                 if x[i.posx+over][i.posy] != 'stone' and x[i.posx+over][i.posy] != 'water' and x[i.posx+over][i.posy] != 'tree' and x[i.posx+over][i.posy] != 'iron_ore' and x[i.posx+over][i.posy] != 'silver_ore' and x[i.posx+over][i.posy] != 'gold_ore':
@@ -1047,14 +1066,14 @@ while True:
                                 dis.append(10000)
                             else:
                                 dis.append(dist)
-                    if min(dis) <= 30:
+                    if min(dis) <= 40:
                         if r == 2:
                             i.golex = 'SHunt'
                             i.goley = 'SHunt'
                         
             
             
-            if t % 4 <= 1:
+            if t % 4 <= 3:
                 if i.golex == 'SHunt' and i.goley == 'SHunt':
                         if i.behav==1:
                             i.golex="Hunt"
@@ -1177,6 +1196,13 @@ while True:
         
         
         for i in entities:
+                if i.posy < 60:
+                    try:
+                                
+                        stdscr.addstr(i.posx+1,i.posy,i.shape)
+                    except curses.error:
+                        pass
+        for i in dwarves:
                 if i.posy < 60:
                     try:
                                 

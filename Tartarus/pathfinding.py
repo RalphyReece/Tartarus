@@ -82,18 +82,21 @@ def main(grid_array, start, end):
     
     return path
 
-def dwarf_path(grid_array, start, end,file):
+def dwarf_path(start, end,file):
+    grid_array=np.loadtxt('region/pathfind.data')
+    
     def run_astar_search():
         return astar_search(grid_array, start, end)
     
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(run_astar_search)
         try:
-            path = future.result(timeout=1)
+            path = future.result(timeout=1000)
         except Exception:
             path = None
-    f=open(str(file),'w')
-    f.write(path)
+    f=open(str(file),'a')
+    if path != None:
+        f.write(str(path))
     f.close()
     
 

@@ -58,7 +58,7 @@ class Creature:
 # Creating instances of creatures
 
 class Dwarf:
-    def __init__(self, color, posx, posy, name, strength, agility, birth, possessions):
+    def __init__(self, color, posx, posy, name, strength, agility, possessions):
         
         self.shape='D'
         self.color=color
@@ -70,15 +70,15 @@ class Dwarf:
         self.time = 0
         self.size=10
         self.possessions =possessions
-        
+        self.health=10
         
         
         self.speed=3
         self.litter = 1
-        self.birth = birth
+        self.birth = 3000
         self.task = 'idle'
 
-        f=open(str(maindir)+'/dwarves/D-'+str(name)+'.dwarf','w')
+        f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
         
     
@@ -103,9 +103,9 @@ class Dwarf:
     def goto(self,x,y):
         self.posx=x
         self.posy=y
-    def path_to(grid_array,x,y):
+    def path_to(self,grid_array,x,y):
         self.task ='Pathing'
-        dwarf_path(str(maindir)+'/region/pathfind.data', (self.posx,self.posy), (x,y),'D-'+str(name)+'.dwarf')
+        pathfinding.dwarf_path((self.posx,self.posy),(5,5),'fort/dwarves/D-'+str(self.name)+'.path')
         
         
         
