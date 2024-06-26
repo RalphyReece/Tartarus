@@ -674,6 +674,10 @@ def micro_region(biome,elev):
     region[13][12]='wood-wall'
     
     region[13][13]='wood-wall'
+    for i in range(100):
+        region[20][i]='copper-ore'
+        region[20][20]='grass'
+        region[20][19]='grass'
 
 
     #water pools

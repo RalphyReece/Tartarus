@@ -28,6 +28,7 @@ class Creature:
         self.litter = litter
         self.birth = birth
         
+        
     
     def update_pos(self):
         r=random.randint(1,2)
@@ -60,7 +61,7 @@ class Creature:
 class Dwarf:
     def __init__(self, color, posx, posy, name, strength, agility, possessions):
         
-        self.shape='D'
+        self.shape='☺'
         self.color=color
         self.posx = posx
         self.posy=posy
@@ -71,12 +72,18 @@ class Dwarf:
         self.size=10
         self.possessions =possessions
         self.health=10
+        self.pathx=None
+        self.pathy=None
+
+        self.overc=0
+        self.overyc=0
         
         
         self.speed=3
         self.litter = 1
         self.birth = 3000
         self.task = 'idle'
+        self.goal = None
 
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
@@ -105,7 +112,16 @@ class Dwarf:
         self.posy=y
     def path_to(self,grid_array,x,y):
         self.task ='Pathing'
-        pathfinding.dwarf_path((self.posx,self.posy),(5,5),'fort/dwarves/D-'+str(self.name)+'.path')
+        q=pathfinding.main(grid_array, (x,y), (12,12))
+        
+        try:                   
+            first_elements = [x[0] for x in q]
+            second_elements = [x[1] for x in q]
+            self.pathx=first_elements
+            self.pathy=second_elements
+        except:
+            pass
+        
         
         
         

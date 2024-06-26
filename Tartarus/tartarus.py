@@ -41,7 +41,7 @@ class FPSCounter:
             self.frame_count = 0
 solids = [
                 'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore'
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall'
         ]
 
 
@@ -661,13 +661,13 @@ while True:
                 #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
         
-        #rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         #entities.append(rat)
-        rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        #rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
 
-        dorf=creatures.Dwarf(7, 9, 9, 'Gimli', 5, 5, ['pickaxe'])
+        dorf=creatures.Dwarf(7, 0, 0, 'Gimli', 5, 5, ['pickaxe'])
         dwarves.append(dorf)
         scene='play'
         over=5
@@ -690,6 +690,14 @@ while True:
         
         discover1=False
     if scene == 'play':
+        if t == 0:
+            x_2=np.zeros((X,Y))
+            for j in range(X):
+                for i in range(Y):
+                    if x[j][i] in solids:
+                        x_2[j][i] = 1
+                    
+            np.savetxt(str(maindir)+'/region/pathfind.data',x_2)
             
         if t % 10 == 0:
             for j in range(Y):
@@ -768,7 +776,7 @@ while True:
 
                 
             
-
+        '''
         if key == ord('>'):
             stdscr.clear()
             over+=10
@@ -781,6 +789,7 @@ while True:
                 over-=10
                 for i in entities:
                     i.goto(i.posx,i.posy+10)
+        '''
         if key == 27:
             menu='main'
             kshown=0
@@ -933,6 +942,9 @@ while True:
                     overy-=10
                     for i in entities:
                         i.goto(i.posx+10,i.posy)
+                    for i in dwarves:
+                        i.goto(i.posx+10,i.posy)
+                        i.overc+=10
                     
         if key == curses.KEY_DOWN:
             if menu !='main':
@@ -949,6 +961,9 @@ while True:
                     overy+=10
                     for i in entities:
                         i.goto(i.posx-10,i.posy)
+                    for i in dwarves:
+                        i.goto(i.posx-10,i.posy)
+                        i.overc-=10
                     
 
             
@@ -963,6 +978,9 @@ while True:
                     over-=10
                     for i in entities:
                         i.goto(i.posx,i.posy+10)
+                    for i in dwarves:
+                        i.goto(i.posx,i.posy+10)
+                        i.overyc+=10
                     
             
         if key == curses.KEY_RIGHT:
@@ -976,6 +994,10 @@ while True:
                 over+=10
                 for i in entities:
                     i.goto(i.posx,i.posy-10)
+                for i in dwarves:
+                        i.goto(i.posx,i.posy-10)
+                        i.overyc-=10
+        
                     
         if key == ord('d'):
             if menu =='main':
@@ -1006,11 +1028,11 @@ while True:
             if i.health <=0:
                 i.goto(10000,10000)
                 dwarves.remove(i)
-
             
-            i.path_to(np.loadtxt(str(maindir)+'/region/pathfind.data'),5,5)
-            i.posy+=1
+            if i.task == 'idle' or i.task == 'Idle':
                 
+                i.task='Pathing'
+             
 
 
 
@@ -1167,17 +1189,17 @@ while True:
                 beg5=time.time()
         
         
-        # Next, spawn new entities
+      
         new_entities = []
         for i in entities:
             if i.time % i.birth == 0:
                 for j in range(i.litter):
-                    # Spawn new entity at (10, 10) with the same species/stats
+                    
                     new_entity = creatures.Creature(str(i.shape), int(i.color), i.posx, i.posy, str(i.name), i.strength, i.agility, i.size, i.speed, i.litter, i.birth,0,i.health,0,i.behav)
                     new_entities.append(new_entity)
                 
 
-        # After iterating over all entities, add the new entities to the main list
+        #add the new entities to the main list
         entities.extend(new_entities)
 
         
@@ -1203,12 +1225,71 @@ while True:
                     except curses.error:
                         pass
         for i in dwarves:
+
+                if playing % 2 == 1:
+                    if i.task == 'idle':
+                            if t % i.speed == 0:
+                                i.age()
+                                qq=i.update_pos()
+                                try:
+                                        if x[qq[1]+over, qq[0]+overy] not in solids:
+                                                i.goto(qq[0],qq[1])
+                                except:
+                                        pass
+                    if i.task=='Pathing':
+                        if t > 5:
+                            i.task='Path'
+                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(90, 15) )
+                            try:
+                                first_elements = [x[0] for x in q]
+                                second_elements = [x[1] for x in q]
+                            except:
+                                i.task='done'
+                                
+                        
+                    if i.task=='Path':
+                            
+                        
+                        
+                        
+                                    
+                            
+                            
+                            if q != None and t % 2 == 0:
+                                
+                                i.pathx=first_elements
+                                i.pathy=second_elements
+                            
+                                    
+                                
+                                
+                            
+                            try:
+                                if playing % 2 == 1:
+                                    
+                                    i.goto(i.pathy[1]-overy,i.pathx[1]-over)
+                                del i.pathx[0]
+                                del i.pathy[0]
+                                    
+                            except:
+                                task='idle'
+                                '''
+                                i.posx+=i.overc
+                                i.posy+=i.overyc
+                                i.overc=0
+                                i.overyc=0
+                                '''
+                                
+                                pass
+                    
+                    
                 if i.posy < 60:
                     try:
                                 
                         stdscr.addstr(i.posx+1,i.posy,i.shape)
                     except curses.error:
                         pass
+                
         if t % 2 == 0:
             qqqq=fps_counter.update()
         try:

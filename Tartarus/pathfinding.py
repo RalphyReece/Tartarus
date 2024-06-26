@@ -94,7 +94,7 @@ def dwarf_path(start, end,file):
             path = future.result(timeout=1000)
         except Exception:
             path = None
-    f=open(str(file),'a')
+    f=open(str(file),'w')
     if path != None:
         f.write(str(path))
     f.close()
@@ -102,9 +102,10 @@ def dwarf_path(start, end,file):
 
 # Example usage:
 '''
-grid_array = np.zeros((1000,1000))
+grid_array = np.loadtxt('region/pathfind.data')
 start = (0, 0)
-end = (300, 300)
+end = (12,12)
 result = main(grid_array, start, end)
 print(result)
+
 '''
