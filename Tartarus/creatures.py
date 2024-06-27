@@ -83,7 +83,7 @@ class Dwarf:
         self.litter = 1
         self.birth = 3000
         self.task = 'idle'
-        self.goal = None
+        self.goal = 'get-wood'
 
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
@@ -121,6 +121,12 @@ class Dwarf:
             self.pathy=second_elements
         except:
             pass
+    def get_goal(self):
+        return self.goal
+    def set_goal(self,x):
+        self.goal=x
+    def add_possession(self,x):
+        self.possessions.append(x)
         
         
         

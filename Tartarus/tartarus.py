@@ -642,6 +642,7 @@ while True:
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
     if scene == 'preplay':
         items=np.zeros((X,Y))
+        tasks=np.zeros((X,Y))
         
         menu='main'
         t=0
@@ -1031,6 +1032,7 @@ while True:
             
             if i.task == 'idle' or i.task == 'Idle':
                 
+                
                 i.task='Pathing'
              
 
@@ -1238,14 +1240,32 @@ while True:
                                         pass
                     if i.task=='Pathing':
                         if t > 5:
-                            i.task='Path'
-                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(90, 15) )
-                            try:
-                                first_elements = [x[0] for x in q]
-                                second_elements = [x[1] for x in q]
-                            except:
-                                i.task='done'
-                                
+                            qqq=i.get_goal()
+                            cc=0
+                            for j in range(X):
+                                    for k in range(Y):
+                                        if items[j][k]== 1:
+                                            cc+=1
+                            if cc == 0:
+                                i.task='idle'
+                                i.set_goal(None)
+                            if qqq=='get-wood':
+                                for j in range(X):
+                                    for k in range(Y):
+                                        if items[j][k]== 1:
+
+                                     
+                                            i.task='Path'
+                                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k) )
+                                            try:
+                                                first_elements = [x[0] for x in q]
+                                                second_elements = [x[1] for x in q]
+                                            except:
+                                                i.task=='idle'
+                                            
+                                            
+                                                
+                           
                         
                     if i.task=='Path':
                             
@@ -1272,15 +1292,12 @@ while True:
                                 del i.pathy[0]
                                     
                             except:
-                                task='idle'
-                                '''
-                                i.posx+=i.overc
-                                i.posy+=i.overyc
-                                i.overc=0
-                                i.overyc=0
-                                '''
                                 
-                                pass
+                                i.add_possession('wood')
+                                items[i.posx][i.posy]=0
+                                i.task='idle'
+                                i.posx+=1
+                                i.set_goal(None)
                     
                     
                 if i.posy < 60:
