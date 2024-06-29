@@ -687,6 +687,9 @@ while True:
         items[5][5]=1
         
         ##
+        dc=0
+        dc1=[None,None]
+        dc2=[None,None]
 
         
         discover1=False
@@ -1002,7 +1005,24 @@ while True:
                     
         if key == ord('d'):
             if menu =='main':
-                x[cursorx+over][cursory-1+overy] = 'grass'
+                menu='designation'
+                kshown+=1
+                #x[cursorx+over][cursory-1+overy] = 'grass'
+            elif menu == 'designation':
+                menu='main'
+                kshown+=1
+                dc+=1
+        if dc % 2 ==1:
+            dc1=[cursorx,cursory]
+        if dc % 2 == 0:
+           
+                
+                
+            x[cursorx][cursory-1]='grass'
+            
+        
+            
+                
         
         try:
         
@@ -1031,9 +1051,10 @@ while True:
                 dwarves.remove(i)
             
             if i.task == 'idle' or i.task == 'Idle':
+                if t % 30 == 0:
                 
                 
-                i.task='Pathing'
+                    i.task='Pathing'
              
 
 
