@@ -76,7 +76,7 @@ def main(grid_array, start, end):
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(run_astar_search)
         try:
-            path = future.result(timeout=1)
+            path = future.result(timeout=.4)
         except Exception:
             path = None
     
