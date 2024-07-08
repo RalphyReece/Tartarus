@@ -271,13 +271,32 @@ def announcement_window(stdscr):
 
     
     
+def draw_rect(stdscr, char, color_pair, y, x):
     
+
+    key_height = 3
+    key_width = 5
+
+
+    box_y = y - 1
+    box_x = x - 1
+
+
+    # Draw box
+    for i in range(key_height):
+        for j in range(key_width):
+            if i == 0 or i == key_height - 1 or j == 0 or j == key_width - 1:
+                stdscr.addch(box_y + i, box_x + j, curses.ACS_BLOCK, curses.color_pair(1))
+            else:
+                stdscr.addch(box_y + i, box_x + j, ' ', curses.color_pair(2))
+
+    # Print character in center of box
+    char_y = y
+    char_x = x
+    stdscr.addch(char_y, char_x, char, curses.color_pair(color_pair))
   
     
      
-  
-    
-
 
 # Main loop
 while True:
@@ -670,7 +689,7 @@ while True:
         
         entities.append(rat)
 
-        dorf=creatures.Dwarf(7, 0, 0, 'Gimli', 5, 5, ['pickaxe'])
+        dorf=creatures.Dwarf(7, 0, 0, 'Gimli', 5, 5, ['pickaxe'],['miner','woodcutter'])
         dwarves.append(dorf)
         scene='play'
         over=5
@@ -761,7 +780,7 @@ while True:
         
         
         t+=1
-        offset=90
+        offset=62
         if key == curses.KEY_F1:
                 for i in entities:
                         i.goto(i.posx+overy,i.posy+over)
@@ -771,7 +790,11 @@ while True:
             announcement_window(stdscr)
         
         if key == ord(' '):
-            playing+=1
+            if menu =='main':
+                playing+=1
+            if menu != 'main':
+                menu='main'
+                kshown=0
             
             
         if key == ord('k'):
@@ -867,6 +890,8 @@ while True:
                             #items
                             if items[i+over][j+overy] == 1:
                                 stdscr.addstr(j+1,i,'≠',curses.color_pair(8))
+                            if items[i+over][j+overy] == 2:
+                                stdscr.addstr(j+1,i,'•',curses.color_pair(10))
 
                         except:
                                 break
@@ -878,7 +903,8 @@ while True:
                     
                             if x[i+over][j+overy] in solids:
                             
-                                symbol = '&'
+                                symbol = '\u2588'
+
                                 color = curses.color_pair(10)
                                 if x[i+over][j+overy] == 'iron-ore':
                                     symbol = '%'
@@ -918,6 +944,7 @@ while True:
                                    x[i+1+over][j+overy] in tile_types or \
                                    x[i+over][j-1+overy] in tile_types or \
                                    x[i+over][j+1+overy] in tile_types:
+                                    
                                     stdscr.addstr(j+1, i, symbol, color)
                         except:
                             break
@@ -929,7 +956,7 @@ while True:
                         except:
                             pass
                         if t % 20 <= 10:
-                            if tasks[i+over,j+overy]==1:
+                            if tasks[i+over,j+overy]!=0:
                                 stdscr.addstr(j+1,i,'▨',curses.color_pair(4))
         
 
@@ -944,8 +971,8 @@ while True:
             stdscr.addstr(cursory,cursorx,"X")
 
         #t test
-        stdscr.addstr(30,90,'       ')
-        stdscr.addstr(30,90,str(t))
+        stdscr.addstr(30,62,'       ')
+        stdscr.addstr(30,62,str(t))
 
         if key == curses.KEY_UP:
             if menu !='main':
@@ -1020,8 +1047,17 @@ while True:
             if key == ord('d'):
                 playing=0
                 menu='designation'
+                action='dig'
                 kshown+=1
         if menu =='designation':
+            
+            if key == ord('d'):
+                action='dig'
+            if key == ord('x'):
+                action='rmdig'
+            if key == ord('t'):
+                action='tree'
+                
             
             if key == 10:
                 if dclicks==0:
@@ -1030,12 +1066,28 @@ while True:
                 elif dclicks ==1:
                     dc2=[cursorx,cursory]
                     dclicks=0
-                    try:
-                        for i in range(dc2[0]-dc1[0]+1):
-                            for j in range(dc2[1]-dc1[1]+1):
-                                tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=1
-                    except TypeError:
-                        pass
+                    if action=='dig':
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=1
+                        except TypeError:
+                            pass
+                    if action=='tree':
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy]=='tree':
+                                        tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=2
+                        except TypeError:
+                            pass
+                    if action=='rmdig':
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=0
+                        except TypeError:
+                            pass
             
            
                 
@@ -1056,7 +1108,7 @@ while True:
                         x[cursorx+over][cursory-1+overy] == tile_type or 
                         x[cursorx+over][cursory+1+overy] == tile_type
                     ):
-                        stdscr.addstr(10, offset, f"Tile: {x[cursorx+over][cursory-1]}")
+                        stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory-1]}")
                         break
                 
             
@@ -1272,10 +1324,19 @@ while True:
         for i in dwarves:
 
                 if playing % 2 == 1:
-                    for j in range(X):
-                        for k in range(Y):
-                            if tasks[j][k]==1:
-                                i.set_goal('mine')
+                    #change this later, make axe.
+                    if 'pickaxe' in i.possessions:
+                        for j in range(X):
+                            for k in range(Y):
+                                if tasks[j][k]==2:
+                                    i.set_goal('chop chop')
+                                    
+                    if 'pickaxe' in i.possessions:
+                        for j in range(X):
+                            for k in range(Y):
+                                if tasks[j][k]==1:
+                                    i.set_goal('mine')
+                
                             
                 
                     if i.task == 'idle':
@@ -1310,6 +1371,56 @@ while True:
                                     for k in range(Y):
                                         
                                         if tasks[j][k]== 1:
+
+                                     
+                                            i.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                    first_elements = [x[0] for x in q]
+                                                    second_elements = [x[1] for x in q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
+                                                    first_elements = [x[0] for x in q]
+                                                    second_elements = [x[1] for x in q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
+                                                    first_elements = [x[0] for x in q]
+                                                    second_elements = [x[1] for x in q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
+                                                    first_elements = [x[0] for x in q]
+                                                    second_elements = [x[1] for x in q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c == 0:
+                                                
+                                                
+                                                    
+                                                   
+                                                i.task='idle'
+                            if qqq=='chop chop':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        
+                                        if tasks[j][k]== 2:
 
                                      
                                             i.task='Path'
@@ -1385,10 +1496,12 @@ while True:
                                     
                             
                             
-                            if q != None and t % 2 == 0:
+                            if q != None:
                                 
                                 i.pathx=first_elements
                                 i.pathy=second_elements
+                            else:
+                                pass
                             
                                     
                                 
@@ -1396,10 +1509,16 @@ while True:
                             
                             try:
                                 if playing % 2 == 1:
-                                    if abs(i.pathy[1]-i.posx)<=2:
-                                        i.goto(i.pathy[1]-overy,i.pathx[1]-over)
+                                    
+                                    #if abs(i.pathy[1]-i.posx)<=2:
+                                    i.goto(i.pathy[1]-overy,i.pathx[1]-over)
+                                    '''
                                     else:
+                                        for wer in range(100):
+                                            print('QQQWWQWQWQW')
                                         i.task='idle'
+                                        time.sleep(10000000)
+                                    '''
                                 del i.pathx[0]
                                 del i.pathy[0]
                                     
@@ -1417,18 +1536,42 @@ while True:
                                 if i.get_goal() == 'mine':
                                     yy=i.posx+overy
                                     xx=i.posy+over
-                                    if tasks[xx-1][yy]==1:
-                                        tasks[xx-1][yy]=0
-                                        x[xx-1][yy]='grass'
-                                    elif tasks[xx+1][yy]==1:
-                                        tasks[xx+1][yy]=0
-                                        x[xx+1][yy]='grass'
-                                    elif tasks[xx][yy+1]==1:
-                                        tasks[xx][yy+1]=0
-                                        x[xx][yy+1]='grass'
-                                    elif tasks[xx][yy-1]==1:
-                                        tasks[xx][yy-1]=0
-                                        x[xx][yy-1]='grass'
+                                    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
+
+                                    for dx, dy in directions:
+                                        nx, ny = xx + dx, yy + dy
+    
+                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny] == 1:
+                                            tasks[nx][ny] = 0
+        
+                                            if x[nx][ny] == 'stone':
+                                                x[nx][ny] = 'grass'
+                                                r=random.randint(1,4)
+                                                if r == 2:
+                                                    items[nx][ny]=2
+            
+                                            break 
+                                    i.task='idle'
+                                    i.set_goal(None)
+                                if i.get_goal() == 'chop chop':
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
+
+                                    for dx, dy in directions:
+                                        nx, ny = xx + dx, yy + dy
+    
+                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[0]) and tasks[nx][ny] == 2:
+                                            
+                                            r=random.randint(1,2)
+                                            if x[nx][ny] == 'tree':
+                                                if r==1:
+                                                    tasks[nx][ny] = 0
+                                                    x[nx][ny] = 'grass'
+                                                
+                                                    items[nx][ny]=1
+            
+                                            break 
                                     i.task='idle'
                                     i.set_goal(None)
                                         
@@ -1448,6 +1591,16 @@ while True:
             stdscr.addstr(0,0,qqqq,curses.color_pair(6))
         except:
             pass
+        for i in dwarves:
+            stdscr.addstr(15,62,'           ')
+            stdscr.addstr(15,62,str(i.get_goal()))
+        for i in dwarves:
+            stdscr.addstr(16,62,'           ')
+            stdscr.addstr(16,62,str(i.posx))
+        for i in dwarves:
+            stdscr.addstr(17,62,'           ')
+            stdscr.addstr(17,62,str(i.posy))
+            
             
         stdscr.refresh()
         

@@ -59,8 +59,8 @@ class Creature:
 # Creating instances of creatures
 
 class Dwarf:
-    def __init__(self, color, posx, posy, name, strength, agility, possessions):
-        
+    def __init__(self, color, posx, posy, name, strength, agility, possessions, professions):
+        self.professions=professions
         self.shape='☺'
         self.color=color
         self.posx = posx
@@ -79,7 +79,7 @@ class Dwarf:
         self.overyc=0
         
         
-        self.speed=3
+        self.speed=10
         self.litter = 1
         self.birth = 3000
         self.task = 'idle'
