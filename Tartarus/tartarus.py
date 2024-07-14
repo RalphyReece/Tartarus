@@ -688,9 +688,17 @@ while True:
         #rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
         entities.append(rat)
+        #Dwarves
 
-        dorf=creatures.Dwarf(7, 0, 0, 'Gimli', 5, 5, ['pickaxe'],['miner','woodcutter'])
+        
+        dorf=creatures.Dwarf(1, 14, 90, 'Gimli', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
+        
+        
+        dorf=creatures.Dwarf(3, 15, 91, 'Nil', 5, 5, ['axe'],['woodcutter'])
+        #self, color, posx, posy, name, strength, agility, possessions, professions
+        dwarves.append(dorf)
+
         scene='play'
         over=5
         overy=0
@@ -762,7 +770,7 @@ while True:
                         
 
             
-        time.sleep(.02)
+        
         
 
         if t == 2:
@@ -829,7 +837,7 @@ while True:
         
          
         
-        stdscr.addstr(31,0,'––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––\'')
+        
         for j in range(30):
                 try:
                     stdscr.addstr(j+1,60,'|')
@@ -957,7 +965,7 @@ while True:
                             pass
                         if t % 20 <= 10:
                             if tasks[i+over,j+overy]!=0:
-                                stdscr.addstr(j+1,i,'▨',curses.color_pair(4))
+                                stdscr.addstr(j+1,i,'\u2588',curses.color_pair(4))
         
 
         if t == 800:
@@ -1125,7 +1133,7 @@ while True:
                 dwarves.remove(i)
             
             if i.task == 'idle' or i.task == 'Idle':
-                if t % 30 == 0:
+                if t % 31 == 0:
                 
                 
                     i.task='Pathing'
@@ -1322,16 +1330,19 @@ while True:
                     except curses.error:
                         pass
         for i in dwarves:
+                
+                
+                
 
                 if playing % 2 == 1:
                     #change this later, make axe.
-                    if 'pickaxe' in i.possessions:
+                    if 'axe' in i.possessions and 'woodcutter' in i.professions:
                         for j in range(X):
                             for k in range(Y):
                                 if tasks[j][k]==2:
                                     i.set_goal('chop chop')
                                     
-                    if 'pickaxe' in i.possessions:
+                    if 'pickaxe' in i.possessions and 'miner' in i.professions:
                         for j in range(X):
                             for k in range(Y):
                                 if tasks[j][k]==1:
@@ -1351,7 +1362,7 @@ while True:
                     if i.task=='Pathing':
                         if t > 5:
                             qqq=i.get_goal()
-                            
+                            '''
                             if qqq=='get-wood':
                                 for j in range(X):
                                     for k in range(Y):
@@ -1364,7 +1375,11 @@ while True:
                                                 first_elements = [x[0] for x in q]
                                                 second_elements = [x[1] for x in q]
                                             except:
-                                                i.task=='idle'
+                                                q=None
+                                                first_elements=None
+                                                second_elements=None
+                                                i.task='idle'
+                            '''
                             if qqq=='mine':
                                 c=0
                                 for j in range(X):
@@ -1410,6 +1425,10 @@ while True:
                                                 except:
                                                     pass
                                             if c == 0:
+                                                q=None
+                                                
+                                                first_elements=None
+                                                second_elements=None
                                                 
                                                 
                                                     
@@ -1460,27 +1479,10 @@ while True:
                                                 except:
                                                     pass
                                             if c == 0:
+                                                    q=None
+                                                    first_elements = None
+                                                    second_elements = None
                                                     
-                                                    '''
-                                                    try:
-                                                        q2=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j+1, k) )
-                                                        first_elements = [x[0] for x in q2]
-                                                        second_elements = [x[1] for x in q2]
-                                                        c=1
-                                                    except:
-                                                        try:
-                                                            q3=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k+1) )
-                                                            first_elements = [x[0] for x in q3]
-                                                            second_elements = [x[1] for x in q3]
-                                                            c=1
-                                                        except:
-                                                            try:
-                                                                q4=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k-1) )
-                                                                first_elements = [x[0] for x in q4]
-                                                                second_elements = [x[1] for x in q4]
-                                                                c=1
-                                                            except:
-                                                    '''
                                                     i.task='idle'
                                                     
                                             
@@ -1489,40 +1491,16 @@ while True:
                            
                         
                     if i.task=='Path':
+                        
+                        
+                            
                             
                         
                         
-                        
                                     
-                            
-                            
-                            if q != None:
-                                
-                                i.pathx=first_elements
-                                i.pathy=second_elements
-                            else:
-                                pass
-                            
+                            ans=i.path(q,first_elements,second_elements,t,playing,over,overy,qqq,items)
                                     
-                                
-                                
-                            
-                            try:
-                                if playing % 2 == 1:
-                                    
-                                    #if abs(i.pathy[1]-i.posx)<=2:
-                                    i.goto(i.pathy[1]-overy,i.pathx[1]-over)
-                                    '''
-                                    else:
-                                        for wer in range(100):
-                                            print('QQQWWQWQWQW')
-                                        i.task='idle'
-                                        time.sleep(10000000)
-                                    '''
-                                del i.pathx[0]
-                                del i.pathy[0]
-                                    
-                            except:
+                            if ans == 'success':
                                 if qqq == 'get-wood':
                                 
                                     i.add_possession('wood')
@@ -1576,11 +1554,11 @@ while True:
                                     i.set_goal(None)
                                         
                                     
-                    
-        if i.posy < 60:
+        for i in dwarves:        
+            if i.posy < 60:
                     try:
                                 
-                        stdscr.addstr(i.posx+1,i.posy,i.shape)
+                        stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(i.color))
                     except curses.error:
                         pass           
                 
@@ -1591,9 +1569,9 @@ while True:
             stdscr.addstr(0,0,qqqq,curses.color_pair(6))
         except:
             pass
-        for i in dwarves:
-            stdscr.addstr(15,62,'           ')
-            stdscr.addstr(15,62,str(i.get_goal()))
+        
+        stdscr.addstr(15,62,'           ')
+        stdscr.addstr(15,62,str(len(dwarves)))
         for i in dwarves:
             stdscr.addstr(16,62,'           ')
             stdscr.addstr(16,62,str(i.posx))
@@ -1611,7 +1589,7 @@ while True:
 
         stdscr.addstr(0,30,str(menu))
         #Overclocking
-        time.sleep(.01)
+        time.sleep(.02)
 
         #Item saving
         if t % 200 == 0:
