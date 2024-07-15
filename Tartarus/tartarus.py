@@ -1332,7 +1332,6 @@ while True:
         for i in dwarves:
                 
                 
-                
 
                 if playing % 2 == 1:
                     #change this later, make axe.
@@ -1360,9 +1359,10 @@ while True:
                                 except:
                                         pass
                     if i.task=='Pathing':
+                        i.q=None
                         if t > 5:
                             qqq=i.get_goal()
-                            '''
+                            
                             if qqq=='get-wood':
                                 for j in range(X):
                                     for k in range(Y):
@@ -1370,16 +1370,12 @@ while True:
 
                                      
                                             i.task='Path'
-                                            q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k) )
+                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k) )
                                             try:
-                                                first_elements = [x[0] for x in q]
-                                                second_elements = [x[1] for x in q]
+                                                first_elements = [x[0] for x in i.q]
+                                                second_elements = [x[1] for x in i.q]
                                             except:
-                                                q=None
-                                                first_elements=None
-                                                second_elements=None
                                                 i.task='idle'
-                            '''
                             if qqq=='mine':
                                 c=0
                                 for j in range(X):
@@ -1394,7 +1390,23 @@ while True:
                                                 
                                                 
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
                                                     first_elements = [x[0] for x in q]
                                                     second_elements = [x[1] for x in q]
                                                     c=1
@@ -1402,33 +1414,13 @@ while True:
                                                     pass
                                             if c != 1:
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c == 0:
-                                                q=None
-                                                
-                                                first_elements=None
-                                                second_elements=None
                                                 
                                                 
                                                     
@@ -1448,41 +1440,58 @@ while True:
                                                 
                                                 
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
-                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
+                                                    first_elements = [x[0] for x in i.q]
+                                                    second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c == 0:
-                                                    q=None
-                                                    first_elements = None
-                                                    second_elements = None
-                                                    
+                                                    i.q=None
+                                                    '''
+                                                    try:
+                                                        q2=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j+1, k) )
+                                                        first_elements = [x[0] for x in q2]
+                                                        second_elements = [x[1] for x in q2]
+                                                        c=1
+                                                    except:
+                                                        try:
+                                                            q3=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k+1) )
+                                                            first_elements = [x[0] for x in q3]
+                                                            second_elements = [x[1] for x in q3]
+                                                            c=1
+                                                        except:
+                                                            try:
+                                                                q4=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k-1) )
+                                                                first_elements = [x[0] for x in q4]
+                                                                second_elements = [x[1] for x in q4]
+                                                                c=1
+                                                            except:
+                                                    '''
                                                     i.task='idle'
                                                     
                                             
@@ -1492,15 +1501,36 @@ while True:
                         
                     if i.task=='Path':
                         
-                        
                             
                             
                         
                         
                                     
-                            ans=i.path(q,first_elements,second_elements,t,playing,over,overy,qqq,items)
+                            #issue. they all follow 
+                            
+                            if i.q != None:
+                                
+                                i.pathx=first_elements
+                                i.pathy=second_elements
+                            else:
+                                i.pathx=[]
+                                i.pathy=[]
+                            
                                     
-                            if ans == 'success':
+                                
+                                
+                            
+                            try:
+                                if playing % 2 == 1:
+                                    if t % 10 == 0:
+                                    
+                                        #if abs(i.pathy[1]-i.posx)<=2:
+                                        i.goto(i.pathy[1]-overy,i.pathx[1]-over)
+                                      
+                                        del i.pathx[0]
+                                        del i.pathy[0]
+                                    
+                            except:
                                 if qqq == 'get-wood':
                                 
                                     i.add_possession('wood')

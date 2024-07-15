@@ -1,6 +1,7 @@
 import random
 import subprocess
 import pathfinding
+import numpy as np
 result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
 maindir=result.stdout
 maindir = maindir[:-1]
@@ -77,6 +78,8 @@ class Dwarf:
         self.health=10
         self.pathx=None
         self.pathy=None
+        self.q=None
+        
         
 
         self.overc=0
@@ -119,8 +122,8 @@ class Dwarf:
         q=pathfinding.main(grid_array, (x,y), (12,12))
         
         try:                   
-            first_elements = [x[0] for x in q]
-            second_elements = [x[1] for x in q]
+             
+             
             self.pathx=first_elements
             self.pathy=second_elements
         except:
@@ -131,16 +134,154 @@ class Dwarf:
         self.goal=x
     def add_possession(self,x):
         self.possessions.append(x)
-    def path(self,q,first_elements,second_elements,t,playing,over,overy,qqq,items):
+    def task_detect(self,tasks,x,t,X,Y):
+        
+                    if 'axe' in self.possessions and 'woodcutter' in self.professions:
+                        for j in range(X):
+                            for k in range(Y):
+                                if tasks[j][k]==2:
+                                    self.set_goal('chop chop')
+                                    
+                    if 'pickaxe' in self.possessions and 'miner' in self.professions:
+                        for j in range(X):
+                            for k in range(Y):
+                                if tasks[j][k]==1:
+                                    self.set_goal('mine')
+                
+                            
+                
+                    if self.task == 'idle':
+                            if t % self.speed == 0:
+                                self.age()
+                                qq=self.update_pos()
+                                try:
+                                        if x[qq[1]+over, qq[0]+overy] not in solids:
+                                                self.goto(qq[0],qq[1])
+                                except:
+
+
+
+                                        pass
+
+
+    def get_the_path(self,X,Y,tasks,over,overy,maindir):
+                            qqq= self.get_goal()
+                            
+                            if qqq=='mine':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        
+                                        if tasks[j][k]== 1:
+
+                                     
+                                            self.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j-1, k) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j+1, k) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j, k+1) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j, k-1) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c == 0:
+                                                
+                                                    
+                                                   
+                                                 self.task='idle'
+                                            if c != 0:
+                                                return q
+                            if qqq=='chop chop':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        
+                                        if tasks[j][k]== 2:
+
+                                     
+                                            self.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j-1, k) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j+1, k) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j, k+1) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c != 1:
+                                                try:
+                                                    q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),( self.posy+over,  self.posx+overy),(j, k-1) )
+                                                     
+                                                     
+                                                    c=1
+                                                except:
+                                                    pass
+                                            if c == 0:
+                                                    q=None
+                                                    first_elements = None
+                                                    second_elements = None
+                                                    
+                                                    self.task='idle'
+                                            if c != 0:
+                                                return q
+    
+    def path(self,over,overy,playing,t):
         
                             
-                            if q != None or q != []:
+                            if self.q != None:
+                                first_elements = [x[0] for x in self.q]
+                                second_elements = [x[1] for x in self.q]
                                 
                                 self.pathx=first_elements
                                 self.pathy=second_elements
                             else:
-                                self.pathx=[]
-                                self.pathy=[]
+                                pass
                             
                                     
                                 
@@ -148,9 +289,9 @@ class Dwarf:
                             
                             try:
                                 if playing % 2 == 1:
-                                    if t % 10 == 0:
+                                    if t % 5 == 0:
                                     
-                                        #if abs(i.pathy[1]-i.posx)<=2:
+                                        #if abs( self.pathy[1]- self.posx)<=2:
                                         self.goto(self.pathy[1]-overy,self.pathx[1]-over)
                                       
                                         del self.pathx[0]
@@ -161,17 +302,17 @@ class Dwarf:
                                 '''
                                 if qqq == 'get-wood':
                                 
-                                    i.add_possession('wood')
-                                    items[i.posx][i.posy]=0
-                                    i.task='idle'
-                                    i.posx+=1
-                                    i.set_goal(None)
+                                     self.add_possession('wood')
+                                    items[ self.posx][ self.posy]=0
+                                     self.task='idle'
+                                     self.posx+=1
+                                     self.set_goal(None)
                     
-                                    i.posx+=1
-                                    i.set_goal(None)
-                                if i.get_goal() == 'mine':
-                                    yy=i.posx+overy
-                                    xx=i.posy+over
+                                     self.posx+=1
+                                     self.set_goal(None)
+                                if  self.get_goal() == 'mine':
+                                    yy= self.posx+overy
+                                    xx= self.posy+over
                                     directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
 
                                     for dx, dy in directions:
@@ -187,11 +328,11 @@ class Dwarf:
                                                     items[nx][ny]=2
             
                                             break 
-                                    i.task='idle'
-                                    i.set_goal(None)
-                                if i.get_goal() == 'chop chop':
-                                    yy=i.posx+overy
-                                    xx=i.posy+over
+                                     self.task='idle'
+                                     self.set_goal(None)
+                                if  self.get_goal() == 'chop chop':
+                                    yy= self.posx+overy
+                                    xx= self.posy+over
                                     directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
 
                                     for dx, dy in directions:
@@ -208,8 +349,8 @@ class Dwarf:
                                                     items[nx][ny]=1
             
                                             break 
-                                    i.task='idle'
-                                    i.set_goal(None)
+                                     self.task='idle'
+                                     self.set_goal(None)
         
         
                                 '''
