@@ -25,6 +25,10 @@ scene=0 is start
 1 is main menu
 2 is world creation
 '''
+task1c=0
+task2c=0
+relover=0
+relovery=0
 class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
@@ -238,6 +242,20 @@ curses.init_pair(20, 20, curses.COLOR_BLACK)
 
 
 fps_counter = FPSCounter()
+
+def main_menu_print(stdscr):
+    stdscr.addstr(5,62,"a - announcement window")
+    stdscr.addstr(6,62,"d - designation menu")
+    stdscr.addstr(7,62,"Space - pause (or leave menu)")
+    stdscr.addstr(8,62,"k - toggle cursor")
+def designation_menu_print(stdscr):
+    stdscr.addstr(5,62,"d - mine")
+    stdscr.addstr(6,62,"t - chop trees")
+    stdscr.addstr(7,62,"x - undo designation")
+    stdscr.addstr(8,62,"Space - leave menu")
+    
+
+
 def write_announcement(string):
     f=open(str(maindir)+'/fort/announcements.data','a')
     f.write(string)
@@ -657,7 +675,7 @@ while True:
         #
         t=0
         t2=0
-        cursorx,cursory=1,1
+        cursorx,cursory=30,15
         x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
         dc1=[0,0]
         dc2=[0,0]
@@ -698,6 +716,14 @@ while True:
         dorf=creatures.Dwarf(3, 15, 91, 'Nil', 5, 5, ['axe'],['woodcutter'])
         #self, color, posx, posy, name, strength, agility, possessions, professions
         dwarves.append(dorf)
+
+        dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
+        dwarves.append(dorf)
+        
+        for i in range(10):
+            dorf=creatures.Dwarf(3, i, 89, 'Nili', 5, 5, ['axe'],['woodcutter'])
+            #self, color, posx, posy, name, strength, agility, possessions, professions
+            dwarves.append(dorf)
 
         scene='play'
         over=5
@@ -971,10 +997,29 @@ while True:
         if t == 800:
                 beg2=time.time()
         
-
+        if menu != 'designation':
+            relover,relovery=0,0
         if t % 1000 == 0:       
                 np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
-
+        if cursorx >=55 and over < X-10:
+            relover+=10
+            cursorx -=10
+            over+=10
+            for i in entities:
+                    i.goto(i.posx,i.posy-10)
+            for i in dwarves:
+                        i.goto(i.posx,i.posy-10)
+                        i.overyc-=10
+        if cursorx <=5 and over > 10:
+            cursorx +=10
+            
+            over-=10
+            for i in entities:
+                i.goto(i.posx,i.posy+10)
+            for i in dwarves:
+                i.goto(i.posx,i.posy+10)
+                i.overyc+=10
+            
         if kshown % 2 == 1:
             stdscr.addstr(cursory,cursorx,"X")
 
@@ -1075,27 +1120,33 @@ while True:
                     dc2=[cursorx,cursory]
                     dclicks=0
                     if action=='dig':
+                        
                         try:
-                            for i in range(dc2[0]-dc1[0]+1):
+                            for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=1
+                                    tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=1
                         except TypeError:
                             pass
+                        relover,relovery=0,0
                     if action=='tree':
+                        
                         try:
-                            for i in range(dc2[0]-dc1[0]+1):
+                            for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
                                     if x[dc1[0]+i+over,dc1[1]+j-1+overy]=='tree':
-                                        tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=2
+                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=2
                         except TypeError:
                             pass
+                        relover,relovery=0,0
                     if action=='rmdig':
+                        
                         try:
-                            for i in range(dc2[0]-dc1[0]+1):
+                            for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    tasks[dc1[0]+i+over,dc1[1]+j-1+overy]=0
+                                    tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=0
                         except TypeError:
                             pass
+                        relover,relovery=0,0
             
            
                 
@@ -1127,11 +1178,8 @@ while True:
         if t == 800:
                 beg3=time.time()
         
-        for i in dwarves:
-            if i.health <=0:
-                i.goto(10000,10000)
-                dwarves.remove(i)
-            
+
+        for i in dwarves:    
             if i.task == 'idle' or i.task == 'Idle':
                 if t % 31 == 0:
                 
@@ -1319,8 +1367,18 @@ while True:
             np.savetxt(str(maindir)+'/region/pathfind.data',x_2)
         
         
-        
-        
+        #to update tasks
+        if t % 5 == 0:
+            task1c=0
+            task2c=0
+            for j in range(X):
+                for k in range(Y):
+                    if tasks[j][k]==1:
+                        task1c=1
+                        break
+                    elif tasks[j][k]==2:
+                        task2c=1
+                        break
         
         for i in entities:
                 if i.posy < 60:
@@ -1330,11 +1388,23 @@ while True:
                     except curses.error:
                         pass
         for i in dwarves:
+                if i.health <=0:
+                    i.goto(10000,10000)
+                    dwarves.remove(i)
                 
                 
 
                 if playing % 2 == 1:
                     #change this later, make axe.
+                    if 'axe' in i.possessions and 'woodcutter' in i.professions:
+                        if task2c==1:
+                                    i.set_goal('chop chop')
+                                    
+                    if 'pickaxe' in i.possessions and 'miner' in i.professions:
+                        if task1c==1:
+                                    i.set_goal('mine')
+                                    
+                    '''
                     if 'axe' in i.possessions and 'woodcutter' in i.professions:
                         for j in range(X):
                             for k in range(Y):
@@ -1346,9 +1416,8 @@ while True:
                             for k in range(Y):
                                 if tasks[j][k]==1:
                                     i.set_goal('mine')
-                
-                            
-                
+
+                    '''
                     if i.task == 'idle':
                             if t % i.speed == 0:
                                 i.age()
@@ -1372,8 +1441,8 @@ while True:
                                             i.task='Path'
                                             i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k) )
                                             try:
-                                                first_elements = [x[0] for x in i.q]
-                                                second_elements = [x[1] for x in i.q]
+                                                i.first_elements = [x[0] for x in i.q]
+                                                i.second_elements = [x[1] for x in i.q]
                                             except:
                                                 i.task='idle'
                             if qqq=='mine':
@@ -1391,32 +1460,32 @@ while True:
                                                 
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    first_elements = [x[0] for x in q]
-                                                    second_elements = [x[1] for x in q]
+                                                    i.first_elements = [x[0] for x in q]
+                                                    i.second_elements = [x[1] for x in q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
@@ -1441,32 +1510,32 @@ while True:
                                                 
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
                                             if c != 1:
                                                 try:
                                                     i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    first_elements = [x[0] for x in i.q]
-                                                    second_elements = [x[1] for x in i.q]
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
                                                     c=1
                                                 except:
                                                     pass
@@ -1510,8 +1579,8 @@ while True:
                             
                             if i.q != None:
                                 
-                                i.pathx=first_elements
-                                i.pathy=second_elements
+                                i.pathx=i.first_elements
+                                i.pathy=i.second_elements
                             else:
                                 i.pathx=[]
                                 i.pathy=[]
@@ -1522,7 +1591,7 @@ while True:
                             
                             try:
                                 if playing % 2 == 1:
-                                    if t % 10 == 0:
+                                    if t % 3 == 0:
                                     
                                         #if abs(i.pathy[1]-i.posx)<=2:
                                         i.goto(i.pathy[1]-overy,i.pathx[1]-over)
@@ -1600,14 +1669,11 @@ while True:
         except:
             pass
         
-        stdscr.addstr(15,62,'           ')
-        stdscr.addstr(15,62,str(len(dwarves)))
-        for i in dwarves:
-            stdscr.addstr(16,62,'           ')
-            stdscr.addstr(16,62,str(i.posx))
-        for i in dwarves:
-            stdscr.addstr(17,62,'           ')
-            stdscr.addstr(17,62,str(i.posy))
+        if menu == 'main':
+            main_menu_print(stdscr)
+        elif menu == 'designation':
+            designation_menu_print(stdscr)
+            
             
             
         stdscr.refresh()

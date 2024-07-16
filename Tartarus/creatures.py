@@ -79,6 +79,8 @@ class Dwarf:
         self.pathx=None
         self.pathy=None
         self.q=None
+        self.first_elements=None
+        self.second_elements=None
         
         
 
