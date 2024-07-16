@@ -9,6 +9,7 @@ import math
 import time
 import cave_gen
 import secrets
+import river_generation
 def ore_probability_curve(x):
     return .19*x +45
 
@@ -166,7 +167,28 @@ def generate_perlin_noise_2d(shape, res, seed=None):
     return world
     
     
-    
+def generate_perlin_noise_pool(shape, res, seed):
+    scale = 1
+    octaves = 6
+    persistence = 0.7
+    lacunarity = 2.0
+
+        
+
+    random.seed(seed)  
+
+    world = np.zeros(shape)
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            world[i][j] = noise.pnoise2(i / res,
+                                         j / res,
+                                         octaves=octaves,
+                                         persistence=persistence,
+                                         lacunarity=lacunarity,
+                                         repeatx=1024,
+                                         repeaty=1024,
+                                         base=0) * scale
+    return world
     
 def iron_gen(x,y):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
@@ -208,14 +230,15 @@ def copper_gen(x,y):
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_copper.data',arr_iron)
-def pool_gen(x,y):
+def pool_gen(x,y,seed):
+    
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
     width = x
     height = y
-    resolution = random.randint(10,30)
-    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    resolution = random.randint(30,52)
+    perlin_array = generate_perlin_noise_pool((width, height), resolution,seed)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_pool.data',arr_iron)
 
@@ -453,7 +476,7 @@ def micro_region(biome,elev):
     
     gold_gen(x,y)
     random.randint(1,45)
-    pool_gen(x,y)
+    pool_gen(x,y,random.randint(1,99))
 
     ##
     tin_gen(x,y)
@@ -660,7 +683,12 @@ def micro_region(biome,elev):
     
 
 
-
+    for i in range(xu):
+        for j in range(y):
+            if region[i][j]=='grass':
+                r=random.randint(0,4)
+                if r == 1:
+                    region[i][j]='sparse_grass'
     #wagon
     region[10][10]='wood-wall'
     region[10][11]='wood-wall'
@@ -682,7 +710,7 @@ def micro_region(biome,elev):
     if biome == 'forest':
         for i in range(x):
                 for j in range(y):
-                    if trees[i][j] >.2:
+                    if trees[i][j] >.25:
                         if region[i][j] == 'grass':
                             region[i][j] = 'water'
                         if region[i][j] == 'tree':
@@ -839,11 +867,34 @@ def micro_region(biome,elev):
     
     
 
-    
+    for i in range(x-1):
+        for j in range(y-1):
+            if region[i+1][j]=='water' and region[i-1][j]=='water':
+                region[i][j]='water'
+    for i in range(x-1):
+        for j in range(y-1):
+            if region[i][j+1]=='water' and region[i][j-1]=='water':
+                region[i][j]='water'
     
         
     
+    #river generation
+    x, y = 140, 40
 
+
+    river_array = np.zeros((x, y))
+
+
+    river_array = river_generation.create_river(river_array)
+    r=random.randint(22,41)
+    for i in range(xu):
+        for j in range(y):
+            if i != 15 and i != 16:
+                try:
+                    if river_array[i][j] == 1:
+                        region[j+r][i] = 'river'
+                except:
+                    pass
 
 
 

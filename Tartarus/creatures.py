@@ -7,7 +7,7 @@ maindir=result.stdout
 maindir = maindir[:-1]
 class Creature:
     def __init__(self, shape, color, posx, posy, name, strength, agility, size, speed, litter, birth,tame,health,state,behav):
-        
+        self.movetime=random.randint(0,11)
         self.shape=shape
         self.golex=None
         self.goley=None
@@ -32,7 +32,7 @@ class Creature:
         
     
     def update_pos(self):
-        r=random.randint(1,2)
+        r=1
         if r == 1:
             x=random.randint(-1,1)
             y=random.randint(-1,1)
@@ -61,7 +61,7 @@ class Creature:
 
 class Dwarf:
     def __init__(self, color, posx, posy, name, strength, agility, possessions, professions):
-        
+        self.movetime=random.randint(0,10)
         self.professions=professions
         self.iposx=posx
         self.iposy=posy

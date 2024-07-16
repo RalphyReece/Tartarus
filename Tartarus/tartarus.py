@@ -45,7 +45,7 @@ class FPSCounter:
             self.frame_count = 0
 solids = [
                 'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall'
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river'
         ]
 
 
@@ -66,7 +66,7 @@ startt=time.time()
 tile_types = [
                 'grass', 'sapling', 'mud', 'peat', 
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
-                'dead_shrub','cave_moss','rock_bush','dense_moss'
+                'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -240,6 +240,13 @@ curses.init_pair(19, 19, curses.COLOR_BLACK)
 curses.init_color(20, 0, 170, 200)  
 curses.init_pair(20, 20, curses.COLOR_BLACK)
 
+#sparse grass
+curses.init_color(21, 0, 340, 0)  
+curses.init_pair(21, 21, curses.COLOR_BLACK)
+
+#dark gray
+curses.init_color(22, 300, 300, 300)  
+curses.init_pair(22, 22, curses.COLOR_BLACK)
 
 fps_counter = FPSCounter()
 
@@ -693,19 +700,19 @@ while True:
         dwarves=[]
         playing = 1
         
-        rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 1, 1,400,0,3,0,0)
+        rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 10, 1,400,0,3,0,0)
         entities.append(rat)
         
         for i in range(10):
-                rat= creatures.Creature('Y', 7, 15, 95, 'yak', 1, 1, 1, 1, 1,10000,0,1,0,0)
+                rat= creatures.Creature('Y', 7, 15, 95, 'yak', 1, 1, 1, 10, 1,10000,0,1,0,0)
                 #rat= creatures.Creature('r', 7, 30, 150, 'rat', 1, 1, 1, 2, 3,30000,1,5,0,0)
                 entities.append(rat)
         
-        rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
+        #rat= creatures.Creature('d', 7, 15, 35, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         #entities.append(rat)
         #rat= creatures.Creature('d', 7, 15, 42, 'dog', 10, 1, 1, 2, 3,10000,0,50,0,1)
         
-        entities.append(rat)
+        #entities.append(rat)
         #Dwarves
 
         
@@ -741,7 +748,7 @@ while True:
         '''
         
         x[290][15]='grass'
-        items[5][5]=1
+        
         
         ##
         dc=0
@@ -918,6 +925,10 @@ while True:
                                 stdscr.addstr(j+1,i,'ı',curses.color_pair(10))
                             if x[i+over][j+overy] == 'dense_moss':
                                 stdscr.addstr(j+1,i,'‰',curses.color_pair(20))
+                            if x[i+over][j+overy] == 'sparse_grass':
+                                stdscr.addstr(j+1,i,'.',curses.color_pair(21))
+                            if x[i+over][j+overy] == 'cavern_floor':
+                                stdscr.addstr(j+1,i,'¬',curses.color_pair(22))
                             
 
 
@@ -987,6 +998,14 @@ while True:
                         try:
                             if x[i+over][j+overy] == 'water':
                                     stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
+                            if x[i+over][j+overy] == 'river':
+                                r=random.randint(1,10)
+                                if r <= 5:
+                                    stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
+                                elif r <= 8:
+                                    stdscr.addstr(j+1,i,'~',curses.color_pair(3))
+                                else:
+                                    stdscr.addstr(j+1,i,'≈')
                         except:
                             pass
                         if t % 20 <= 10:
@@ -1211,7 +1230,7 @@ while True:
             '''
             if playing % 2 == 1:
                     if i.golex == None:
-                            if t % i.speed == 0:
+                            if (t+i.movetime) % i.speed == 0:
                                 i.age()
                                 qq=i.update_pos()
                                 try:
@@ -1621,8 +1640,8 @@ while True:
                                         if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny] == 1:
                                             tasks[nx][ny] = 0
         
-                                            if x[nx][ny] == 'stone':
-                                                x[nx][ny] = 'grass'
+                                            if x[nx][ny] in solids:
+                                                x[nx][ny] = 'cavern_floor'
                                                 r=random.randint(1,4)
                                                 if r == 2:
                                                     items[nx][ny]=2
