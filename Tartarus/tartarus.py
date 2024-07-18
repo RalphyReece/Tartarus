@@ -275,10 +275,19 @@ def main_menu_print(stdscr):
     stdscr.addstr(6,62,"d - designation menu")
     stdscr.addstr(7,62,"Space - pause (or leave menu)")
     stdscr.addstr(8,62,"k - toggle cursor")
+    stdscr.addstr(9,62,"b - build menu")
 def designation_menu_print(stdscr):
     stdscr.addstr(5,62,"d - mine")
     stdscr.addstr(6,62,"t - chop trees")
     stdscr.addstr(7,62,"x - undo designation")
+    stdscr.addstr(8,62,"Space - leave menu")
+def building_menu_print(stdscr):
+    stdscr.addstr(5,62,"w - workshop")
+    stdscr.addstr(8,62,"Space - leave menu")
+def workshop_menu_print(stdscr):
+    stdscr.addstr(5,62,"c - carpenter workshop")
+    stdscr.addstr(6,62,"m - mason workshop")
+    
     stdscr.addstr(8,62,"Space - leave menu")
     
 
@@ -749,11 +758,11 @@ while True:
 
         dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
+
+        dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, [],['carpenter','architecture'])
+        dwarves.append(dorf)
         
-        for i in range(10):
-            dorf=creatures.Dwarf(3, i, 89, 'Nili', 5, 5, ['axe'],['woodcutter'])
-            #self, color, posx, posy, name, strength, agility, possessions, professions
-            dwarves.append(dorf)
+        
 
         scene='play'
         over=5
@@ -1159,6 +1168,98 @@ while True:
                 menu='designation'
                 action='dig'
                 kshown+=1
+            if key == ord('b'):
+                playing=0
+                menu='building'
+                kshown+=1
+                action='carpenter'
+        if menu == 'building':
+            if key == ord('w'):
+                menu = 'workshop'
+        if menu == 'workshop':
+            if key == ord('c'):
+                menu = 'build_carpenter'
+        if menu == 'build_carpenter':
+            can_build=1
+            
+            for i in range(3):
+                for j in range(3):
+                    if x[cursorx+over+j][cursory+overy-1+i] not in solids:
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(5))
+                    else:
+                        can_build=0
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
+            
+            if can_build==1:
+                stdscr.addstr(4,61,'Placement')
+            else:
+                stdscr.addstr(4,61,'Workshop Blocked')
+            if key == 10 and can_build == 1:
+                ccursorx=cursorx
+                ccursory=cursory
+                rocks=[]
+                rx=[]
+                ry=[]
+                for j in range(X-1):
+                    for i in range(Y-1):
+                            temmm=get_items(j,i,items)
+                            if 'slate_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('slate_pebble')
+                            elif 'talc_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('talc_pebble')
+                            elif 'basalt_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('basalt_pebble')
+                            elif 'wood' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('wood')
+                menu='carpenter_material'
+                boldened=0
+                key='something to not be 10'
+                
+                
+        if menu == 'carpenter_material':
+            for i in range(30):
+                if boldened != i:
+                    try:
+                        stdscr.addstr(i,65,rocks[i])
+                    except:
+                        pass
+                else:
+                    try:
+                        
+                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        
+                    except:
+                        boldened=0
+            if key == ord('='):
+                if boldened > 0:
+                    boldened-=1
+            elif key == ord('-'):
+                if boldened <30:
+                    boldened+=1
+            if key == 10:
+                #this is kinda a scam, but whatever. Makes choosing a material mostly useless.
+                for i in dwarves:
+                    if 'carpenter' in i.professions:
+                        i.get_item=rocks[boldened]
+
+                menu='main'
+                for i in range(3):
+                    for j in range(3):
+                        x[ccursorx+over+j][ccursory+overy-1+i]='unbuilt_carpenter_workshop'
+                
+            
+                        
+                    
+            
+        
         if menu =='designation':
             
             if key == ord('d'):
@@ -1168,7 +1269,7 @@ while True:
             if key == ord('t'):
                 action='tree'
                 
-            
+        
             if key == 10:
                 if dclicks==0:
                     dc1=[cursorx,cursory]
@@ -1224,7 +1325,7 @@ while True:
                         x[cursorx+over][cursory-1+overy] == tile_type or 
                         x[cursorx+over][cursory+1+overy] == tile_type
                     ):
-                        stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory-1]}")
+                        stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1]}")
                         break
                 
             
@@ -1428,6 +1529,7 @@ while True:
         if t % 5 == 0:
             task1c=0
             task2c=0
+            
             for j in range(X):
                 for k in range(Y):
                     if tasks[j][k]==1:
@@ -1464,6 +1566,8 @@ while True:
                                     i.set_goal('mine')
                                     
                     
+                    if i.get_item!=None:
+                        i.set_goal('item_fetch')
                     if i.task == 'idle':
                             if t % i.speed == 0:
                                 i.age()
@@ -1477,7 +1581,30 @@ while True:
                         i.q=None
                         if t > 5:
                             qqq=i.get_goal()
-                            
+                            if qqq=='item_fetch':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        
+                                        if i.get_item in get_items(j,k,items):
+
+                                     
+                                            i.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k) )
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
+                                                    c=1
+                                                except:
+                                                    i.task='idle'
+                                                    
+                                        
+                                                   
+                                                
                             
                             if qqq=='mine':
                                 c=0
@@ -1624,6 +1751,22 @@ while True:
                                 
                             
                             try:
+                                if i.get_goal() == 'item_fetch':
+                                    
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    
+
+                                    
+    
+                                    if i.get_item in get_items(xx,yy,items):
+                                            
+        
+                                        i.possessions.append(i.get_item)
+                                        remove_item(xx,yy,i.get_item,items)
+                                        i.task='idle'
+                                        i.set_goal(None)
+                                        i.get_item=None
                                 if playing % 2 == 1:
                                     if t % 3 == 0:
                                     
@@ -1634,6 +1777,13 @@ while True:
                                         del i.pathy[0]
                                     
                             except:
+                                
+                                        
+                                        
+                                                        
+            
+                                             
+                                    
                                 
                                 if i.get_goal() == 'mine':
                                     yy=i.posx+overy
@@ -1706,9 +1856,13 @@ while True:
             main_menu_print(stdscr)
         elif menu == 'designation':
             designation_menu_print(stdscr)
+        elif menu == 'building':
+            building_menu_print(stdscr)
+        elif menu == 'workshop':
+            workshop_menu_print(stdscr)
             
             
-            
+        
         stdscr.refresh()
         
         if t == 500:

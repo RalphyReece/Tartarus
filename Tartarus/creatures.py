@@ -81,6 +81,7 @@ class Dwarf:
         self.q=None
         self.first_elements=None
         self.second_elements=None
+        self.building=None
         
         
 
@@ -93,7 +94,7 @@ class Dwarf:
         self.birth = 3000
         self.task = 'idle'
         self.goal = None
-
+        self.get_item=None
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
         
@@ -301,61 +302,6 @@ class Dwarf:
                                     
                             except:
                                 return 'success'
-                                '''
-                                if qqq == 'get-wood':
                                 
-                                     self.add_possession('wood')
-                                    items[ self.posx][ self.posy]=0
-                                     self.task='idle'
-                                     self.posx+=1
-                                     self.set_goal(None)
-                    
-                                     self.posx+=1
-                                     self.set_goal(None)
-                                if  self.get_goal() == 'mine':
-                                    yy= self.posx+overy
-                                    xx= self.posy+over
-                                    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
-
-                                    for dx, dy in directions:
-                                        nx, ny = xx + dx, yy + dy
-    
-                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny] == 1:
-                                            tasks[nx][ny] = 0
-        
-                                            if x[nx][ny] == 'stone':
-                                                x[nx][ny] = 'grass'
-                                                r=random.randint(1,4)
-                                                if r == 2:
-                                                    items[nx][ny]=2
-            
-                                            break 
-                                     self.task='idle'
-                                     self.set_goal(None)
-                                if  self.get_goal() == 'chop chop':
-                                    yy= self.posx+overy
-                                    xx= self.posy+over
-                                    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
-
-                                    for dx, dy in directions:
-                                        nx, ny = xx + dx, yy + dy
-    
-                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[0]) and tasks[nx][ny] == 2:
-                                            
-                                            r=random.randint(1,2)
-                                            if x[nx][ny] == 'tree':
-                                                if r==1:
-                                                    tasks[nx][ny] = 0
-                                                    x[nx][ny] = 'grass'
-                                                
-                                                    items[nx][ny]=1
-            
-                                            break 
-                                     self.task='idle'
-                                     self.set_goal(None)
-        
-        
-                                '''
-        
         
 
