@@ -29,6 +29,21 @@ task1c=0
 task2c=0
 relover=0
 relovery=0
+def add_item(row, col, item,items):
+    items[row, col].append(item)
+    
+def remove_item(row, col, item,items):
+    if item in items[row, col]:
+        items[row, col].remove(item)
+        
+def get_items(row, col,items):
+    return items[row, col]
+
+def get_top_item(row, col,items):
+    if items[row, col]:
+        return items[row, col][-1]
+    else:
+        return None      
 class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
@@ -44,8 +59,8 @@ class FPSCounter:
             self.start_time = end_time
             self.frame_count = 0
 solids = [
-                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river'
+                'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt'
         ]
 
 
@@ -66,7 +81,7 @@ startt=time.time()
 tile_types = [
                 'grass', 'sapling', 'mud', 'peat', 
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
-                'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor'
+                'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -248,6 +263,11 @@ curses.init_pair(21, 21, curses.COLOR_BLACK)
 curses.init_color(22, 300, 300, 300)  
 curses.init_pair(22, 22, curses.COLOR_BLACK)
 
+#talc
+curses.init_color(23, 950, 950, 900)  
+curses.init_pair(23, 23, curses.COLOR_BLACK)
+
+talc_color = (950, 950, 900)
 fps_counter = FPSCounter()
 
 def main_menu_print(stdscr):
@@ -687,7 +707,10 @@ while True:
         dc1=[0,0]
         dc2=[0,0]
     if scene == 'preplay':
-        items=np.zeros((X,Y))
+        items=np.empty((X,Y),dtype=object)
+        for i in range(X):
+            for j in range(Y):
+                items[i, j] = []
         tasks=np.zeros((X,Y))
         
         menu='main'
@@ -743,12 +766,12 @@ while True:
         '''
         for i in range(X):
             for j in range(Y):
-                if x[i][j] == 'stone':
-                    x[i][j]='grass'
-        '''
+                if x[i][j] == 'slate':
+                    x[i][j]='cavern_floor'
+        
         
         x[290][15]='grass'
-        
+        '''
         
         ##
         dc=0
@@ -825,7 +848,10 @@ while True:
         if key == curses.KEY_F1:
                 for i in entities:
                         i.goto(i.posx+overy,i.posy+over)
+                for i in dwarves:
+                        i.goto(i.posx+overy,i.posy+over)
                 over=0
+                overy=0
 
         if key == ord('a'):
             announcement_window(stdscr)
@@ -929,18 +955,24 @@ while True:
                                 stdscr.addstr(j+1,i,'.',curses.color_pair(21))
                             if x[i+over][j+overy] == 'cavern_floor':
                                 stdscr.addstr(j+1,i,'¬',curses.color_pair(22))
+                            if x[i+over][j+overy] == 'slate_bridge':
+                                stdscr.addstr(j+1,i,'═',curses.color_pair(22))
                             
 
 
                             #items
-                            if items[i+over][j+overy] == 1:
+                            if get_top_item(i+over,j+overy,items) == 'wood':
                                 stdscr.addstr(j+1,i,'≠',curses.color_pair(8))
-                            if items[i+over][j+overy] == 2:
+                            if get_top_item(i+over,j+overy,items) == 'slate_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(10))
+                            if get_top_item(i+over,j+overy,items) == 'basalt_pebble':
+                                stdscr.addstr(j+1,i,'•',curses.color_pair(22))
+                            if get_top_item(i+over,j+overy,items) == 'talc_pebble':
+                                stdscr.addstr(j+1,i,'•',curses.color_pair(23))
 
                         except:
                                 break
-                        ###make the below look like above. Remove +over. Replace with correct
+                        
                         
                         
                 
@@ -975,15 +1007,21 @@ while True:
                                 elif x[i+over][j+overy] == 'tin-ore':
                                     symbol = '%'
                                     color = curses.color_pair(13)
-                                if x[i+over][j+overy] == 'tree':
+                                elif x[i+over][j+overy] == 'tree':
                                     symbol = 'O'
                                     color = curses.color_pair(8)
-                                if x[i+over][j+overy] == 'fungi-tree':
+                                elif x[i+over][j+overy] == 'fungi-tree':
                                     symbol = 'Ø'
                                     color = curses.color_pair(19)
-                                if x[i+over][j+overy] == 'fracter-ore':
+                                elif x[i+over][j+overy] == 'fracter-ore':
                                     symbol = '%'
                                     color = curses.color_pair(5)
+                                elif x[i+over][j+overy] == 'talc':
+                                    symbol = '\u2588'
+                                    color = curses.color_pair(23)
+                                elif x[i+over][j+overy] == 'basalt':
+                                    symbol = '\u2588'
+                                    color = curses.color_pair(22)
         
                                 if x[i-1+over][j+overy] in tile_types or \
                                    x[i+1+over][j+overy] in tile_types or \
@@ -1418,25 +1456,14 @@ while True:
                     if 'axe' in i.possessions and 'woodcutter' in i.professions:
                         if task2c==1:
                                     i.set_goal('chop chop')
+                        else:
+                            i.task='idle'
                                     
                     if 'pickaxe' in i.possessions and 'miner' in i.professions:
                         if task1c==1:
                                     i.set_goal('mine')
                                     
-                    '''
-                    if 'axe' in i.possessions and 'woodcutter' in i.professions:
-                        for j in range(X):
-                            for k in range(Y):
-                                if tasks[j][k]==2:
-                                    i.set_goal('chop chop')
-                                    
-                    if 'pickaxe' in i.possessions and 'miner' in i.professions:
-                        for j in range(X):
-                            for k in range(Y):
-                                if tasks[j][k]==1:
-                                    i.set_goal('mine')
-
-                    '''
+                    
                     if i.task == 'idle':
                             if t % i.speed == 0:
                                 i.age()
@@ -1451,19 +1478,7 @@ while True:
                         if t > 5:
                             qqq=i.get_goal()
                             
-                            if qqq=='get-wood':
-                                for j in range(X):
-                                    for k in range(Y):
-                                        if items[j][k]== 1:
-
-                                     
-                                            i.task='Path'
-                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k) )
-                                            try:
-                                                i.first_elements = [x[0] for x in i.q]
-                                                i.second_elements = [x[1] for x in i.q]
-                                            except:
-                                                i.task='idle'
+                            
                             if qqq=='mine':
                                 c=0
                                 for j in range(X):
@@ -1619,16 +1634,7 @@ while True:
                                         del i.pathy[0]
                                     
                             except:
-                                if qqq == 'get-wood':
                                 
-                                    i.add_possession('wood')
-                                    items[i.posx][i.posy]=0
-                                    i.task='idle'
-                                    i.posx+=1
-                                    i.set_goal(None)
-                    
-                                    i.posx+=1
-                                    i.set_goal(None)
                                 if i.get_goal() == 'mine':
                                     yy=i.posx+overy
                                     xx=i.posy+over
@@ -1639,12 +1645,20 @@ while True:
     
                                         if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny] == 1:
                                             tasks[nx][ny] = 0
+                                            
         
                                             if x[nx][ny] in solids:
+                                                mined=x[nx][ny]
                                                 x[nx][ny] = 'cavern_floor'
                                                 r=random.randint(1,4)
                                                 if r == 2:
-                                                    items[nx][ny]=2
+                                                    if mined == 'slate':
+                                                        add_item(nx,ny,'slate_pebble',items)
+                                                    elif mined == 'talc':
+                                                        add_item(nx,ny,'talc_pebble',items)
+                                                    elif mined == 'basalt':
+                                                        add_item(nx,ny,'basalt_pebble',items)
+                                                        
             
                                             break 
                                     i.task='idle'
@@ -1665,7 +1679,7 @@ while True:
                                                     tasks[nx][ny] = 0
                                                     x[nx][ny] = 'grass'
                                                 
-                                                    items[nx][ny]=1
+                                                    add_item(nx,ny,'wood',items)
             
                                             break 
                                     i.task='idle'
@@ -1705,12 +1719,12 @@ while True:
         stdscr.addstr(0,30,str(menu))
         #Overclocking
         time.sleep(.02)
-
+        '''
         #Item saving
         if t % 200 == 0:
             np.savetxt(str(maindir)+'/fort/items.data',items)
         
-    
+        '''
      
     
     #stdscr.refresh()

@@ -252,7 +252,17 @@ def dense_moss_gen(x,y):
     perlin_array = generate_perlin_noise_2d((width, height), resolution)
     arr_iron = perlin_array
     np.savetxt(str(maindir)+'/region/region_moss.data',arr_iron)
-    
+
+def talc_gen(x,y):
+    result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
+    maindir=result.stdout
+    maindir = maindir[:-1]   
+    width = x
+    height = y
+    resolution = random.randint(30,50)
+    perlin_array = generate_perlin_noise_2d((width, height), resolution)
+    arr_iron = perlin_array
+    np.savetxt(str(maindir)+'/region/region_talc.data',arr_iron)  
 
 
 
@@ -426,15 +436,15 @@ def micro_region(biome,elev):
     if biome == 'forest':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
     if biome == 'plain':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
     if biome == 'rainforest':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
     if biome == 'glacier':
         for i in range(x):
             for j in range(y):
@@ -446,7 +456,7 @@ def micro_region(biome,elev):
     if biome == 'savannah':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
     if biome == 'slop':
         for i in range(x):
             for j in range(y):
@@ -454,11 +464,11 @@ def micro_region(biome,elev):
     if biome == 'alpine':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
     if biome == 'marsh':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'stone'
+                region[i][j] = 'slate'
 
 
 
@@ -615,7 +625,7 @@ def micro_region(biome,elev):
         for i in range(irone):
             for j in range(y):
                 if trees[i][j] >random.uniform(.14,.28):
-                    if region[i][j] == 'stone':
+                    if region[i][j] == 'slate':
                         region[i][j] = 'iron-ore'
 
     
@@ -625,7 +635,7 @@ def micro_region(biome,elev):
         for i in range(coppere-coppers):
             for j in range(y):
                 if trees[i][j] >random.uniform(.07+(2.5/elev),.23):
-                    if region[i+coppers][j] == 'stone':
+                    if region[i+coppers][j] == 'slate':
                         region[i+coppers][j] = 'copper-ore'
     
     trees=np.loadtxt(str(maindir)+'/region/region_silver.data')
@@ -635,7 +645,7 @@ def micro_region(biome,elev):
         for i in range(int(silvere-silvers)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.12+(3/elev),.2):
-                    if region[i+silvers][j] == 'stone':
+                    if region[i+silvers][j] == 'slate':
                         region[i+silvers][j] = 'silver-ore'
     
     trees=np.loadtxt(str(maindir)+'/region/region_gold.data')
@@ -644,7 +654,7 @@ def micro_region(biome,elev):
         for i in range(int(x-golds)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.15+(2/elev),.3):
-                    if region[i+golds][j] == 'stone' or region[i+golds][j] == 'silver-ore':
+                    if region[i+golds][j] == 'slate' or region[i+golds][j] == 'silver-ore':
                         region[i+golds][j] = 'gold-ore'
 
     trees=np.loadtxt(str(maindir)+'/region/region_tin.data')
@@ -653,7 +663,7 @@ def micro_region(biome,elev):
         for i in range(int(tine-tins)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.12+(2/elev),.3):
-                    if region[i+tins][j] == 'stone':
+                    if region[i+tins][j] == 'slate':
                         region[i+tins][j] = 'tin-ore'
     trees=np.loadtxt(str(maindir)+'/region/region_magnesite.data')
     r=secrets.randbelow(101)
@@ -661,7 +671,7 @@ def micro_region(biome,elev):
         for i in range(int(magnesitee-magnesites)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.12+(2/elev),.35):
-                    if region[i+magnesites][j] == 'stone':
+                    if region[i+magnesites][j] == 'slate':
                         region[i+magnesites][j] = 'magnesite-ore'
 
     trees=np.loadtxt(str(maindir)+'/region/region_mythril.data')
@@ -670,7 +680,7 @@ def micro_region(biome,elev):
         for i in range(int(x-mythrils)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.12+(2/elev),.3):
-                    if region[i+mythrils][j] == 'stone':
+                    if region[i+mythrils][j] == 'slate':
                         region[i+mythrils][j] = 'mythril-ore'
     trees=np.loadtxt(str(maindir)+'/region/region_fracter.data')
     r=secrets.randbelow(101)
@@ -678,7 +688,7 @@ def micro_region(biome,elev):
         for i in range(int(fractere-fracters)):
             for j in range(y):
                 if trees[i][j] >random.uniform(.1,.2):
-                    if region[i+fracters][j] == 'stone':
+                    if region[i+fracters][j] == 'slate':
                         region[i+fracters][j] = 'fracter-ore'
     
 
@@ -860,9 +870,23 @@ def micro_region(biome,elev):
                         if region[i][j] == 'undiscovered_moss1':
                             region[i][j] = 'undiscovered_dense_moss1'
                         
+    talc_gen(x,y)                       
+    trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
     
+    for i in range(x):
+                for j in range(y):
+                    if trees[i][j] >.07:
+                        if region[i][j] == 'slate':
+                            region[i][j] = 'talc'
     
-        
+    talc_gen(x,y)                       
+    trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
+    
+    for i in range(x):
+                for j in range(y):
+                    if trees[i][j] >.08:
+                        if region[i][j] == 'slate':
+                            region[i][j] = 'basalt'    
             
     
     
@@ -889,12 +913,16 @@ def micro_region(biome,elev):
     r=random.randint(22,41)
     for i in range(xu):
         for j in range(y):
-            if i != 15 and i != 16:
+            if i != 15:
                 try:
                     if river_array[i][j] == 1:
                         region[j+r][i] = 'river'
                 except:
                     pass
+            else:
+                if river_array[i][j] == 1:
+                    region[j+r][i] = 'slate_bridge'
+                
 
 
 
@@ -903,7 +931,7 @@ def micro_region(biome,elev):
     f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
 
     solids = [
-                'tree', 'stone', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
+                'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
                 'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore'
         ]
     #resource counter
