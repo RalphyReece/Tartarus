@@ -82,9 +82,11 @@ class Dwarf:
         self.first_elements=None
         self.second_elements=None
         self.building=None
+        self.crafting=None
+        self.make_item=None
         
         
-        self.step=random.randint(0,3)
+        self.step=random.randint(0,4)
         self.overc=0
         self.overyc=0
         self.counter=0
@@ -104,6 +106,14 @@ class Dwarf:
         self.building=[x,y]
     def get_build(self):
         return self.building
+
+    def none_craft(self):
+        self.crafting=None
+    def set_craft(self,x,y):
+        self.crafting=[x,y]
+    def get_craft(self):
+        return self.crafting
+    
     def update_pos(self):
         r=random.randint(1,2)
         if r == 1:

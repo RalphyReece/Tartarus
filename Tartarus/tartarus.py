@@ -53,7 +53,24 @@ def get_top_item(row, col,items):
     if items[row, col]:
         return items[row, col][-1]
     else:
-        return None      
+        return None
+#wtasks
+def add_wtask(row, col, wtask,wtasks):
+    wtasks[row, col].append(wtask)
+    
+def remove_wtask(row, col, wtask,wtasks):
+    if wtask in wtasks[row, col]:
+        wtasks[row, col].remove(wtask)
+        
+def get_wtasks(row, col,wtasks):
+    return wtasks[row, col]
+
+def get_top_wtask(row, col,wtasks):
+    if wtasks[row, col]:
+        return wtasks[row, col][-1]
+    else:
+        return None
+##
 class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
@@ -76,7 +93,8 @@ solids = [
 
 item_list = [ 'basalt_pebble','talc_pebble','slate_pebble','wood'
         ]
-
+rock_types = [ 'basalt_pebble','talc_pebble','slate_pebble'
+    ]
 item_color = [ 22 , 23 , 10 , 8
     ]
 undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undiscovered_dense_moss1'
@@ -84,7 +102,13 @@ undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undisc
                           ]
 
 
-                       
+workshops=[ 'carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8',
+                'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8'
+
+    ]
+
+carpenter_tiles=['carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8']
+mason_tiles=['mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8']
 
 
 startt=time.time()
@@ -292,6 +316,7 @@ def main_menu_print(stdscr):
     stdscr.addstr(7,62,"Space - pause (or leave menu)")
     stdscr.addstr(8,62,"k - toggle cursor")
     stdscr.addstr(9,62,"b - build menu")
+    stdscr.addstr(9,62,"q - query")
 def designation_menu_print(stdscr):
     stdscr.addstr(5,62,"d - mine")
     stdscr.addstr(6,62,"t - chop trees")
@@ -306,8 +331,24 @@ def workshop_menu_print(stdscr):
     
     stdscr.addstr(8,62,"Space - leave menu")
     
-
-
+def query_menu_print(stdscr):
+    stdscr.addstr(5,62,"a - add new task")
+    stdscr.addstr(6,62,"r - remove task")
+    
+    stdscr.addstr(8,62,"Space - leave menu")
+def carpenter_crafting_menu_print(stdscr):
+    stdscr.addstr(5,62,"t - table")
+    stdscr.addstr(6,62,"c - chair")
+    #stdscr.addstr(6,62,"b - wood_blocks")
+    
+    
+    stdscr.addstr(8,62,"Space - leave menu")
+def mason_crafting_menu_print(stdscr):
+    stdscr.addstr(5,62,"t - table")
+    stdscr.addstr(6,62,"c - chair")
+    
+    
+    stdscr.addstr(8,62,"Space - leave menu")
 def write_announcement(string):
     f=open(str(maindir)+'/fort/announcements.data','a')
     f.write(string)
@@ -365,9 +406,21 @@ def draw_rect(stdscr, char, color_pair, y, x):
     char_x = x
     stdscr.addch(char_y, char_x, char, curses.color_pair(color_pair))
   
-    
+def set_carpenter_crafting_task(dwarves, cursor_x, cursor_y, rock, item_type):
+    for Q in dwarves:
+        if 'carpenter' in Q.professions:
+            if Q.get_goal() is None:
+                Q.set_craft(cursor_x, cursor_y)
+                Q.get_item = rock
+                Q.make_item = item_type  
      
-
+def set_mason_crafting_task(dwarves, cursor_x, cursor_y, rock, item_type):
+    for Q in dwarves:
+        if 'mason' in Q.professions:
+            if Q.get_goal() is None:
+                Q.set_craft(cursor_x, cursor_y)
+                Q.get_item = rock
+                Q.make_item = item_type  
 # Main loop
 while True:
     key='sdsdsd'
@@ -575,130 +628,7 @@ while True:
         
         worldgen.micro_region(biome,elev[embarky,embarkx])
         x=np.loadtxt(str(maindir)+'/region/region.data',dtype=object)
-        for j in range(1):
-            stdscr.refresh()
-            for i in range(1):
-                if x[i][j] == 'grass':
-                    stdscr.addstr(j+1,i,'`',curses.color_pair(2))
-                if x[i][j] == 'tree':
-                    stdscr.addstr(j+1,i,'O',curses.color_pair(8))
-                if x[i][j] == 'dead shrub':
-                    stdscr.addstr(j+1,i,'&',curses.color_pair(9))
-                
-                if x[i][j] == 'sapling':
-                    stdscr.addstr(j+1,i,'∂',curses.color_pair(11))
-
-                if x[i][j] == 'mud':
-                    stdscr.addstr(j+1,i,';',curses.color_pair(12))
-                if x[i][j] == 'snow':
-                    stdscr.addstr(j+1,i,'"',curses.color_pair(7))
-
-                if x[i][j] == 'dirt':
-                    stdscr.addstr(j+1,i,'#',curses.color_pair(9))
-                if x[i][j] == 'water':
-                    stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
-                if x[i][j]== 'wood-wall':
-                    stdscr.addstr(j+1,i,'#',curses.color_pair(8))
-                if x[i][j]== 'wood-wall':
-                    stdscr.addstr(j+1,i,'#',curses.color_pair(9))
-                '''
-                if x[i][j] == 'iron-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                if x[i][j] == 'copper-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                if x[i][j] == 'silver-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                if x[i][j] == 'gold-ore':
-                    stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                '''
-                    
-                if x [i][j] == 'stone':
-                    try:
-                        if x[i-1][j]=='grass' or x[i+1][j]=='grass' or x[i][j-1]=='grass' or x[i][j+1]=='grass':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        if x[i-1][j]=='sapling' or x[i+1][j]=='sapling' or x[i][j-1]=='sapling' or x[i][j+1]=='sapling':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        if x[i-1][j]=='mud' or x[i+1][j]=='mud' or x[i][j-1]=='mud' or x[i][j+1]=='mud':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'&',curses.color_pair(10))
-                        
-
-                    except:
-                        pass
-                
-                        
-
-              
-                if x [i][j] == 'iron-ore':
-                    try:
-                        if x[i-1][j]=='grass' or x[i+1][j]=='grass' or x[i][j-1]=='grass' or x[i][j+1]=='grass':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                        if x[i-1][j]=='sapling' or x[i+1][j]=='sapling' or x[i][j-1]=='sapling' or x[i][j+1]=='sapling':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                        if x[i-1][j]=='mud' or x[i+1][j]=='mud' or x[i][j-1]=='mud' or x[i][j+1]=='mud':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(1))
-                    except:
-                        pass
-                
-                if x [i][j] == 'copper-ore':
-                    try:
-                        if x[i-1][j]=='grass' or x[i+1][j]=='grass' or x[i][j-1]=='grass' or x[i][j+1]=='grass':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                        if x[i-1][j]=='sapling' or x[i+1][j]=='sapling' or x[i][j-1]=='sapling' or x[i][j+1]=='sapling':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                        if x[i-1][j]=='mud' or x[i+1][j]=='mud' or x[i][j-1]=='mud' or x[i][j+1]=='mud':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(9))
-                    except:
-                        pass
-                if x [i][j] == 'silver-ore':
-                    try:
-                        if x[i-1][j]=='grass' or x[i+1][j]=='grass' or x[i][j-1]=='grass' or x[i][j+1]=='grass':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                        if x[i-1][j]=='sapling' or x[i+1][j]=='sapling' or x[i][j-1]=='sapling' or x[i][j+1]=='sapling':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                        if x[i-1][j]=='mud' or x[i+1][j]=='mud' or x[i][j-1]=='mud' or x[i][j+1]=='mud':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(10))
-                    except:
-                        pass
-                if x [i][j] == 'gold-ore':
-                    try:
-                        if x[i-1][j]=='grass' or x[i+1][j]=='grass' or x[i][j-1]=='grass' or x[i][j+1]=='grass':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                        if x[i-1][j]=='sapling' or x[i+1][j]=='sapling' or x[i][j-1]=='sapling' or x[i][j+1]=='sapling':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                        if x[i-1][j]=='mud' or x[i+1][j]=='mud' or x[i][j-1]=='mud' or x[i][j+1]=='mud':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                        if x[i-1][j]=='tree' or x[i+1][j]=='tree' or x[i][j-1]=='tree' or x[i][j+1]=='tree':
-                            stdscr.addstr(j+1,i,'%',curses.color_pair(4))
-                    except:
-                        pass
+        
                 
         np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
                 
@@ -736,6 +666,10 @@ while True:
         for i in range(X):
             for j in range(Y):
                 items[i, j] = []
+        wtasks=np.empty((X,Y),dtype=object)
+        for i in range(X):
+            for j in range(Y):
+                wtasks[i, j] = []
         tasks=np.zeros((X,Y))
         workshop_color=np.zeros((X,Y))
         
@@ -799,7 +733,7 @@ while True:
                     x[i][j]='cavern_floor'
         
         
-        x[290][15]='grass'
+        
         '''
         
         ##
@@ -881,9 +815,9 @@ while True:
                         i.goto(i.posx+overy,i.posy+over)
                 over=0
                 overy=0
-
-        if key == ord('a'):
-            announcement_window(stdscr)
+        if menu == 'main':
+            if key == ord('a'):
+                announcement_window(stdscr)
         
         if key == ord(' '):
             if menu =='main':
@@ -1223,7 +1157,11 @@ while True:
                         i.goto(i.posx,i.posy-10)
                         i.overyc-=10
         
-        if menu == 'main':           
+        if menu == 'main':
+            if key == ord('q'):
+                playing=0
+                kshown+=1
+                menu='query'
             if key == ord('d'):
                 playing=0
                 menu='designation'
@@ -1404,7 +1342,74 @@ while True:
             
                         
                     
+        if menu == 'query':
+            if key == ord('a'):
+                if x[cursorx+over][cursory+overy-1] in carpenter_tiles:
+                    menu = 'carpenter_crafting'
+                if x[cursorx+over][cursory+overy-1] in mason_tiles:
+                    menu = 'mason_crafting'
+                key = 'qqqqqqqq'
+                ccursorx=cursorx+over
+                ccursory=cursory+overy-1
+        if menu == 'carpenter_crafting':
+            if key == ord('t'):
+                menu = 'query'
+                rock = None
+                for j in range(X-1):
+                    for i in range(Y-1):
+                        temmm = get_items(j, i, items)
+                        if 'wood' in temmm:
+                            rock = 'wood'
+                            item_type = 'wood_table'
+                            set_carpenter_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
+                            break
+            if key == ord('c'):
+                menu = 'query'
+                rock = None
+                for j in range(X-1):
+                    for i in range(Y-1):
+                        temmm = get_items(j, i, items)
+                        if 'wood' in temmm:
+                            rock = 'wood'
+                            item_type = 'wood_chair'
+                            set_carpenter_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
+                            break
+        if menu == 'mason_crafting':
+            if key == ord('t'):
+                menu = 'query'
+                rock = None
+                for j in range(X-1):
+                    for i in range(Y-1):
+                        temmm = get_items(j, i, items)
+                        for k in rock_types:
+                            if k in temmm:
+                                rock = k
+                                item_type = str(k)+'_table'
+                                set_mason_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
+                                break
+            if key == ord('c'):
+                menu = 'query'
+                rock = None
+                for j in range(X-1):
+                    for i in range(Y-1):
+                        temmm = get_items(j, i, items)
+                        for k in rock_types:
+                            if 'wood' in temmm:
+                                rock = k
+                                item_type = str(k)+'_chair'
+                                set_mason_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
+                                break
+                                
+                                
+                                
+                            
+                
             
+                    
+            
+            
+
+           
         
         if menu =='designation':
             
@@ -1718,13 +1723,21 @@ while True:
                     
                     if i.get_item!=None:
                         i.set_goal('item_fetch')
-                    if i.get_build != None:
+                    if i.get_build() != None:
                         cc=0
                         for ccc in i.possessions:
                             if ccc in item_list:
                                 cc=1
                         if cc==1:
+                            
                             i.set_goal('build')
+                    if i.get_craft() != None:
+                        cc=0
+                        for ccc in i.possessions:
+                            if ccc in item_list:
+                                cc=1
+                        if cc==1:
+                            i.set_goal('craft')
                             
                     if i.task == 'idle':
                             if t % i.speed == 0:
@@ -1739,7 +1752,28 @@ while True:
                         i.q=None
                         if t > 5:
                             qqq=i.get_goal()
+                            if qqq=='craft':
+                                            
+                                            c=0
+                                
+
+                                     
+                                            i.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                qq=i.get_craft()
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(qq[0], qq[1]) )
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
+                                                    c=1
+                                                except:
+                                                    i.q=None
+                                                    i.none_craft()
+                                                    i.task='idle'
                             if qqq=='build':
+                                            
                                             
                                             c=0
                                 
@@ -1932,6 +1966,7 @@ while True:
                                         i.task='idle'
                                 if i.get_goal() == 'build':
                                     
+                                    
                                     yy=i.posx+overy
                                     xx=i.posy+over
                                     
@@ -1991,8 +2026,45 @@ while True:
                                             i.set_goal(None)
                                             i.get_item=None
                                             i.none_build()
+
+
+                                ########
+                                if i.get_goal() == 'craft':
+                                    
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    
+
+                                    
+    
+                                    if x[i.posy+over,i.posx+overy] in workshops:
+                                        
+                                    
+                                        for cccc in i.possessions:
+                                            if cccc in item_list:
+                                                qqqq=cccc
+                                                i.possessions.remove(cccc)
+                                                
+                                                break
+                                        i.counter+=1
+                                        if i.counter == 70:
+                                            
+                                            
+                                            add_item(i.posy+over,i.posx+overy,i.make_item,items)
+                                            i.make_item=None
+                                            
+                                        
+                                            i.task='idle'
+                                            i.counter=0
+                                            i.set_goal(None)
+                                            i.get_item=None
+                                            i.none_craft()
+                                    
+
+
+                                            
                                 if playing % 2 == 1:
-                                    if (t+i.step) % 3 == 0:
+                                    if (t+i.step) % 4 == 0:
                                     
                                         #if abs(i.pathy[1]-i.posx)<=2:
                                         i.goto(i.pathy[1]-overy,i.pathx[1]-over)
@@ -2090,12 +2162,21 @@ while True:
             building_menu_print(stdscr)
         elif menu == 'workshop':
             workshop_menu_print(stdscr)
+        elif menu == 'query':
+            query_menu_print(stdscr)
+        elif menu == 'carpenter_crafting':
+            carpenter_crafting_menu_print(stdscr)
+        elif menu == 'mason_crafting':
+            mason_crafting_menu_print(stdscr)
             
             
+        '''   
         for i in dwarves:
             if 'carpenter' in i.professions:
                 stdscr.addstr(28,62,x[i.posy+over,i.posx+overy])
                 stdscr.addstr(29,62,str(i.posx+overy)+'-'+str(i.posy+over))
+                stdscr.addstr(30,62,str(i.get_goal()))
+        '''
         stdscr.refresh()
         
         if t == 500:
