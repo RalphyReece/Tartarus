@@ -884,7 +884,7 @@ def micro_region(biome,elev):
     
     for i in range(x):
                 for j in range(y):
-                    if trees[i][j] >.08:
+                    if trees[i][j] >.06:
                         if region[i][j] == 'slate':
                             region[i][j] = 'basalt'    
             

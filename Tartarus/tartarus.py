@@ -21,6 +21,16 @@ maindir = maindir[:-1]
 import multiprocessing
 gc.enable()
 '''
+	"	=
+░		
+░	]	░
+
+
+;		░
+░	[	░
+        o	
+'''
+'''
 scene=0 is start
 1 is main menu
 2 is world creation
@@ -64,7 +74,11 @@ solids = [
         ]
 
 
+item_list = [ 'basalt_pebble','talc_pebble','slate_pebble','wood'
+        ]
 
+item_color = [ 22 , 23 , 10 , 8
+    ]
 undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undiscovered_dense_moss1'
 
                           ]
@@ -81,7 +95,9 @@ startt=time.time()
 tile_types = [
                 'grass', 'sapling', 'mud', 'peat', 
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
-                'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge'
+                'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge',
+                'carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8',
+                'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -721,6 +737,7 @@ while True:
             for j in range(Y):
                 items[i, j] = []
         tasks=np.zeros((X,Y))
+        workshop_color=np.zeros((X,Y))
         
         menu='main'
         t=0
@@ -761,9 +778,12 @@ while True:
 
         dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, [],['carpenter','architecture'])
         dwarves.append(dorf)
-        
-        
 
+        dorf=creatures.Dwarf(2, 14, 93, 'Dinglii', 5, 5, [],['mason'])
+        dwarves.append(dorf)
+        
+        for i in range(5):
+            add_item(i+90,20,'wood',items)
         scene='play'
         over=5
         overy=0
@@ -868,7 +888,7 @@ while True:
         if key == ord(' '):
             if menu =='main':
                 playing+=1
-            if menu != 'main':
+            elif menu != 'main':
                 menu='main'
                 kshown=0
             
@@ -967,6 +987,7 @@ while True:
                             if x[i+over][j+overy] == 'slate_bridge':
                                 stdscr.addstr(j+1,i,'═',curses.color_pair(22))
                             
+                            
 
 
                             #items
@@ -979,8 +1000,48 @@ while True:
                             if get_top_item(i+over,j+overy,items) == 'talc_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(23))
 
+
+                            #workshop
+                            if x[i+over][j+overy] == 'carpenter0':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter1':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter2':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter3':
+                                stdscr.addstr(j+1,i,'\"',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter4':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter5':
+                                stdscr.addstr(j+1,i,']',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter6':
+                                stdscr.addstr(j+1,i,'═',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter7':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'carpenter8':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+
+                            if x[i+over][j+overy] == 'mason0':
+                                stdscr.addstr(j+1,i,';',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason1':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason2':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason3':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason4':
+                                stdscr.addstr(j+1,i,'[',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason5':
+                                stdscr.addstr(j+1,i,'o',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason6':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason7':
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                            if x[i+over][j+overy] == 'mason8':
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+
                         except:
-                                break
+                            break
                         
                         
                         
@@ -1171,7 +1232,7 @@ while True:
             if key == ord('b'):
                 playing=0
                 menu='building'
-                kshown+=1
+                #kshown+=1
                 action='carpenter'
         if menu == 'building':
             if key == ord('w'):
@@ -1179,6 +1240,8 @@ while True:
         if menu == 'workshop':
             if key == ord('c'):
                 menu = 'build_carpenter'
+            if key == ord('m'):
+                menu = 'build_mason'
         if menu == 'build_carpenter':
             can_build=1
             
@@ -1223,7 +1286,51 @@ while True:
                 boldened=0
                 key='something to not be 10'
                 
+        if menu == 'build_mason':
+            can_build=1
+            
+            for i in range(3):
+                for j in range(3):
+                    if x[cursorx+over+j][cursory+overy-1+i] not in solids:
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(5))
+                    else:
+                        can_build=0
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
+            
+            if can_build==1:
+                stdscr.addstr(4,61,'Placement')
+            else:
+                stdscr.addstr(4,61,'Workshop Blocked')
+            if key == 10 and can_build == 1:
+                ccursorx=cursorx
+                ccursory=cursory
+                rocks=[]
+                rx=[]
+                ry=[]
+                for j in range(X-1):
+                    for i in range(Y-1):
+                            temmm=get_items(j,i,items)
+                            if 'slate_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('slate_pebble')
+                            elif 'talc_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('talc_pebble')
+                            elif 'basalt_pebble' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('basalt_pebble')
+                            elif 'wood' in temmm:
+                                rx.append(j)
+                                ry.append(i)
+                                rocks.append('wood')
+                menu='mason_material'
+                boldened=0
+                key='something to not be 10'
                 
+              
         if menu == 'carpenter_material':
             for i in range(30):
                 if boldened != i:
@@ -1248,12 +1355,51 @@ while True:
                 #this is kinda a scam, but whatever. Makes choosing a material mostly useless.
                 for i in dwarves:
                     if 'carpenter' in i.professions:
-                        i.get_item=rocks[boldened]
+                        if i.get_goal() == None:
+                            i.get_item=rocks[boldened]
+                            i.set_build(ccursorx+over,ccursory+overy-1)
+                            
 
                 menu='main'
+                
                 for i in range(3):
                     for j in range(3):
                         x[ccursorx+over+j][ccursory+overy-1+i]='unbuilt_carpenter_workshop'
+                
+        if menu == 'mason_material':
+            for i in range(30):
+                if boldened != i:
+                    try:
+                        stdscr.addstr(i,65,rocks[i])
+                    except:
+                        pass
+                else:
+                    try:
+                        
+                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        
+                    except:
+                        boldened=0
+            if key == ord('='):
+                if boldened > 0:
+                    boldened-=1
+            elif key == ord('-'):
+                if boldened <30:
+                    boldened+=1
+            if key == 10:
+                #this is kinda a scam, but whatever. Makes choosing a material mostly useless.
+                for i in dwarves:
+                    if 'mason' in i.professions:
+                        if i.get_goal() == None:
+                            i.get_item=rocks[boldened]
+                            i.set_build(ccursorx+over,ccursory+overy-1)
+                            
+
+                menu='main'
+                
+                for i in range(3):
+                    for j in range(3):
+                        x[ccursorx+over+j][ccursory+overy-1+i]='unbuilt_mason_workshop'
                 
             
                         
@@ -1326,9 +1472,11 @@ while True:
                         x[cursorx+over][cursory+1+overy] == tile_type
                     ):
                         stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1]}")
+                        
                         break
                 
-            
+            if x[cursorx+over][cursory+overy-1] not in solids:
+                stdscr.addstr(1, offset, f"Items: {get_items(cursorx+over,cursory+overy-1,items)}")
         except:
             pass
         
@@ -1564,10 +1712,20 @@ while True:
                     if 'pickaxe' in i.possessions and 'miner' in i.professions:
                         if task1c==1:
                                     i.set_goal('mine')
+                        else:
+                            i.task='idle'
                                     
                     
                     if i.get_item!=None:
                         i.set_goal('item_fetch')
+                    if i.get_build != None:
+                        cc=0
+                        for ccc in i.possessions:
+                            if ccc in item_list:
+                                cc=1
+                        if cc==1:
+                            i.set_goal('build')
+                            
                     if i.task == 'idle':
                             if t % i.speed == 0:
                                 i.age()
@@ -1581,6 +1739,26 @@ while True:
                         i.q=None
                         if t > 5:
                             qqq=i.get_goal()
+                            if qqq=='build':
+                                            
+                                            c=0
+                                
+
+                                     
+                                            i.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                qq=i.get_build()
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(qq[0], qq[1]) )
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
+                                                    c=1
+                                                except:
+                                                    i.q=None
+                                                    i.none_build()
+                                                    i.task='idle'
                             if qqq=='item_fetch':
                                 c=0
                                 for j in range(X):
@@ -1601,6 +1779,7 @@ while True:
                                                     c=1
                                                 except:
                                                     i.task='idle'
+                                                    i.q=None
                                                     
                                         
                                                    
@@ -1651,6 +1830,7 @@ while True:
                                                 except:
                                                     pass
                                             if c == 0:
+                                                i.q=None
                                                 
                                                 
                                                     
@@ -1702,26 +1882,7 @@ while True:
                                                     pass
                                             if c == 0:
                                                     i.q=None
-                                                    '''
-                                                    try:
-                                                        q2=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j+1, k) )
-                                                        first_elements = [x[0] for x in q2]
-                                                        second_elements = [x[1] for x in q2]
-                                                        c=1
-                                                    except:
-                                                        try:
-                                                            q3=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k+1) )
-                                                            first_elements = [x[0] for x in q3]
-                                                            second_elements = [x[1] for x in q3]
-                                                            c=1
-                                                        except:
-                                                            try:
-                                                                q4=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy, i.posx),(j, k-1) )
-                                                                first_elements = [x[0] for x in q4]
-                                                                second_elements = [x[1] for x in q4]
-                                                                c=1
-                                                            except:
-                                                    '''
+                                                    
                                                     i.task='idle'
                                                     
                                             
@@ -1767,8 +1928,71 @@ while True:
                                         i.task='idle'
                                         i.set_goal(None)
                                         i.get_item=None
+                                    elif len(i.pathx) == 1:
+                                        i.task='idle'
+                                if i.get_goal() == 'build':
+                                    
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    
+
+                                    
+    
+                                    if x[i.posy+over,i.posx+overy] == 'unbuilt_carpenter_workshop':
+                                    
+                                        for cccc in i.possessions:
+                                            if cccc in item_list:
+                                                qqqq=cccc
+                                                i.possessions.remove(cccc)
+                                                for WW in range(len(item_list)):
+                                                        if cccc == item_list[WW]:
+                                                            for J in range(3):
+                                                                for K in range(3):
+                                                                    workshop_color[i.posy+over+J,i.posx+overy+K]=item_color[WW]
+                                                break
+                                        i.counter+=1
+                                        if i.counter == 200:
+                                            cc=0
+                                            for J in range(3):
+                                                for K in range(3):
+                                                    x[i.posy+over+J,i.posx+overy+K]='carpenter'+str(cc)   
+                                                    cc+=1
+                                        
+                                            i.task='idle'
+                                            i.counter=0
+                                            i.set_goal(None)
+                                            i.get_item=None
+                                            i.none_build()
+                                    if x[i.posy+over,i.posx+overy] == 'unbuilt_mason_workshop':
+  
+                                        for cccc in i.possessions:
+                                            if cccc in item_list:
+                                                qqqq=cccc
+                                                i.possessions.remove(cccc)
+                                                for WW in range(len(item_list)):
+                                                        if cccc == item_list[WW]:
+                                                            for J in range(3):
+                                                                for K in range(3):
+                                                                    workshop_color[i.posy+over+J,i.posx+overy+K]=item_color[WW]
+                                                break
+                                        i.counter+=1
+                                        if i.counter == 200:
+                                            cc=0
+                                            for J in range(3):
+                                                for K in range(3):
+                                                    x[i.posy+over+J,i.posx+overy+K]='mason'+str(cc)
+                                                    
+                                                        
+                                                        
+                                                    cc+=1
+                                        
+                                            i.task='idle'
+                                            i.counter=0
+                                            i.set_goal(None)
+                                            i.get_item=None
+                                            i.none_build()
                                 if playing % 2 == 1:
-                                    if t % 3 == 0:
+                                    if (t+i.step) % 3 == 0:
                                     
                                         #if abs(i.pathy[1]-i.posx)<=2:
                                         i.goto(i.pathy[1]-overy,i.pathx[1]-over)
@@ -1823,7 +2047,7 @@ while True:
     
                                         if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[0]) and tasks[nx][ny] == 2:
                                             
-                                            r=random.randint(1,2)
+                                            r=random.randint(1,6)
                                             if x[nx][ny] == 'tree':
                                                 if r==1:
                                                     tasks[nx][ny] = 0
@@ -1839,8 +2063,14 @@ while True:
         for i in dwarves:        
             if i.posy < 60:
                     try:
-                                
-                        stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(i.color))
+                        if i.professions[0] == 'miner':  
+                            stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(10))
+                        if i.professions[0] == 'woodcutter':  
+                            stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(8))
+                        if i.professions[0] == 'mason':  
+                            stdscr.addstr(i.posx+1,i.posy,i.shape)
+                        if i.professions[0] == 'carpenter':  
+                            stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(8))
                     except curses.error:
                         pass           
                 
@@ -1862,7 +2092,10 @@ while True:
             workshop_menu_print(stdscr)
             
             
-        
+        for i in dwarves:
+            if 'carpenter' in i.professions:
+                stdscr.addstr(28,62,x[i.posy+over,i.posx+overy])
+                stdscr.addstr(29,62,str(i.posx+overy)+'-'+str(i.posy+over))
         stdscr.refresh()
         
         if t == 500:

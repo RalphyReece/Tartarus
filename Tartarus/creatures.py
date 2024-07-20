@@ -84,9 +84,10 @@ class Dwarf:
         self.building=None
         
         
-
+        self.step=random.randint(0,3)
         self.overc=0
         self.overyc=0
+        self.counter=0
         
         
         self.speed=10
@@ -97,8 +98,12 @@ class Dwarf:
         self.get_item=None
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
-        
-    
+    def none_build(self):
+        self.building=None
+    def set_build(self,x,y):
+        self.building=[x,y]
+    def get_build(self):
+        return self.building
     def update_pos(self):
         r=random.randint(1,2)
         if r == 1:
