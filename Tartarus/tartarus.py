@@ -884,7 +884,7 @@ while True:
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(9))
                     
                             if x[i+over][j+overy] == 'sapling':
-                                stdscr.addstr(j+1,i,'∂',curses.color_pair(11))
+                                stdscr.addstr(j+1,i,'γ',curses.color_pair(11))
 
                             if x[i+over][j+overy] == 'mud':
                                 stdscr.addstr(j+1,i,';',curses.color_pair(12))
@@ -2169,6 +2169,23 @@ while True:
         elif menu == 'mason_crafting':
             mason_crafting_menu_print(stdscr)
             
+        ####Tree Growth/Sapling
+        if t % 1000 == 0:
+            for i in range(X):
+                for j in range(Y):
+                    if x[i][j]=='sapling':
+                        
+                        r=random.randint(0,1000)
+                        if r == 1:
+                            x[i][j]='tree'
+        if t % 501 == 0:
+            for i in range(X):
+                for j in range(Y):
+                    if x[i][j]=='grass':
+                        
+                        r=random.randint(0,10000)
+                        if r == 1:
+                            x[i][j]='sapling'
             
         '''   
         for i in dwarves:
