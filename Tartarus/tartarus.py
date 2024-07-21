@@ -1433,7 +1433,8 @@ while True:
                         try:
                             for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=1
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy] in solids:
+                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=1
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -2170,22 +2171,23 @@ while True:
             mason_crafting_menu_print(stdscr)
             
         ####Tree Growth/Sapling
-        if t % 1000 == 0:
-            for i in range(X):
-                for j in range(Y):
-                    if x[i][j]=='sapling':
+        if playing % 2 == 1:
+            if t % 2001 == 0:
+                for i in range(X):
+                    for j in range(Y):
+                        if x[i][j]=='sapling':
                         
-                        r=random.randint(0,1000)
-                        if r == 1:
-                            x[i][j]='tree'
-        if t % 501 == 0:
-            for i in range(X):
-                for j in range(Y):
-                    if x[i][j]=='grass':
+                            r=random.randint(0,40000)
+                            if r == 1:
+                                x[i][j]='tree'
+            if (t+456) % 2001 == 0:
+                for i in range(X):
+                    for j in range(Y):
+                        if x[i][j]=='grass':
                         
-                        r=random.randint(0,10000)
-                        if r == 1:
-                            x[i][j]='sapling'
+                            r=random.randint(0,80000)
+                            if r == 1:
+                                x[i][j]='sapling'
             
         '''   
         for i in dwarves:

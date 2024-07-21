@@ -86,7 +86,7 @@ class Dwarf:
         self.make_item=None
         
         
-        self.step=random.randint(0,4)
+        self.step=random.randint(0,10)
         self.overc=0
         self.overyc=0
         self.counter=0
