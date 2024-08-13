@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 X=800
 Y=100
 import cProfile
@@ -316,7 +317,8 @@ def main_menu_print(stdscr):
     stdscr.addstr(7,62,"Space - pause (or leave menu)")
     stdscr.addstr(8,62,"k - toggle cursor")
     stdscr.addstr(9,62,"b - build menu")
-    stdscr.addstr(9,62,"q - query")
+    stdscr.addstr(10,62,"q - query")
+    stdscr.addstr(11,62,"p - stockpiles")
 def designation_menu_print(stdscr):
     stdscr.addstr(5,62,"d - mine")
     stdscr.addstr(6,62,"t - chop trees")
@@ -353,7 +355,12 @@ def write_announcement(string):
     f=open(str(maindir)+'/fort/announcements.data','a')
     f.write(string)
     f.close()
-
+def stockpile_menu_print(stdscr):
+    stdscr.addstr(5,62,"1 - furniture stockpile")
+    stdscr.addstr(6,62,"Nothing yet")
+    
+    
+    stdscr.addstr(8,62,"Space - leave menu")
 def announcement_window(stdscr):
     stdscr.clear()
     
@@ -667,6 +674,7 @@ while True:
             for j in range(Y):
                 items[i, j] = []
         wtasks=np.empty((X,Y),dtype=object)
+        stockpile=np.zeros((X,Y))
         for i in range(X):
             for j in range(Y):
                 wtasks[i, j] = []
@@ -825,6 +833,7 @@ while True:
             elif menu != 'main':
                 menu='main'
                 kshown=0
+        
             
             
         if key == ord('k'):
@@ -1053,6 +1062,9 @@ while True:
                         if t % 20 <= 10:
                             if tasks[i+over,j+overy]!=0:
                                 stdscr.addstr(j+1,i,'\u2588',curses.color_pair(4))
+                        
+                        if stockpile[i+over,j+overy]!=0:
+                            stdscr.addstr(j+1,i,'=',curses.color_pair(23))
         
 
         if t == 800:
@@ -1158,6 +1170,10 @@ while True:
                         i.overyc-=10
         
         if menu == 'main':
+            if key == ord('p'):
+                playing=0
+                kshown+=1
+                menu='stockpile'
             if key == ord('q'):
                 playing=0
                 kshown+=1
@@ -1172,6 +1188,7 @@ while True:
                 menu='building'
                 #kshown+=1
                 action='carpenter'
+        
         if menu == 'building':
             if key == ord('w'):
                 menu = 'workshop'
@@ -1406,7 +1423,47 @@ while True:
                 
             
                     
+        if menu == 'stockpile':
             
+            if key == ord("1"):
+                action='stockpile1'
+            if key == 10:
+                if dclicks==0:
+                    dc1=[cursorx,cursory]
+                    dclicks=1
+                elif dclicks ==1:
+                    dc2=[cursorx,cursory]
+                    dclicks=0
+                    if action=='stockpile1':
+                        
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1+relover):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy] in tile_types:
+                                        stockpile[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=1
+                        except TypeError:
+                            pass
+                        relover,relovery=0,0
+                    if action=='stockpile2':
+                        
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1+relover):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy] in tile_types:
+                                        stockpile[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=2
+                        except TypeError:
+                            pass
+                        relover,relovery=0,0
+                    #rm stockpile
+                    if action=='stockpile0':
+                        
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1+relover):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    stockpile[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=0
+                        except TypeError:
+                            pass
+                        relover,relovery=0,0
             
 
            
@@ -1646,7 +1703,15 @@ while True:
             
             
                         
-                            
+        #check if stockpile open
+        
+        for j in range(X):
+            for k in range(Y):
+                if stockpile[j][k] == 1:
+                    if get_items(j,k,items) == []:
+                        qowieu1=1
+                        
+                         
                             
                             
                         
@@ -2169,6 +2234,8 @@ while True:
             carpenter_crafting_menu_print(stdscr)
         elif menu == 'mason_crafting':
             mason_crafting_menu_print(stdscr)
+        elif menu == 'stockpile':
+            stockpile_menu_print(stdscr)
             
         ####Tree Growth/Sapling
         if playing % 2 == 1:
@@ -2197,7 +2264,7 @@ while True:
                 stdscr.addstr(30,62,str(i.get_goal()))
         '''
         stdscr.refresh()
-        
+        stdscr.addstr(19,62,str(get_items(0,0,items)))
         if t == 500:
                 f=open('milestone','a')
                 f.write('\n'+str(time.time()-tim))
