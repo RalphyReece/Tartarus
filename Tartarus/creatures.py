@@ -84,6 +84,7 @@ class Dwarf:
         self.building=None
         self.crafting=None
         self.make_item=None
+        self.drop_item=None
         
         
         self.step=random.randint(0,10)

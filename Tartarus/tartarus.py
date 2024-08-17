@@ -86,6 +86,8 @@ class FPSCounter:
             return f"FPS: {fps:.2f}"
             self.start_time = end_time
             self.frame_count = 0
+furniture= [ 'slate_table','basalt_table','talc_table','talc_chair','basalt_chair','slate_table','wood_table','wood_chair'
+    ]
 solids = [
                 'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
                 'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt'
@@ -357,7 +359,7 @@ def write_announcement(string):
     f.close()
 def stockpile_menu_print(stdscr):
     stdscr.addstr(5,62,"1 - furniture stockpile")
-    stdscr.addstr(6,62,"Nothing yet")
+    stdscr.addstr(10,62,"x - remove stockpile tiles")
     
     
     stdscr.addstr(8,62,"Space - leave menu")
@@ -930,7 +932,8 @@ while True:
                             if x[i+over][j+overy] == 'slate_bridge':
                                 stdscr.addstr(j+1,i,'═',curses.color_pair(22))
                             
-                            
+                            if stockpile[i+over,j+overy]!=0:
+                                stdscr.addstr(j+1,i,'=',curses.color_pair(23))
 
 
                             #items
@@ -942,6 +945,10 @@ while True:
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(22))
                             if get_top_item(i+over,j+overy,items) == 'talc_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(23))
+                            if get_top_item(i+over,j+overy,items) == 'wood_table':
+                                stdscr.addstr(j+1,i,'╦',curses.color_pair(8))
+                                
+                            
 
 
                             #workshop
@@ -1063,8 +1070,7 @@ while True:
                             if tasks[i+over,j+overy]!=0:
                                 stdscr.addstr(j+1,i,'\u2588',curses.color_pair(4))
                         
-                        if stockpile[i+over,j+overy]!=0:
-                            stdscr.addstr(j+1,i,'=',curses.color_pair(23))
+                        
         
 
         if t == 800:
@@ -1174,6 +1180,7 @@ while True:
                 playing=0
                 kshown+=1
                 menu='stockpile'
+                action='stockpile1'
             if key == ord('q'):
                 playing=0
                 kshown+=1
@@ -1427,6 +1434,8 @@ while True:
             
             if key == ord("1"):
                 action='stockpile1'
+            if key == ord('x'):
+                action='stockpile0'
             if key == 10:
                 if dclicks==0:
                     dc1=[cursorx,cursory]
@@ -1704,17 +1713,32 @@ while True:
             
                         
         #check if stockpile open
+        if t % 213 == 0:
         
-        for j in range(X):
-            for k in range(Y):
-                if stockpile[j][k] == 1:
-                    if get_items(j,k,items) == []:
-                        qowieu1=1
+            for j in range(X):
+                for k in range(Y):
+                    if stockpile[j][k] == 1:
+                        if get_items(j,k,items) == []:
+                            openstock=1
+                            for J in range(X):
+                                for K in range(Y):
+                                    for I in furniture:
+                                        if I in get_items(J,K,items):
+                                            
+                                            #raise Exception("AHHH")
+                                            for B in dwarves:
+                                                if B.get_goal()==None:
+                                                    
+                                                        B.drop_item=[j,k,I]
+                                                        B.get_item=I
+                                                        break
+                                                        #wip
+                            break
                         
                          
                             
                             
-                        
+                       
         if t == 800:
                 beg5=time.time()
         
@@ -1773,7 +1797,10 @@ while True:
                 
 
                 if playing % 2 == 1:
-                    #change this later, make axe.
+                    ##stockpile haul
+                    
+                    #
+                    
                     if 'axe' in i.possessions and 'woodcutter' in i.professions:
                         if task2c==1:
                                     i.set_goal('chop chop')
@@ -1789,6 +1816,12 @@ while True:
                     
                     if i.get_item!=None:
                         i.set_goal('item_fetch')
+                    if i.drop_item!=None:
+                        if i.drop_item[2] in i.possessions:
+                            
+                        
+                            i.set_goal('item_drop')
+                        
                     if i.get_build() != None:
                         cc=0
                         for ccc in i.possessions:
@@ -1880,7 +1913,28 @@ while True:
                                                 except:
                                                     i.task='idle'
                                                     i.q=None
-                                                    
+                            if qqq=='item_drop':
+                                            c=0
+                                            
+                                
+
+                                     
+                                            i.task='Path'
+                                              
+                                            if c != 1:    
+                                                
+                                                
+                                                try:
+                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(i.drop_item[0], i.drop_item[1]) )
+                                                    i.first_elements = [x[0] for x in i.q]
+                                                    i.second_elements = [x[1] for x in i.q]
+                                                
+                                                
+                                                except:
+                                                    raise Exception('Ruh Roh guys')
+                                                    i.task='idle'
+                                                    i.q=None
+                                                  
                                         
                                                    
                                                 
@@ -2006,6 +2060,25 @@ while True:
                             else:
                                 i.pathx=[]
                                 i.pathy=[]
+                            if i.get_goal() == 'item_drop':
+                                    #makes it here
+                                    
+                                    
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    
+
+                                    
+    
+                                    
+                                            
+                                    if xx==i.drop_item[0] and yy == i.drop_item[1]:
+                                        i.possessions.remove(i.drop_item[2])
+                                        add_item(xx,yy,i.drop_item[2],items)
+                                        i.task='idle'
+                                        i.drop_item=None
+                                        i.set_goal(None)
+                                        i.drop_item=None
                             
                                     
                                 
@@ -2030,6 +2103,8 @@ while True:
                                         i.get_item=None
                                     elif len(i.pathx) == 1:
                                         i.task='idle'
+                                ##copied from
+                                    
                                 if i.get_goal() == 'build':
                                     
                                     
@@ -2210,7 +2285,16 @@ while True:
                         if i.professions[0] == 'carpenter':  
                             stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(8))
                     except curses.error:
-                        pass           
+                        pass
+            
+        ##
+        '''
+            if 'carpenter' in i.professions:
+                    stdscr.addstr(21,62,str(i.goal)+'@'+str(i.task))
+                    stdscr.addstr(32,62,str(i.q))
+
+        ##
+        '''
                 
                 
         if t % 2 == 0:
