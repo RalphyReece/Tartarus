@@ -1546,6 +1546,7 @@ while True:
                         stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1]}")
                         
                         break
+            
                 
             if x[cursorx+over][cursory+overy-1] not in solids:
                 stdscr.addstr(1, offset, f"Items: {get_items(cursorx+over,cursory+overy-1,items)}")
@@ -1947,49 +1948,56 @@ while True:
                                         if tasks[j][k]== 1:
 
                                      
-                                            i.task='Path'
+                                                i.task='Path'
+                                                #if x[j-1][k] in tile_types or x[j+1][k] in tile_types or x[j][k+1] in tile_types or x[j][k-1] in tile_types or x[j][k] in tile_types:
                                               
-                                            if c != 1:    
+                                                if c != 1:    
                                                 
                                                 
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    i.first_elements = [x[0] for x in q]
-                                                    i.second_elements = [x[1] for x in q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c == 0:
-                                                i.q=None
+                                                    try:
+                                                        if x[j-1][k] in tile_types:
+                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j+1][k] in tile_types:
+                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j][k+1] in tile_types:
+                                                            
+                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j][k-1] in tile_types:
+                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c == 0:
+                                                    i.q=None
                                                 
                                                 
                                                     
                                                    
-                                                i.task='idle'
+                                                    i.task='idle'
                             if qqq=='chop chop':
                                 c=0
                                 for j in range(X):
