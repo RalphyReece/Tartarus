@@ -72,6 +72,8 @@ def get_top_wtask(row, col,wtasks):
     else:
         return None
 ##
+def get stockpile(x,y,stockpile):
+    return stockpile[x][y]
 class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
@@ -86,16 +88,21 @@ class FPSCounter:
             return f"FPS: {fps:.2f}"
             self.start_time = end_time
             self.frame_count = 0
-furniture= [ 'slate_table','basalt_table','talc_table','talc_chair','basalt_chair','slate_table','wood_table','wood_chair'
+furniture= [ 'slate_pebble_table','basalt_pebble_table','talc_pebble_table','talc_pebble_chair','basalt_pebble_chair','slate_pebble_table','wood_table','wood_chair'
     ]
 solids = [
                 'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
                 'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt'
         ]
-
+building_items=['basalt_pebble','talc_pebble','slate_pebble','wood']
 
 item_list = [ 'basalt_pebble','talc_pebble','slate_pebble','wood'
+              
         ]
+'''
+for i in furniture:
+    item_list.append(furniture[i])
+'''
 rock_types = [ 'basalt_pebble','talc_pebble','slate_pebble'
     ]
 item_color = [ 22 , 23 , 10 , 8
@@ -359,6 +366,7 @@ def write_announcement(string):
     f.close()
 def stockpile_menu_print(stdscr):
     stdscr.addstr(5,62,"1 - furniture stockpile")
+    stdscr.addstr(6,62,"2 - common building items")
     stdscr.addstr(10,62,"x - remove stockpile tiles")
     
     
@@ -1432,8 +1440,11 @@ while True:
                     
         if menu == 'stockpile':
             
+
             if key == ord("1"):
                 action='stockpile1'
+            if key == ord("2"):
+                action='stockpile2'
             if key == ord('x'):
                 action='stockpile0'
             if key == 10:
@@ -1546,6 +1557,8 @@ while True:
                         stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1]}")
                         
                         break
+            if stockpile[cursorx+over][cursory+1+overy] != 0:
+                stdscr.addstr(3,offset,'stockpile: '+str(stockpile[cursorx+over][cursory+overy]))
             
                 
             if x[cursorx+over][cursory+overy-1] not in solids:
@@ -1720,20 +1733,44 @@ while True:
                 for k in range(Y):
                     if stockpile[j][k] == 1:
                         if get_items(j,k,items) == []:
-                            openstock=1
+                            #openstock=1
                             for J in range(X):
                                 for K in range(Y):
                                     for I in furniture:
                                         if I in get_items(J,K,items):
+                                            if stockpile[J][K] != 1:
+                                                
                                             
-                                            #raise Exception("AHHH")
-                                            for B in dwarves:
-                                                if B.get_goal()==None:
+                                            
+                                                for B in dwarves:
+                                                    if B.get_goal()==None:
                                                     
-                                                        B.drop_item=[j,k,I]
-                                                        B.get_item=I
-                                                        break
-                                                        #wip
+                                                            B.drop_item=[j,k,I,1]
+                                                            B.get_item=I
+                                                            break
+                                                        
+                            break
+                    if stockpile[j][k] == 2:
+                        if get_items(j,k,items) == []:
+                            #openstock=2
+                            for J in range(X):
+                                for K in range(Y):
+                                    
+                                    
+                                    for I in building_items:
+                                        if I in get_items(J,K,items):
+                                            if stockpile[J][K] != 2:
+                                                #stdscr.addstr(23,62,str(stockpile[J][K]))
+                                                
+                                            
+                                            
+                                                for B in dwarves:
+                                                    if B.get_goal()==None:
+                                                    
+                                                            B.drop_item=[j,k,I,2]
+                                                            B.get_item=I
+                                                            break
+                                                        
                             break
                         
                          
@@ -1932,7 +1969,7 @@ while True:
                                                 
                                                 
                                                 except:
-                                                    raise Exception('Ruh Roh guys')
+                                                    
                                                     i.task='idle'
                                                     i.q=None
                                                   
@@ -2069,7 +2106,6 @@ while True:
                                 i.pathx=[]
                                 i.pathy=[]
                             if i.get_goal() == 'item_drop':
-                                    #makes it here
                                     
                                     
                                     yy=i.posx+overy
@@ -2083,6 +2119,8 @@ while True:
                                     if xx==i.drop_item[0] and yy == i.drop_item[1]:
                                         i.possessions.remove(i.drop_item[2])
                                         add_item(xx,yy,i.drop_item[2],items)
+                                        stockpile[xx,yy]=i.drop_item[3]
+                                        
                                         i.task='idle'
                                         i.drop_item=None
                                         i.set_goal(None)
@@ -2372,7 +2410,8 @@ while True:
         
         '''
      
-    
+        
+        
     #stdscr.refresh()
 
 
