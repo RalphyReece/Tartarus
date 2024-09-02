@@ -429,18 +429,22 @@ def micro_region(biome,elev,stdscr):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
-    x=800
+    x=100
     x_len=x
+    z=20
+    z_len=z
     y=100
     y_len=y
     xu=100
-    region=np.empty((x,y), dtype=object)
+    region=np.empty((x,y,z), dtype=object)
 
 
     if biome == 'forest':
         for i in range(x):
             for j in range(y):
-                region[i][j] = 'slate'
+                for k in range(z):
+                    region[i][j][k] = 'slate'
+    '''
     if biome == 'plain':
         for i in range(x):
             for j in range(y):
@@ -478,7 +482,8 @@ def micro_region(biome,elev,stdscr):
 
 
 
-
+    '''
+    '''
     iron_gen(x,y)
     random.uniform(1,3290)
     
@@ -502,7 +507,7 @@ def micro_region(biome,elev,stdscr):
     mythril_gen(x,y)
 
 
-
+    '''
     ##
     
     if biome == 'forest':
@@ -557,51 +562,51 @@ def micro_region(biome,elev,stdscr):
         for j in range(y):
             if biome == 'forest':
                
-                region[i][j]='grass'
+                region[i][j][0]='grass'
             if biome == 'rainforest':
                
-                region[i][j]='bush'
+                region[i][j][0]='bush'
             if biome == 'desert':
             
-                region[i][j]='sand'
+                region[i][j][0]='sand'
             if biome == 'glacier':
                
-                region[i][j]='snow'
+                region[i][j][0]='snow'
             if biome == 'alpine':
                
-                region[i][j]='grass'
+                region[i][j][0]='grass'
             if biome == 'savannah':
                
-                region[i][j]='grass'
+                region[i][j][0]='grass'
             if biome == 'marsh':
                
-                region[i][j]='peat'
+                region[i][j][0]='peat'
             if biome == 'slop':
                 
-                region[i][j]='mud'
+                region[i][j][0]='mud'
             if biome == 'plain':
                
-                region[i][j]='grass'
+                region[i][j][0]='grass'
     trees=np.loadtxt(str(maindir)+'/region/region_trees.data')
     for i in range(xu):
         for j in range(y):
             if trees[i][j] == 1:
-                region[i][j] = 'tree'
+                region[i][j][0] = 'tree'
     trees=np.loadtxt(str(maindir)+'/region/region_saplings.data')
     for i in range(xu):
         for j in range(y):
             if trees[i][j] == 1:
-                region[i][j] = 'sapling'
+                region[i][j][0] = 'sapling'
     trees=np.loadtxt(str(maindir)+'/region/region_nettle.data')
     for i in range(xu):
         for j in range(y):
             if trees[i][j] == 1:
-                region[i][j] = 'nettle'
+                region[i][j][0] = 'nettle'
     trees=np.loadtxt(str(maindir)+'/region/region_crabgrass.data')
     for i in range(xu):
         for j in range(y):
             if trees[i][j] == 1:
-                region[i][j] = 'crabgrass'
+                region[i][j][0] = 'crabgrass'
 
     
     #ore
@@ -620,6 +625,7 @@ def micro_region(biome,elev,stdscr):
     tine=500
     fracters=270
     fractere=410
+    '''
     
     prob=ore_probability_curve(elev)
     r=secrets.randbelow(101)
@@ -696,26 +702,21 @@ def micro_region(biome,elev,stdscr):
                         region[i+fracters][j] = 'fracter-ore'
     
 
-
+    '''
     for i in range(xu):
         for j in range(y):
-            if region[i][j]=='grass':
+            if region[i][j][0]=='grass':
                 r=random.randint(0,4)
                 if r == 1:
-                    region[i][j]='sparse_grass'
-    #wagon
-    region[10][10]='wood-wall'
-    region[10][11]='wood-wall'
-    region[10][12]='wood-wall'
-    region[11][10]='wood-wall'
-    region[12][10]='wood-wall'
-    region[13][10]='wood-wall'
-    region[10][13]='wood-wall'
-    region[13][10]='wood-wall'
-    region[13][11]='wood-wall'
-    region[13][12]='wood-wall'
+                    region[i][j][0]='sparse_grass'
+   
     
-    region[13][13]='wood-wall'
+
+    #test
+    for i in range(x):
+        for j in range(y):
+            for k in range(10):
+                region[i][j][k+1]='grass'
     
 
 
@@ -725,16 +726,16 @@ def micro_region(biome,elev,stdscr):
         for i in range(x):
                 for j in range(y):
                     if trees[i][j] >.25:
-                        if region[i][j] == 'grass':
-                            region[i][j] = 'water'
-                        if region[i][j] == 'tree':
-                            region[i][j] = 'water'
-                        if region[i][j] == 'sapling':
-                            region[i][j] = 'water'
-                        if region[i][j] == 'nettle':
-                            region[i][j] = 'water'
-                        if region[i][j] == 'crabgrass':
-                            region[i][j] = 'water'
+                        if region[i][j][0] == 'grass':
+                            region[i][j][0] = 'water'
+                        if region[i][j][0] == 'tree':
+                            region[i][j][0] = 'water'
+                        if region[i][j][0] == 'sapling':
+                            region[i][j][0] = 'water'
+                        if region[i][j][0] == 'nettle':
+                            region[i][j][0] = 'water'
+                        if region[i][j][0] == 'crabgrass':
+                            region[i][j][0] = 'water'
     if biome == 'marsh':
         for i in range(x):
                 for j in range(y):
@@ -788,8 +789,8 @@ def micro_region(biome,elev,stdscr):
         for i in range(xu):
                 for j in range(y):
                     if trees[i][j] ==1:
-                        if region[i][j] == 'grass':
-                            region[i][j] = 'densegrass'
+                        if region[i][j][0] == 'grass':
+                            region[i][j][0] = 'densegrass'
                         
    
                         
@@ -799,8 +800,8 @@ def micro_region(biome,elev,stdscr):
         for i in range(xu):
                 for j in range(y):
                     if trees[i][j] >.18:
-                        if region[i][j] == 'grass':
-                            region[i][j] = 'densegrass'
+                        if region[i][j][0] == 'grass':
+                            region[i][j][0] = 'densegrass'
     if biome == 'marsh':
         densegrass_gen(xu,y,2)
         trees=np.loadtxt(str(maindir)+'/region/region_densegrass.data')
@@ -828,8 +829,8 @@ def micro_region(biome,elev,stdscr):
         for i in range(xu):
                 for j in range(y):
                     if trees[i][j] ==1:
-                        if region[i][j] == 'grass':
-                            region[i][j] = 'aerath'
+                        if region[i][j][0] == 'grass':
+                            region[i][j][0] = 'aerath'
     if biome == 'alpine':
         flower_gen(xu,y,30)
         trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
@@ -842,28 +843,29 @@ def micro_region(biome,elev,stdscr):
                             
 
     #cave generation
-    #60 and 200 must be changed in both files
-    cavex=random.randint(170,352)
+    #60 and top 100 must be changed in both files
+    cavex=0
     cave=cave_gen.main()
-    for j in range(200):
+    cave_depth=1
+    for j in range(100):
         for i in range(100):
             if cave[i][j] == 1:
-                region[j+cavex][i] = 'undiscovered_moss1'
+                region[j+cavex][i][cave_depth] = 'undiscovered_moss1'
 
     tree_gen(x,y,32)
     trees=np.loadtxt(str(maindir)+'/region/region_trees.data')
     for i in range(x):
         for j in range(y):
-            if region[i][j] == 'undiscovered_moss1':
+            if region[i][j][cave_depth] == 'undiscovered_moss1':
                 if trees[i][j] == 1:
-                    region[i][j] = 'fungi-tree'
+                    region[i][j][cave_depth] = 'fungi-tree'
     flower_gen(x,y,50)
     trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
     for i in range(x):
                 for j in range(y):
-                    if region[i][j]=='undiscovered_moss1':
+                    if region[i][j][cave_depth]=='undiscovered_moss1':
                         if trees[i][j] ==1:
-                            region[i][j] = 'undiscovered_rock_bush1'
+                            region[i][j][cave_depth] = 'undiscovered_rock_bush1'
 
     dense_moss_gen(x,y)                       
     trees=np.loadtxt(str(maindir)+'/region/region_moss.data')
@@ -871,8 +873,8 @@ def micro_region(biome,elev,stdscr):
     for i in range(x):
                 for j in range(y):
                     if trees[i][j] >.10:
-                        if region[i][j] == 'undiscovered_moss1':
-                            region[i][j] = 'undiscovered_dense_moss1'
+                        if region[i][j][cave_depth] == 'undiscovered_moss1':
+                            region[i][j][cave_depth] = 'undiscovered_dense_moss1'
                         
     talc_gen(x,y)                       
     trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
@@ -880,8 +882,8 @@ def micro_region(biome,elev,stdscr):
     for i in range(x):
                 for j in range(y):
                     if trees[i][j] >.07:
-                        if region[i][j] == 'slate':
-                            region[i][j] = 'talc'
+                        if region[i][j][0] == 'slate':
+                            region[i][j][0] = 'talc'
     
     talc_gen(x,y)                       
     trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
@@ -889,20 +891,20 @@ def micro_region(biome,elev,stdscr):
     for i in range(x):
                 for j in range(y):
                     if trees[i][j] >.06:
-                        if region[i][j] == 'slate':
-                            region[i][j] = 'basalt'    
+                        if region[i][j][0] == 'slate':
+                            region[i][j][0] = 'basalt'    
             
     
     
 
     for i in range(x-1):
         for j in range(y-1):
-            if region[i+1][j]=='water' and region[i-1][j]=='water':
-                region[i][j]='water'
+            if region[i+1][j][0]=='water' and region[i-1][j][0]=='water':
+                region[i][j][0]='water'
     for i in range(x-1):
         for j in range(y-1):
-            if region[i][j+1]=='water' and region[i][j-1]=='water':
-                region[i][j]='water'
+            if region[i][j+1][0]=='water' and region[i][j-1][0]=='water':
+                region[i][j][0]='water'
     
         
     region_copy = np.copy(region)
@@ -921,46 +923,46 @@ def micro_region(biome,elev,stdscr):
                 if i != 15:
                     try:
                         if river_array[i][j] == 1:
-                            region[j+r][i] = 'river'
+                            region[j+r][i][0] = 'river'
                     except:
                         pass
                 else:
                     if river_array[i][j] == 1:
-                        region[j+r][i] = 'slate_bridge'
+                        region[j+r][i][0] = 'slate_bridge'
     else:
         
         for i in range(30):
             for j in range(100):
-                region[i][j]='great_sea'
+                region[i][j][0]='great_sea'
         cave=sea_generation.main()
         for i in range(56):
             for j in range(100):
                 if cave[i][j] == 1:
-                    region[i][j]='great_sea'
+                    region[i][j][0]='great_sea'
         for i in range(80):
             for j in range(100):
                 try:
-                    if region[i+1][j]=='great_sea' or region[i-1][j]=='great_sea' or region[i][j+1]=='great_sea' or region[i][j-1]=='great_sea':
+                    if region[i+1][j][0]=='great_sea' or region[i-1][j][0]=='great_sea' or region[i][j+1][0]=='great_sea' or region[i][j-1][0]=='great_sea':
                         r=random.randint(0,100)
                         #if not at least 50 then bad things happen
                         if r > 50:
-                            region[i][j]='great_sea'
+                            region[i][j][0]='great_sea'
                 except:
                     pass
         for i in range(x_len):
             for j in range(y_len):
                 cccc=0
                 try:
-                    if region[i+1][j]=='great_sea':
+                    if region[i+1][j][0]=='great_sea':
                         cccc+=1
-                    if region[i-1][j]=='great_sea':
+                    if region[i-1][j][0]=='great_sea':
                             cccc+=1
-                    if region[i][j+1]=='great_sea':
+                    if region[i][j+1][0]=='great_sea':
                                 cccc+=1
-                    if region[i][j-1]=='great_sea':
+                    if region[i][j-1][0]=='great_sea':
                                     cccc+=1
                     if cccc >=3:
-                        region[i][j]='great_sea'
+                        region[i][j][0]='great_sea'
                 except:
                     pass
         x_2=np.zeros((x_len,y_len))
@@ -970,11 +972,12 @@ def micro_region(biome,elev,stdscr):
                 for i in range(y_len):
                     x_2[j][i]=1
                     
-                    if region[j][i] == 'great_sea':
+                    if region[j][i][0] == 'great_sea':
                         x_2[j][i] = 0
                         
                         break
-                        
+        
+        '''                
         #Converts intersecting pools to seas. Bad method but faster than pathfinding.
         for b in range(100):
             
@@ -995,7 +998,8 @@ def micro_region(biome,elev,stdscr):
                         pass
                     
                         
-                    
+        '''
+        '''
         #SWITCH TO xu y_len after testing ENDS
         #CPU INTENSIVE 
         for i in range(xu):
@@ -1039,17 +1043,36 @@ def micro_region(biome,elev,stdscr):
                 
                             
                 
+    
 
 
-
-                
-    np.savetxt(str(maindir)+'/region/region.data',region,fmt='%s')
-    f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
+        '''
+    region_copy = np.copy(region)
+    for i in range(100):
+        try:
+            for j in range(x_len):
+                for k in range(y_len):
+                    
+                    region_copy[j][k][i]=None
+        except:
+            pass
+    for i in range(100):
+        try:
+            for j in range(x_len):
+                for k in range(y_len):
+                    
+                    region_copy[j][k][int(2*i)]=region[j][k][i]
+        except:
+            pass
+    np.save(str(maindir) + '/region/region.npy', region_copy)
+    
+    #f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')
 
     solids = [
                 'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
                 'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','grass','sapling'
         ]
+    '''
     #resource counter
     for k in solids:
         c=0
@@ -1060,6 +1083,7 @@ def micro_region(biome,elev,stdscr):
     
         f.write(str(k)+str(c)+'\n')
     f.close
+    '''
     
                 
 

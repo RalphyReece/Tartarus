@@ -78,9 +78,11 @@ class Dwarf:
         self.health=10
         self.pathx=None
         self.pathy=None
+        self.pathx=None
         self.q=None
         self.first_elements=None
         self.second_elements=None
+        self.third_elements=None
         self.building=None
         self.crafting=None
         self.make_item=None
@@ -99,19 +101,21 @@ class Dwarf:
         self.task = 'idle'
         self.goal = None
         self.get_item=None
+        self.posz=0
+        #Above will be a major issue eventually (births). Until then I dont care
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
     def none_build(self):
         self.building=None
-    def set_build(self,x,y):
-        self.building=[x,y]
+    def set_build(self,x,y,z):
+        self.building=[x,y,z]
     def get_build(self):
         return self.building
 
     def none_craft(self):
         self.crafting=None
-    def set_craft(self,x,y):
-        self.crafting=[x,y]
+    def set_craft(self,x,y,z):
+        self.crafting=[x,y,z]
     def get_craft(self):
         return self.crafting
     
@@ -131,11 +135,15 @@ class Dwarf:
         return self.posx
     def py(self):
         return self.posy
+    def pz(self):
+        return self.posz
     def age(self):
         self.time += 1
-    def goto(self,x,y):
+    def goto(self,x,y,z):
         self.posx=x
         self.posy=y
+        self.posz=z
+    #Below is deprecated
     def path_to(self,grid_array,x,y):
         self.task ='Pathing'
         q=pathfinding.main(grid_array, (x,y), (12,12))
@@ -153,6 +161,7 @@ class Dwarf:
         self.goal=x
     def add_possession(self,x):
         self.possessions.append(x)
+    #All the below is deprecated (I think)
     def task_detect(self,tasks,x,t,X,Y):
         
                     if 'axe' in self.possessions and 'woodcutter' in self.professions:

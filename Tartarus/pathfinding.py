@@ -19,7 +19,7 @@ class Node:
 
 def astar_search(grid, start, end):
     def heuristic(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        return abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
 
     start_node = Node(None, start)
     end_node = Node(None, end)
@@ -44,13 +44,17 @@ def astar_search(grid, start, end):
 
         closed_list.add(current_node.position)
 
-        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
-            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+        for new_position in [(0, 0, -1), (0, 0, 1), (0, -1, 0), (0, 1, 0), (-1, 0, 0), (1, 0, 0)]:
+            node_position = (current_node.position[0] + new_position[0],
+                             current_node.position[1] + new_position[1],
+                             current_node.position[2] + new_position[2])
 
-            if node_position[0] < 0 or node_position[0] >= grid.shape[0] or node_position[1] < 0 or node_position[1] >= grid.shape[1]:
+            if node_position[0] < 0 or node_position[0] >= grid.shape[0] or \
+               node_position[1] < 0 or node_position[1] >= grid.shape[1] or \
+               node_position[2] < 0 or node_position[2] >= grid.shape[2]:
                 continue
 
-            if grid[node_position[0], node_position[1]] == 1:
+            if grid[node_position[0], node_position[1], node_position[2]] == 1:
                 continue
 
             if node_position in closed_list:
@@ -81,6 +85,7 @@ def main(grid_array, start, end):
             path = None
     
     return path
+
 def main_short(grid_array, start, end):
     def run_astar_search():
         return astar_search(grid_array, start, end)
@@ -94,30 +99,11 @@ def main_short(grid_array, start, end):
     
     return path
 
-def dwarf_path(start, end,file):
-    grid_array=np.loadtxt('region/pathfind.data')
-    
-    def run_astar_search():
-        return astar_search(grid_array, start, end)
-    
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(run_astar_search)
-        try:
-            path = future.result(timeout=1000)
-        except Exception:
-            path = None
-    f=open(str(file),'w')
-    if path != None:
-        f.write(str(path))
-    f.close()
-    
-
 # Example usage:
 '''
-grid_array = np.loadtxt('region/pathfind.data')
-start = (0, 0)
-end = (12,12)
+grid_array = np.zeros((5, 5, 5))  # A 5x5x5 grid of zeros (all cells passable)
+start = (0, 0, 0)
+end = (4, 4, 4)
 result = main(grid_array, start, end)
 print(result)
-
 '''

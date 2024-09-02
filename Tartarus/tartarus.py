@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-X=800
+X=100
 Y=100
+Z=10
 import cProfile
 import pstats
 import io
@@ -43,19 +44,19 @@ relovery=0
 def region_generating(stdscr):
     #deprecated. here for remaining mentions.
     stdscr.refresh()
-def add_item(row, col, item,items):
-    items[row, col].append(item)
+def add_item(row, col, level, item,items):
+    items[row, col, level].append(item)
     
-def remove_item(row, col, item,items):
-    if item in items[row, col]:
-        items[row, col].remove(item)
+def remove_item(row, col, level, item,items):
+    if item in items[row, col, level]:
+        items[row, col, level].remove(item)
         
-def get_items(row, col,items):
-    return items[row, col]
+def get_items(row, col,level, items):
+    return items[row, col, level]
 
-def get_top_item(row, col,items):
-    if items[row, col]:
-        return items[row, col][-1]
+def get_top_item(row, col,level, items):
+    if items[row, col, level]:
+        return items[row, col, level][-1]
     else:
         return None
 #wtasks
@@ -657,12 +658,12 @@ while True:
     if scene == 'micro_region':
         os.system('clear')
         region_generating(stdscr)
-        
-        worldgen.micro_region(biome,elev[embarky,embarkx],stdscr)
-        x=np.loadtxt(str(maindir)+'/region/region.data',dtype=object)
+        #FOR NOW< FIX LATER. biome instead of forest
+        worldgen.micro_region('forest',elev[embarky,embarkx],stdscr)
+        x = np.load(str(maindir) + '/region/region.npy', allow_pickle=True)  
         
                 
-        np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
+        np.save(str(maindir) + '/fort/fort.npy', x)
                 
         scene='preplay'
                     
@@ -690,32 +691,34 @@ while True:
         t=0
         t2=0
         cursorx,cursory=30,15
-        x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
+        x = np.load(str(maindir) + '/fort/fort.npy', allow_pickle=True)  # dtype=object often requires allow_pickle=True
         dc1=[0,0]
         dc2=[0,0]
     if scene == 'preplay':
-        items=np.empty((X,Y),dtype=object)
+        items=np.empty((X,Y,Z),dtype=object)
         for i in range(X):
             for j in range(Y):
-                items[i, j] = []
-        wtasks=np.empty((X,Y),dtype=object)
-        stockpile=np.zeros((X,Y))
+                for k in range(Z):
+                    items[i, j, k] = []
+        wtasks=np.empty((X,Y,Z),dtype=object)
+        stockpile=np.zeros((X,Y,Z))
         for i in range(X):
             for j in range(Y):
-                wtasks[i, j] = []
-        tasks=np.zeros((X,Y))
-        workshop_color=np.zeros((X,Y))
+                for k in range(Z):
+                    wtasks[i, j, k] = []
+        tasks=np.zeros((X,Y,Z))
+        workshop_color=np.zeros((X,Y,Z))
         
         menu='main'
         t=0
         t2=0
         cursorx,cursory=1,1
-        x=np.loadtxt(str(maindir)+'/fort/fort.data',dtype=object)
+        x = np.load(str(maindir) + '/fort/fort.npy', allow_pickle=True)  # dtype=object often requires allow_pickle=True
         #text animal
         entities=[]
         dwarves=[]
         playing = 1
-        
+        '''
         rat= creatures.Creature('Y', 7, 15, 30, 'yak', 1, 1, 1, 10, 1,400,0,3,0,0)
         entities.append(rat)
         
@@ -730,7 +733,7 @@ while True:
         
         #entities.append(rat)
         #Dwarves
-
+        '''
         
         dorf=creatures.Dwarf(1, 14, 90, 'Gimli', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
@@ -750,10 +753,11 @@ while True:
         dwarves.append(dorf)
         
         for i in range(5):
-            add_item(i+90,20,'wood',items)
+            add_item(i+90,20,0,'wood',items)
         scene='play'
         over=5
         overy=0
+        overz=0
         tim=time.time()
         kshown=0
         dclicks=0
@@ -780,6 +784,7 @@ while True:
         
         #snow/other
         #add temp later
+        '''
         try:
             if season=='winter':
                 if t % 6001 == 0:
@@ -804,6 +809,7 @@ while True:
                                 x[i][j] = 'frozen_pool'
         except:
             pass
+        '''
                         
                     
             
@@ -818,13 +824,14 @@ while True:
         elif t % 8000 < 8000:
             season='winter'
         if t == 0:
-            x_2=np.zeros((X,Y))
+            x_2=np.zeros((X,Y,Z))
             for j in range(X):
                 for i in range(Y):
-                    if x[j][i] in solids:
-                        x_2[j][i] = 1
+                    for k in range(Z):
+                        if x[j][i][k] in solids:
+                            x_2[j][i][k] = 1
                     
-            np.savetxt(str(maindir)+'/region/pathfind.data',x_2)
+            np.save(str(maindir) + '/region/pathfind.npy', x_2)
             
         if t % 10 == 0:
             for j in range(Y):
@@ -832,17 +839,18 @@ while True:
                 
             
                 for i in range(X):
-                    if x[i][j] in undiscovered_tiletypes:
-                        try:
+                    for k in range(Z):
+                        if x[i][j][k] in undiscovered_tiletypes:
+                            try:
                             
                                 
-                             if x[i-1][j] in tile_types or \
-                                x[i+1][j] in tile_types or \
-                                x[i][j-1] in tile_types or \
-                                x[i][j+1] in tile_types:
-                                discover1=True
-                        except:
-                            pass
+                                 if x[i-1][j][k] in tile_types or \
+                                    x[i+1][j][k] in tile_types or \
+                                    x[i][j-1][k] in tile_types or \
+                                    x[i][j+1][k] in tile_types:
+                                    discover1=True
+                            except:
+                                pass
                         
 
         #discover cave
@@ -852,12 +860,13 @@ while True:
             discover1 = False
             for j in range(Y):
                 for i in range(X):
-                    if x[i][j] == 'undiscovered_moss1':
-                        x[i][j] = 'cave_moss'
-                    if x[i][j] == 'undiscovered_rock_bush1':
-                        x[i][j] = 'rock_bush'
-                    if x[i][j] == 'undiscovered_dense_moss1':
-                        x[i][j] = 'dense_moss'
+                    for k in range(Z):
+                        if x[i][j][k] == 'undiscovered_moss1':
+                            x[i][j][k] = 'cave_moss'
+                        if x[i][j][k] == 'undiscovered_rock_bush1':
+                            x[i][j][k] = 'rock_bush'
+                        if x[i][j][k] == 'undiscovered_dense_moss1':
+                            x[i][j][k] = 'dense_moss'
                     
                         
 
@@ -888,6 +897,7 @@ while True:
                         i.goto(i.posx+overy,i.posy+over)
                 over=0
                 overy=0
+                overz=0
         if menu == 'main':
             if key == ord('a'):
                 announcement_window(stdscr)
@@ -951,180 +961,183 @@ while True:
 
                             
                             
-                            if x[i+over][j+overy] == 'grass':
+                            if x[i+over][j+overy][overz] == 'grass':
                                 stdscr.addstr(j+1,i,'`',curses.color_pair(2))
                             
-                            if x[i+over][j+overy] == 'dead shrub':
+                            if x[i+over][j+overy][overz] == 'dead shrub':
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(9))
                     
-                            if x[i+over][j+overy] == 'sapling':
+                            if x[i+over][j+overy][overz] == 'sapling':
                                 stdscr.addstr(j+1,i,'γ',curses.color_pair(11))
 
-                            if x[i+over][j+overy] == 'mud':
+                            if x[i+over][j+overy][overz] == 'mud':
                                 stdscr.addstr(j+1,i,';',curses.color_pair(12))
-                            if x[i+over][j+overy] == 'snow':
+                            if x[i+over][j+overy][overz] == 'snow':
                                 stdscr.addstr(j+1,i,'"',curses.color_pair(7))
 
-                            if x[i+over][j+overy] == 'dirt':
+                            if x[i+over][j+overy][overz] == 'dirt':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(9))
                             
-                            if x[i+over][j+overy]== 'wood-wall':
+                            if x[i+over][j+overy][overz]== 'wood-wall':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(8))
-                            if x[i+over][j+overy]== 'peat':
+                            if x[i+over][j+overy][overz]== 'peat':
                                 stdscr.addstr(j+1,i,'&',curses.color_pair(15))
-                            if x[i+over][j+overy] == 'nettle':
+                            if x[i+over][j+overy][overz] == 'nettle':
                                 stdscr.addstr(j+1,i,'\'',curses.color_pair(14))
-                            if x[i+over][j+overy] == 'crabgrass':
+                            if x[i+over][j+overy][overz] == 'crabgrass':
                                 stdscr.addstr(j+1,i,'√',curses.color_pair(16))
-                            if x[i+over][j+overy] == 'densegrass':
+                            if x[i+over][j+overy][overz] == 'densegrass':
                                 stdscr.addstr(j+1,i,'\"',curses.color_pair(17))
-                            if x[i+over][j+overy] == 'snow':
+                            if x[i+over][j+overy][overz] == 'snow':
                                 stdscr.addstr(j+1,i,'~',curses.color_pair(18))
-                            if x[i+over][j+overy] == 'aerath':
+                            if x[i+over][j+overy][overz] == 'aerath':
                                 stdscr.addstr(j+1,i,'º',curses.color_pair(5))
-                            if x[i+over][j+overy] == 'cave_moss':
+                            if x[i+over][j+overy][overz] == 'cave_moss':
                                 stdscr.addstr(j+1,i,',',curses.color_pair(6))
-                            if x[i+over][j+overy] == 'rock_bush':
+                            if x[i+over][j+overy][overz] == 'rock_bush':
                                 stdscr.addstr(j+1,i,'ı',curses.color_pair(10))
-                            if x[i+over][j+overy] == 'dense_moss':
+                            if x[i+over][j+overy][overz] == 'dense_moss':
                                 stdscr.addstr(j+1,i,'‰',curses.color_pair(20))
-                            if x[i+over][j+overy] == 'sparse_grass':
+                            if x[i+over][j+overy][overz] == 'sparse_grass':
                                 stdscr.addstr(j+1,i,'.',curses.color_pair(21))
-                            if x[i+over][j+overy] == 'cavern_floor':
+                            if x[i+over][j+overy][overz] == 'cavern_floor':
                                 stdscr.addstr(j+1,i,'¬',curses.color_pair(22))
-                            if x[i+over][j+overy] == 'slate_bridge':
+                            if x[i+over][j+overy][overz] == 'slate_bridge':
                                 stdscr.addstr(j+1,i,'═',curses.color_pair(22))
-                            if x[i+over][j+overy] == 'snow_covered_grass':
+                            if x[i+over][j+overy][overz] == 'snow_covered_grass':
                                 stdscr.addstr(j+1,i,'~',curses.color_pair(18))
-                            if x[i+over][j+overy] == 'snow_covered_nettle':
+                            if x[i+over][j+overy][overz] == 'snow_covered_nettle':
                                 stdscr.addstr(j+1,i,'\'',curses.color_pair(18))
-                            if x[i+over][j+overy] == 'snow_covered_crabgrass':
+                            if x[i+over][j+overy][overz] == 'snow_covered_crabgrass':
                                 stdscr.addstr(j+1,i,'~',curses.color_pair(23))
-                            if x[i+over][j+overy] == 'snow_covered_densegrass':
+                            if x[i+over][j+overy][overz] == 'snow_covered_densegrass':
                                 stdscr.addstr(j+1,i,'-',curses.color_pair(18))
-                            if x[i+over][j+overy] == 'snow_covered_sapling':
+                            if x[i+over][j+overy][overz] == 'snow_covered_sapling':
                                 stdscr.addstr(j+1,i,'/',curses.color_pair(23))
-                            if x[i+over][j+overy] == 'snow_covered_sparse_grass':
+                            if x[i+over][j+overy][overz] == 'snow_covered_sparse_grass':
                                 stdscr.addstr(j+1,i,'≈',curses.color_pair(23))
-                            if x[i+over][j+overy] == 'frozen_river':
+                            if x[i+over][j+overy][overz] == 'frozen_river':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(24))
-                            if x[i+over][j+overy] == 'frozen_pool':
+                            if x[i+over][j+overy][overz] == 'frozen_pool':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(24))
-                            if stockpile[i+over,j+overy]!=0:
+                            
+                            if stockpile[i+over,j+overy][overz]!=0:
                                 stdscr.addstr(j+1,i,'=',curses.color_pair(23))
+                            
 
-
+                            
                             #items
-                            if get_top_item(i+over,j+overy,items) == 'wood':
+                            if get_top_item(i+over,j+overy,overz,items) == 'wood':
                                 stdscr.addstr(j+1,i,'≠',curses.color_pair(8))
-                            if get_top_item(i+over,j+overy,items) == 'slate_pebble':
+                            if get_top_item(i+over,j+overy,overz,items) == 'slate_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(10))
-                            if get_top_item(i+over,j+overy,items) == 'basalt_pebble':
+                            if get_top_item(i+over,j+overy,overz,items) == 'basalt_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(22))
-                            if get_top_item(i+over,j+overy,items) == 'talc_pebble':
+                            if get_top_item(i+over,j+overy,overz,items) == 'talc_pebble':
                                 stdscr.addstr(j+1,i,'•',curses.color_pair(23))
-                            if get_top_item(i+over,j+overy,items) == 'wood_table':
+                            if get_top_item(i+over,j+overy,overz,items) == 'wood_table':
                                 stdscr.addstr(j+1,i,'╦',curses.color_pair(8))
                                 
                             
 
-
+                            
                             #workshop
-                            if x[i+over][j+overy] == 'carpenter0':
+                            if x[i+over][j+overy][overz] == 'carpenter0':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter1':
+                            if x[i+over][j+overy][overz] == 'carpenter1':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter2':
+                            if x[i+over][j+overy][overz] == 'carpenter2':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter3':
+                            if x[i+over][j+overy][overz] == 'carpenter3':
                                 stdscr.addstr(j+1,i,'\"',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter4':
+                            if x[i+over][j+overy][overz] == 'carpenter4':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter5':
+                            if x[i+over][j+overy][overz] == 'carpenter5':
                                 stdscr.addstr(j+1,i,']',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter6':
+                            if x[i+over][j+overy][overz] == 'carpenter6':
                                 stdscr.addstr(j+1,i,'═',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter7':
+                            if x[i+over][j+overy][overz] == 'carpenter7':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'carpenter8':
+                            if x[i+over][j+overy][overz] == 'carpenter8':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
 
-                            if x[i+over][j+overy] == 'mason0':
+                            if x[i+over][j+overy][overz] == 'mason0':
                                 stdscr.addstr(j+1,i,';',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason1':
+                            if x[i+over][j+overy][overz] == 'mason1':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason2':
+                            if x[i+over][j+overy][overz] == 'mason2':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason3':
+                            if x[i+over][j+overy][overz] == 'mason3':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason4':
+                            if x[i+over][j+overy][overz] == 'mason4':
                                 stdscr.addstr(j+1,i,'[',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason5':
+                            if x[i+over][j+overy][overz] == 'mason5':
                                 stdscr.addstr(j+1,i,'o',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason6':
+                            if x[i+over][j+overy][overz] == 'mason6':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason7':
+                            if x[i+over][j+overy][overz] == 'mason7':
                                 stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
-                            if x[i+over][j+overy] == 'mason8':
+                            if x[i+over][j+overy][overz] == 'mason8':
                                 stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
-
+                            
                         except:
-                            break
+                            
+                            pass
                         
                         
                         
-                
+                            
                         try:
                     
-                            if x[i+over][j+overy] in solids:
+                            if x[i+over][j+overy][overz] in solids:
                             
                                 symbol = '\u2588'
 
                                 color = curses.color_pair(10)
-                                if x[i+over][j+overy] == 'iron-ore':
+                                if x[i+over][j+overy][overz] == 'iron-ore':
                                     symbol = '%'
                                     color = curses.color_pair(1)
-                                elif x[i+over][j+overy] == 'copper-ore':
+                                elif x[i+over][j+overy][overz] == 'copper-ore':
                                     symbol = '%'
                                     color = curses.color_pair(9)
-                                elif x[i+over][j+overy] == 'silver-ore':
+                                elif x[i+over][j+overy][overz] == 'silver-ore':
                                     symbol = '%'
                                     color = curses.color_pair(10)
-                                elif x[i+over][j+overy] == 'gold-ore':
+                                elif x[i+over][j+overy][overz] == 'gold-ore':
                                     symbol = '%'
                                     color = curses.color_pair(4)
-                                elif x[i+over][j+overy] == 'mudstone':
+                                elif x[i+over][j+overy][overz] == 'mudstone':
                                     symbol = '#'
                                     color = curses.color_pair(9)
-                                elif x[i+over][j+overy] == 'ozone':
+                                elif x[i+over][j+overy][overz] == 'ozone':
                                     symbol = '‰'
                                     color = curses.color_pair(6)
-                                elif x[i+over][j+overy] == 'magnesite-ore':
+                                elif x[i+over][j+overy][overz] == 'magnesite-ore':
                                     symbol = '%'
                                     color = curses.color_pair(1)
-                                elif x[i+over][j+overy] == 'tin-ore':
+                                elif x[i+over][j+overy][overz] == 'tin-ore':
                                     symbol = '%'
                                     color = curses.color_pair(13)
-                                elif x[i+over][j+overy] == 'tree':
+                                elif x[i+over][j+overy][overz] == 'tree':
                                     symbol = 'O'
                                     color = curses.color_pair(8)
-                                elif x[i+over][j+overy] == 'fungi-tree':
+                                elif x[i+over][j+overy][overz] == 'fungi-tree':
                                     symbol = 'Ø'
                                     color = curses.color_pair(19)
-                                elif x[i+over][j+overy] == 'fracter-ore':
+                                elif x[i+over][j+overy][overz] == 'fracter-ore':
                                     symbol = '%'
                                     color = curses.color_pair(5)
-                                elif x[i+over][j+overy] == 'talc':
+                                elif x[i+over][j+overy][overz] == 'talc':
                                     symbol = '\u2588'
                                     color = curses.color_pair(23)
-                                elif x[i+over][j+overy] == 'basalt':
+                                elif x[i+over][j+overy][overz] == 'basalt':
                                     symbol = '\u2588'
                                     color = curses.color_pair(22)
         
-                                if x[i-1+over][j+overy] in tile_types or \
-                                   x[i+1+over][j+overy] in tile_types or \
-                                   x[i+over][j-1+overy] in tile_types or \
-                                   x[i+over][j+1+overy] in tile_types:
+                                if x[i-1+over][j+overy][overz] in tile_types or \
+                                   x[i+1+over][j+overy][overz] in tile_types or \
+                                   x[i+over][j-1+overy][overz] in tile_types or \
+                                   x[i+over][j+1+overy][overz] in tile_types:
                                     
                                     stdscr.addstr(j+1, i, symbol, color)
                         except:
@@ -1132,9 +1145,9 @@ while True:
 
                         #solid but seeable
                         try:
-                            if x[i+over][j+overy] == 'water':
+                            if x[i+over][j+overy][overz] == 'water':
                                     stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
-                            if x[i+over][j+overy] == 'river':
+                            if x[i+over][j+overy][overz] == 'river':
                                 r=random.randint(1,10)
                                 if r <= 5:
                                     stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
@@ -1142,7 +1155,7 @@ while True:
                                     stdscr.addstr(j+1,i,'~',curses.color_pair(3))
                                 else:
                                     stdscr.addstr(j+1,i,'≈')
-                            if x[i+over][j+overy] == 'great_sea':
+                            if x[i+over][j+overy][overz] == 'great_sea':
                                 r=random.randint(1,10000)
                                 if r <= 9999:
                                     stdscr.addstr(j+1,i,'≈',curses.color_pair(25))
@@ -1151,11 +1164,13 @@ while True:
                                 
                         except:
                             pass
+                        
                         if t % 20 <= 10:
-                            if tasks[i+over,j+overy]!=0:
+                            if tasks[i+over,j+overy][overz]!=0:
                                 stdscr.addstr(j+1,i,'\u2588',curses.color_pair(4))
                         
                         
+                               
         
 
         if t == 800:
@@ -1164,32 +1179,37 @@ while True:
         if menu != 'designation':
             relover,relovery=0,0
         if t % 1000 == 0:       
-                np.savetxt(str(maindir)+'/fort/fort.data',x,fmt='%s')
+                np.save(str(maindir) + '/fort/fort.npy', x)
         if cursorx >=55 and over < X-10:
             relover+=10
             cursorx -=10
             over+=10
             for i in entities:
-                    i.goto(i.posx,i.posy-10)
+                    i.goto(i.posx,i.posy-10,i.posz)
             for i in dwarves:
-                        i.goto(i.posx,i.posy-10)
+                        i.goto(i.posx,i.posy-10,i.posz)
                         i.overyc-=10
         if cursorx <=5 and over > 10:
             cursorx +=10
             
             over-=10
             for i in entities:
-                i.goto(i.posx,i.posy+10)
+                i.goto(i.posx,i.posy+10,i.posz)
             for i in dwarves:
-                i.goto(i.posx,i.posy+10)
+                i.goto(i.posx,i.posy+10,i.posz)
                 i.overyc+=10
             
         if kshown % 2 == 1:
             stdscr.addstr(cursory,cursorx,"X")
 
-        #t test
+        #time counter
         stdscr.addstr(30,62,'       ')
         stdscr.addstr(30,62,str(t))
+        if key == ord('<'):
+            overz-=2
+        elif key == ord('>'):
+            overz+=2
+        
 
         if key == curses.KEY_UP:
             if menu !='main':
@@ -1205,7 +1225,7 @@ while True:
                     for i in entities:
                         i.goto(i.posx+10,i.posy)
                     for i in dwarves:
-                        i.goto(i.posx+10,i.posy)
+                        i.goto(i.posx+10,i.posy,i.posz)
                         i.overc+=10
                     
         if key == curses.KEY_DOWN:
@@ -1224,7 +1244,7 @@ while True:
                     for i in entities:
                         i.goto(i.posx-10,i.posy)
                     for i in dwarves:
-                        i.goto(i.posx-10,i.posy)
+                        i.goto(i.posx-10,i.posy,i.posz)
                         i.overc-=10
                     
 
@@ -1241,7 +1261,7 @@ while True:
                     for i in entities:
                         i.goto(i.posx,i.posy+10)
                     for i in dwarves:
-                        i.goto(i.posx,i.posy+10)
+                        i.goto(i.posx,i.posy+10,i.posz)
                         i.overyc+=10
                     
             
@@ -1257,7 +1277,7 @@ while True:
                 for i in entities:
                     i.goto(i.posx,i.posy-10)
                 for i in dwarves:
-                        i.goto(i.posx,i.posy-10)
+                        i.goto(i.posx,i.posy-10,i.posz)
                         i.overyc-=10
         
         if menu == 'main':
@@ -1294,7 +1314,7 @@ while True:
             
             for i in range(3):
                 for j in range(3):
-                    if x[cursorx+over+j][cursory+overy-1+i] not in solids:
+                    if x[cursorx+over+j][cursory+overy-1+i][overz] not in solids:
                         stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(5))
                     else:
                         can_build=0
@@ -1446,7 +1466,7 @@ while True:
                 
                 for i in range(3):
                     for j in range(3):
-                        x[ccursorx+over+j][ccursory+overy-1+i]='unbuilt_mason_workshop'
+                        x[ccursorx+over+j][ccursory+overy-1+i][overz]='unbuilt_mason_workshop'
                 
             
                         
@@ -1587,8 +1607,8 @@ while True:
                         try:
                             for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy] in solids:
-                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=1
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy,overz] in solids:
+                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy,overz]=1
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -1597,8 +1617,8 @@ while True:
                         try:
                             for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy]=='tree':
-                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=2
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy,overz]=='tree':
+                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy,overz]=2
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -1607,7 +1627,7 @@ while True:
                         try:
                             for i in range(dc2[0]-dc1[0]+1+relover):
                                 for j in range(dc2[1]-dc1[1]+1):
-                                    tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy]=0
+                                    tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy,overz]=0
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -1626,20 +1646,20 @@ while True:
             stdscr.addstr(10,offset,"                     ")
             for tile_type in tile_types:
                     if (
-                        x[cursorx-1+over][cursory+overy] == tile_type or 
-                        x[cursorx+1+over][cursory+overy] == tile_type or 
-                        x[cursorx+over][cursory-1+overy] == tile_type or 
-                        x[cursorx+over][cursory+1+overy] == tile_type
+                        x[cursorx-1+over][cursory+overy][overz] == tile_type or 
+                        x[cursorx+1+over][cursory+overy][overz] == tile_type or 
+                        x[cursorx+over][cursory-1+overy][overz] == tile_type or 
+                        x[cursorx+over][cursory+1+overy][overz] == tile_type
                     ):
-                        stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1]}")
+                        stdscr.addstr(0, offset, f"Tile: {x[cursorx+over][cursory+overy-1][overz]}")
                         
                         break
-            if stockpile[cursorx+over][cursory+1+overy] != 0:
-                stdscr.addstr(3,offset,'stockpile: '+str(stockpile[cursorx+over][cursory+overy]))
+            if stockpile[cursorx+over][cursory+1+overy][overz] != 0:
+                stdscr.addstr(3,offset,'stockpile: '+str(stockpile[cursorx+over][cursory+overy][overz]))
             
                 
-            if x[cursorx+over][cursory+overy-1] not in solids:
-                stdscr.addstr(1, offset, f"Items: {get_items(cursorx+over,cursory+overy-1,items)}")
+            if x[cursorx+over][cursory+overy-1][overz] not in solids:
+                stdscr.addstr(1, offset, f"Items: {get_items(cursorx+over,cursory+overy-1,overz,items)}")
         except:
             pass
         
@@ -1664,7 +1684,7 @@ while True:
         
         for i in entities:
             if i.health <=0:
-                i.goto(10000,10000)
+                i.goto(10000,10000,0)
                 entities.remove(i)
         
             '''    
@@ -1749,7 +1769,7 @@ while True:
                                 else:
                                     counter+=1
                             try:
-                                q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posx, i.posy),(xs[counter], ys[counter]) )
+                                q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posx, i.posy),(xs[counter], ys[counter]) )
 
                         
                                 if q == None:
@@ -1808,45 +1828,45 @@ while True:
         
             for j in range(X):
                 for k in range(Y):
-                    if stockpile[j][k] == 1:
-                        if get_items(j,k,items) == []:
-                            #openstock=1
-                            for J in range(X):
-                                for K in range(Y):
-                                    for I in furniture:
-                                        if I in get_items(J,K,items):
-                                            if stockpile[J][K] != 1:
+                    for r in range(Z):
+                        if stockpile[j][k][r] == 1:
+                            if get_items(j,k,r,items) == []:
+                                #openstock=1
+                                for J in range(X):
+                                    for K in range(Y):
+                                        for R in range(Z):
+                                            for I in furniture:
+                                                if I in get_items(J,K,R,items):
+                                                    if stockpile[J][K][R] != 1:
                                                 
                                             
                                             
-                                                for B in dwarves:
-                                                    if B.get_goal()==None:
+                                                        for B in dwarves:
+                                                            if B.get_goal()==None:
                                                     
-                                                            B.drop_item=[j,k,I,1]
-                                                            B.get_item=I
-                                                            break
+                                                                    B.drop_item=[j,k,R,I,1]
+                                                                    B.get_item=I
+                                                                    break
                                                         
                             break
-                    if stockpile[j][k] == 2:
-                        if get_items(j,k,items) == []:
+                    if stockpile[j][k][r] == 2:
+                        if get_items(j,k,r,items) == []:
                             #openstock=2
                             for J in range(X):
                                 for K in range(Y):
-                                    
-                                    
-                                    for I in building_items:
-                                        if I in get_items(J,K,items):
-                                            if stockpile[J][K] != 2:
-                                                #stdscr.addstr(23,62,str(stockpile[J][K]))
+                                   for R in range(Z):
+                                            for I in furniture:
+                                                if I in get_items(J,K,R,items):
+                                                    if stockpile[J][K][R] != 2:
                                                 
                                             
                                             
-                                                for B in dwarves:
-                                                    if B.get_goal()==None:
+                                                        for B in dwarves:
+                                                            if B.get_goal()==None:
                                                     
-                                                            B.drop_item=[j,k,I,2]
-                                                            B.get_item=I
-                                                            break
+                                                                    B.drop_item=[j,k,R,I,2]
+                                                                    B.get_item=I
+                                                                    break
                                                         
                             break
                         
@@ -1874,13 +1894,14 @@ while True:
         
         #save pathfinding
         if t % 30 == 0:
-            x_2=np.zeros((X,Y))
+            x_2=np.zeros((X,Y,Z))
             for j in range(X):
                 for i in range(Y):
-                    if x[j][i] in solids:
-                        x_2[j][i] = 1
+                    for k in range(Z):
+                        if x[j][i][k] in solids:
+                            x_2[j][i][k] = 1
                     
-            np.savetxt(str(maindir)+'/region/pathfind.data',x_2)
+            np.save(str(maindir) + '/region/pathfind.npy', x_2)
         
         
         #to update tasks
@@ -1890,20 +1911,22 @@ while True:
             
             for j in range(X):
                 for k in range(Y):
-                    if tasks[j][k]==1:
-                        task1c=1
-                        break
-                    elif tasks[j][k]==2:
-                        task2c=1
-                        break
+                    for r in range(Z):
+                        if tasks[j][k][r]==1:
+                            task1c=1
+                            break
+                        elif tasks[j][k][r]==2:
+                            task2c=1
+                            break
         
         for i in entities:
                 if i.posy < 60:
-                    try:
+                    if i.posz == overz:
+                        try:
                                 
-                        stdscr.addstr(i.posx+1,i.posy,i.shape)
-                    except curses.error:
-                        pass
+                            stdscr.addstr(i.posx+1,i.posy,i.shape)
+                        except curses.error:
+                            pass
         for i in dwarves:
                 if i.health <=0:
                     i.goto(10000,10000)
@@ -1958,8 +1981,8 @@ while True:
                                 i.age()
                                 qq=i.update_pos()
                                 try:
-                                        if x[qq[1]+over, qq[0]+overy] not in solids:
-                                                i.goto(qq[0],qq[1])
+                                        if x[qq[1]+over][qq[0]+overy][i.posz] not in solids:
+                                                i.goto(qq[0],qq[1],i.posz)
                                 except:
                                         pass
                     if i.task=='Pathing':
@@ -1978,9 +2001,10 @@ while True:
                                                 
                                                 qq=i.get_craft()
                                                 try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(qq[0], qq[1]) )
+                                                    i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(qq[0], qq[1], qq[2]) )
                                                     i.first_elements = [x[0] for x in i.q]
                                                     i.second_elements = [x[1] for x in i.q]
+                                                    i.third_elements = [x[2] for x in i.q]
                                                     c=1
                                                 except:
                                                     i.q=None
@@ -1999,9 +2023,10 @@ while True:
                                                 
                                                 qq=i.get_build()
                                                 try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(qq[0], qq[1]) )
+                                                    i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy,i.posz),(qq[0], qq[1],qq[2]) )
                                                     i.first_elements = [x[0] for x in i.q]
                                                     i.second_elements = [x[1] for x in i.q]
+                                                    i.third_elements = [x[2] for x in i.q]
                                                     c=1
                                                 except:
                                                     i.q=None
@@ -2011,23 +2036,25 @@ while True:
                                 c=0
                                 for j in range(X):
                                     for k in range(Y):
+                                        for z in range(Z):
                                         
-                                        if i.get_item in get_items(j,k,items):
+                                            if i.get_item in get_items(j,k,z,items):
 
                                      
-                                            i.task='Path'
+                                                i.task='Path'
                                               
-                                            if c != 1:    
+                                                if c != 1:    
                                                 
                                                 
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    i.task='idle'
-                                                    i.q=None
+                                                    try:
+                                                        i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k, z) )
+                                                        i.first_elements = [x[0] for x in i.q]
+                                                        i.second_elements = [x[1] for x in i.q]
+                                                        i.third_elements = [x[2] for x in i.q]
+                                                        c=1
+                                                    except:
+                                                        i.task='idle'
+                                                        i.q=None
                             if qqq=='item_drop':
                                             c=0
                                             
@@ -2040,9 +2067,10 @@ while True:
                                                 
                                                 
                                                 try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(i.drop_item[0], i.drop_item[1]) )
+                                                    i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(i.drop_item[0], i.drop_item[1], i.drop_item[2]) )
                                                     i.first_elements = [x[0] for x in i.q]
                                                     i.second_elements = [x[1] for x in i.q]
+                                                    i.third_elements = [x[2] for x in i.q]
                                                 
                                                 
                                                 except:
@@ -2058,8 +2086,9 @@ while True:
                                 c=0
                                 for j in range(X):
                                     for k in range(Y):
+                                        for z in range(Z):
                                         
-                                        if tasks[j][k]== 1:
+                                            if tasks[j][k][z]== 1:
 
                                      
                                                 i.task='Path'
@@ -2069,39 +2098,43 @@ while True:
                                                 
                                                 
                                                     try:
-                                                        if x[j-1][k] in tile_types:
-                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
+                                                        if x[j-1][k][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j-1, k, z) )
                                                             i.first_elements = [x[0] for x in i.q]
                                                             i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
                                                             c=1
                                                     except:
                                                         pass
                                                 if c != 1:
                                                     try:
-                                                        if x[j+1][k] in tile_types:
-                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
+                                                        if x[j+1][k][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j+1, k, z) )
                                                             i.first_elements = [x[0] for x in i.q]
                                                             i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
                                                             c=1
                                                     except:
                                                         pass
                                                 if c != 1:
                                                     try:
-                                                        if x[j][k+1] in tile_types:
+                                                        if x[j][k+1][z] in tile_types:
                                                             
-                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k+1, z) )
                                                             i.first_elements = [x[0] for x in i.q]
                                                             i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
                                                             c=1
                                                     except:
                                                         
                                                         pass
                                                 if c != 1:
                                                     try:
-                                                        if x[j][k-1] in tile_types:
-                                                            i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
+                                                        if x[j][k-1][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k-1, z) )
                                                             i.first_elements = [x[0] for x in i.q]
                                                             i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
                                                             c=1
                                                     except:
                                                         pass
@@ -2116,50 +2149,55 @@ while True:
                                 c=0
                                 for j in range(X):
                                     for k in range(Y):
+                                        for r in range(Z):
                                         
-                                        if tasks[j][k]== 2:
+                                            if tasks[j][k][r]== 2:
 
                                      
-                                            i.task='Path'
+                                                i.task='Path'
                                               
-                                            if c != 1:    
+                                                if c != 1:    
                                                 
                                                 
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j-1, k) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j+1, k) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k+1) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c != 1:
-                                                try:
-                                                    i.q=pathfinding.main(np.loadtxt(str(maindir)+'/region/pathfind.data'),(i.posy+over, i.posx+overy),(j, k-1) )
-                                                    i.first_elements = [x[0] for x in i.q]
-                                                    i.second_elements = [x[1] for x in i.q]
-                                                    c=1
-                                                except:
-                                                    pass
-                                            if c == 0:
-                                                    i.q=None
+                                                    try:
+                                                        i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy,i.posz),(j-1, k,r) )
+                                                        i.first_elements = [x[0] for x in i.q]
+                                                        i.second_elements = [x[1] for x in i.q]
+                                                        i.third_elements = [x[2] for x in i.q]
+                                                        c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy,i.posz),(j+1, k,r) )
+                                                        i.first_elements = [x[0] for x in i.q]
+                                                        i.second_elements = [x[1] for x in i.q]
+                                                        i.third_elements = [x[2] for x in i.q]
+                                                        c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy,i.posz),(j, k+1,r) )
+                                                        i.first_elements = [x[0] for x in i.q]
+                                                        i.second_elements = [x[1] for x in i.q]
+                                                        i.third_elements = [x[2] for x in i.q]
+                                                        c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy,i.posz),(j, k-1,r) )
+                                                        i.first_elements = [x[0] for x in i.q]
+                                                        i.second_elements = [x[1] for x in i.q]
+                                                        i.third_elements = [x[2] for x in i.q]
+                                                        c=1
+                                                    except:
+                                                        pass
+                                                if c == 0:
+                                                        i.q=None
                                                     
-                                                    i.task='idle'
+                                                        i.task='idle'
                                                     
                                             
                                             
@@ -2179,24 +2217,27 @@ while True:
                                 
                                 i.pathx=i.first_elements
                                 i.pathy=i.second_elements
+                                i.pathz=i.third_elements
                             else:
                                 i.pathx=[]
                                 i.pathy=[]
+                                i.pathz=[]
                             if i.get_goal() == 'item_drop':
                                     
                                     
                                     yy=i.posx+overy
                                     xx=i.posy+over
+                                    zz=i.posz
                                     
 
                                     
     
                                     
                                             
-                                    if xx==i.drop_item[0] and yy == i.drop_item[1]:
+                                    if xx==i.drop_item[0] and yy == i.drop_item[1] and zz == i.drop_item[2]:
                                         i.possessions.remove(i.drop_item[2])
-                                        add_item(xx,yy,i.drop_item[2],items)
-                                        stockpile[xx,yy]=i.drop_item[3]
+                                        add_item(xx,yy,zz,i.drop_item[2],items)
+                                        stockpile[xx,yy,zz]=i.drop_item[3]
                                         
                                         i.task='idle'
                                         i.drop_item=None
@@ -2212,15 +2253,16 @@ while True:
                                     
                                     yy=i.posx+overy
                                     xx=i.posy+over
+                                    zz=i.posz
                                     
 
                                     
     
-                                    if i.get_item in get_items(xx,yy,items):
+                                    if i.get_item in get_items(xx,yy,zz,items):
                                             
         
                                         i.possessions.append(i.get_item)
-                                        remove_item(xx,yy,i.get_item,items)
+                                        remove_item(xx,yy,zz,i.get_item,items)
                                         i.task='idle'
                                         i.set_goal(None)
                                         i.get_item=None
@@ -2233,11 +2275,12 @@ while True:
                                     
                                     yy=i.posx+overy
                                     xx=i.posy+over
+                                    zz=i.posz
                                     
 
                                     
     
-                                    if x[i.posy+over,i.posx+overy] == 'unbuilt_carpenter_workshop':
+                                    if x[i.posy+over,i.posx+overy,i.posz] == 'unbuilt_carpenter_workshop':
                                     
                                         for cccc in i.possessions:
                                             if cccc in item_list:
@@ -2247,14 +2290,14 @@ while True:
                                                         if cccc == item_list[WW]:
                                                             for J in range(3):
                                                                 for K in range(3):
-                                                                    workshop_color[i.posy+over+J,i.posx+overy+K]=item_color[WW]
+                                                                    workshop_color[i.posy+over+J,i.posx+overy+K,i.posz]=item_color[WW]
                                                 break
                                         i.counter+=1
                                         if i.counter == 200:
                                             cc=0
                                             for J in range(3):
                                                 for K in range(3):
-                                                    x[i.posy+over+J,i.posx+overy+K]='carpenter'+str(cc)   
+                                                    x[i.posy+over+J,i.posx+overy+K,i.posz]='carpenter'+str(cc)   
                                                     cc+=1
                                         
                                             i.task='idle'
@@ -2262,7 +2305,7 @@ while True:
                                             i.set_goal(None)
                                             i.get_item=None
                                             i.none_build()
-                                    if x[i.posy+over,i.posx+overy] == 'unbuilt_mason_workshop':
+                                    if x[i.posy+over,i.posx+overy,i.posz] == 'unbuilt_mason_workshop':
   
                                         for cccc in i.possessions:
                                             if cccc in item_list:
@@ -2272,14 +2315,14 @@ while True:
                                                         if cccc == item_list[WW]:
                                                             for J in range(3):
                                                                 for K in range(3):
-                                                                    workshop_color[i.posy+over+J,i.posx+overy+K]=item_color[WW]
+                                                                    workshop_color[i.posy+over+J,i.posx+overy+K,i.posz]=item_color[WW]
                                                 break
                                         i.counter+=1
                                         if i.counter == 200:
                                             cc=0
                                             for J in range(3):
                                                 for K in range(3):
-                                                    x[i.posy+over+J,i.posx+overy+K]='mason'+str(cc)
+                                                    x[i.posy+over+J,i.posx+overy+K,i.posz]='mason'+str(cc)
                                                     
                                                         
                                                         
@@ -2297,11 +2340,11 @@ while True:
                                     
                                     yy=i.posx+overy
                                     xx=i.posy+over
-                                    
+                                    zz=i.posz
 
                                     
     
-                                    if x[i.posy+over,i.posx+overy] in workshops:
+                                    if x[i.posy+over,i.posx+overy,i.posz] in workshops:
                                         
                                     
                                         for cccc in i.possessions:
@@ -2314,7 +2357,7 @@ while True:
                                         if i.counter == 70:
                                             
                                             
-                                            add_item(i.posy+over,i.posx+overy,i.make_item,items)
+                                            add_item(i.posy+over,i.posx+overy,i.posz,i.make_item,items)
                                             i.make_item=None
                                             
                                         
@@ -2331,7 +2374,7 @@ while True:
                                     if (t+i.step) % 4 == 0:
                                     
                                         #if abs(i.pathy[1]-i.posx)<=2:
-                                        i.goto(i.pathy[1]-overy,i.pathx[1]-over)
+                                        i.goto(i.pathy[1]-overy,i.pathx[1]-over,i.pathz[1])
                                       
                                         del i.pathx[0]
                                         del i.pathy[0]
@@ -2348,26 +2391,27 @@ while True:
                                 if i.get_goal() == 'mine':
                                     yy=i.posx+overy
                                     xx=i.posy+over
+                                    zz=i.posz
                                     directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
 
                                     for dx, dy in directions:
                                         nx, ny = xx + dx, yy + dy
     
-                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny] == 1:
+                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny][zz] == 1:
                                             tasks[nx][ny] = 0
                                             
         
-                                            if x[nx][ny] in solids:
-                                                mined=x[nx][ny]
-                                                x[nx][ny] = 'cavern_floor'
+                                            if x[nx][ny][zz] in solids:
+                                                mined=x[nx][ny][zz]
+                                                x[nx][ny][zz] = 'cavern_floor'
                                                 r=random.randint(1,4)
                                                 if r == 2:
                                                     if mined == 'slate':
-                                                        add_item(nx,ny,'slate_pebble',items)
+                                                        add_item(nx,ny,zz,'slate_pebble',items)
                                                     elif mined == 'talc':
-                                                        add_item(nx,ny,'talc_pebble',items)
+                                                        add_item(nx,ny,zz,'talc_pebble',items)
                                                     elif mined == 'basalt':
-                                                        add_item(nx,ny,'basalt_pebble',items)
+                                                        add_item(nx,ny,zz,'basalt_pebble',items)
                                                         
             
                                             break 
@@ -2376,20 +2420,21 @@ while True:
                                 if i.get_goal() == 'chop chop':
                                     yy=i.posx+overy
                                     xx=i.posy+over
+                                    zz=i.posz
                                     directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
 
                                     for dx, dy in directions:
                                         nx, ny = xx + dx, yy + dy
     
-                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[0]) and tasks[nx][ny] == 2:
+                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[0]) and tasks[nx][ny][zz] == 2:
                                             
                                             r=random.randint(1,6)
-                                            if x[nx][ny] == 'tree':
+                                            if x[nx][ny][zz] == 'tree':
                                                 if r==1:
-                                                    tasks[nx][ny] = 0
-                                                    x[nx][ny] = 'grass'
+                                                    tasks[nx][ny][zz] = 0
+                                                    x[nx][ny][zz] = 'grass'
                                                 
-                                                    add_item(nx,ny,'wood',items)
+                                                    add_item(nx,ny,zz,'wood',items)
             
                                             break 
                                     i.task='idle'
@@ -2398,6 +2443,7 @@ while True:
                                     
         for i in dwarves:        
             if i.posy < 60:
+                if i.posz==overz:
                     try:
                         if i.professions[0] == 'miner':  
                             stdscr.addstr(i.posx+1,i.posy,i.shape,curses.color_pair(10))
@@ -2473,7 +2519,7 @@ while True:
         '''
         
         stdscr.refresh()
-        stdscr.addstr(19,62,str(get_items(0,0,items)))
+        stdscr.addstr(19,62,str(get_items(0,0,0,items)))
         if t == 500:
                 f=open('milestone','a')
                 f.write('\n'+str(time.time()-tim))
