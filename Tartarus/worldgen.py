@@ -6,10 +6,12 @@ from noise import pnoise2
 import matplotlib.pyplot as plt
 import random
 import math
+import pathfinding
 import time
 import cave_gen
 import secrets
 import river_generation
+import sea_generation
 def ore_probability_curve(x):
     return .19*x +45
 
@@ -423,12 +425,14 @@ def flower_gen(x,y,d):
                 trees[i][j] = 1
     
     np.savetxt(str(maindir)+'/region/region_flower.data',trees)
-def micro_region(biome,elev):
+def micro_region(biome,elev,stdscr):
     result = subprocess.run(["pwd"], shell=True, capture_output=True, text=True)
     maindir=result.stdout
     maindir = maindir[:-1]   
     x=800
+    x_len=x
     y=100
+    y_len=y
     xu=100
     region=np.empty((x,y), dtype=object)
 
@@ -901,27 +905,139 @@ def micro_region(biome,elev):
                 region[i][j]='water'
     
         
-    
+    region_copy = np.copy(region)
     #river generation
-    x, y = 140, 40
+    if elev > 47:
+        x, y = 140, 40
 
 
-    river_array = np.zeros((x, y))
+        river_array = np.zeros((x, y))
 
 
-    river_array = river_generation.create_river(river_array)
-    r=random.randint(22,41)
-    for i in range(xu):
-        for j in range(y):
-            if i != 15:
-                try:
+        river_array = river_generation.create_river(river_array)
+        r=random.randint(22,41)
+        for i in range(xu):
+            for j in range(y):
+                if i != 15:
+                    try:
+                        if river_array[i][j] == 1:
+                            region[j+r][i] = 'river'
+                    except:
+                        pass
+                else:
                     if river_array[i][j] == 1:
-                        region[j+r][i] = 'river'
+                        region[j+r][i] = 'slate_bridge'
+    else:
+        
+        for i in range(30):
+            for j in range(100):
+                region[i][j]='great_sea'
+        cave=sea_generation.main()
+        for i in range(56):
+            for j in range(100):
+                if cave[i][j] == 1:
+                    region[i][j]='great_sea'
+        for i in range(80):
+            for j in range(100):
+                try:
+                    if region[i+1][j]=='great_sea' or region[i-1][j]=='great_sea' or region[i][j+1]=='great_sea' or region[i][j-1]=='great_sea':
+                        r=random.randint(0,100)
+                        #if not at least 50 then bad things happen
+                        if r > 50:
+                            region[i][j]='great_sea'
                 except:
                     pass
-            else:
-                if river_array[i][j] == 1:
-                    region[j+r][i] = 'slate_bridge'
+        for i in range(x_len):
+            for j in range(y_len):
+                cccc=0
+                try:
+                    if region[i+1][j]=='great_sea':
+                        cccc+=1
+                    if region[i-1][j]=='great_sea':
+                            cccc+=1
+                    if region[i][j+1]=='great_sea':
+                                cccc+=1
+                    if region[i][j-1]=='great_sea':
+                                    cccc+=1
+                    if cccc >=3:
+                        region[i][j]='great_sea'
+                except:
+                    pass
+        x_2=np.zeros((x_len,y_len))
+        ccc=0
+        for j in range(x_len):
+                ccc+=1
+                for i in range(y_len):
+                    x_2[j][i]=1
+                    
+                    if region[j][i] == 'great_sea':
+                        x_2[j][i] = 0
+                        
+                        break
+                        
+        #Converts intersecting pools to seas. Bad method but faster than pathfinding.
+        for b in range(100):
+            
+            for i in range(xu):
+                for j in range(y):
+                    try:
+                        if region[i][j]=='water':
+                            if region[i+1][j] == 'great_sea':
+                                region[i][j]='great_sea'
+                            elif region[i-1][j] == 'great_sea':
+                                region[i][j]='great_sea'
+                            elif region[i][j-1] == 'great_sea':
+                                region[i][j]='great_sea'
+                            elif region[i][j+1] == 'great_sea':
+                                region[i][j]='great_sea'
+                            
+                    except:
+                        pass
+                    
+                        
+                    
+        #SWITCH TO xu y_len after testing ENDS
+        #CPU INTENSIVE 
+        for i in range(xu):
+            if i % 2 == 0:
+                stdscr.addstr(15,9,"[")
+                stdscr.addstr(15,10+int(xu/2),']')
+                
+                stdscr.addstr(15,10+int(i/2),'o')
+                stdscr.addstr(10,20,"Generating Sea")
+                stdscr.refresh()
+            for j in range(y_len):
+                if region[i][j]=='great_sea':
+                
+                    #check if sea is cohesive. Eliminate all non-connecting bodies of water.
+                        zz=pathfinding.main_short(x_2,(1, 1),(i, j) )
+                        if zz == None:
+                            region[i][j]=region_copy[i][j]
+        #running sea conversions another iteration. maybe removed at some point
+        
+        for i in range(x_len):
+            for j in range(y_len):
+                cccc=0
+                try:
+                    if region[i+1][j]=='great_sea':
+                        cccc+=1
+                    if region[i-1][j]=='great_sea':
+                            cccc+=1
+                    if region[i][j+1]=='great_sea':
+                                cccc+=1
+                    if region[i][j-1]=='great_sea':
+                                    cccc+=1
+                    if cccc >=3:
+                        region[i][j]='great_sea'
+                except:
+                    pass
+        
+                            
+                        
+                            
+        
+                
+                            
                 
 
 

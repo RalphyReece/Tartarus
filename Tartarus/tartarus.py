@@ -40,6 +40,9 @@ task1c=0
 task2c=0
 relover=0
 relovery=0
+def region_generating(stdscr):
+    #deprecated. here for remaining mentions.
+    stdscr.refresh()
 def add_item(row, col, item,items):
     items[row, col].append(item)
     
@@ -72,8 +75,8 @@ def get_top_wtask(row, col,wtasks):
     else:
         return None
 ##
-def get stockpile(x,y,stockpile):
-    return stockpile[x][y]
+def get_stockpile(x,y,stockpil):
+    return stockpil[x][y]
 class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
@@ -92,7 +95,7 @@ furniture= [ 'slate_pebble_table','basalt_pebble_table','talc_pebble_table','tal
     ]
 solids = [
                 'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt'
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt','great_sea'
         ]
 building_items=['basalt_pebble','talc_pebble','slate_pebble','wood']
 
@@ -131,7 +134,8 @@ tile_types = [
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
                 'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge',
                 'carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8',
-                'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8'
+                'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8','snow_covered_grass','snow_covered_nettle','snow_covered_sapling','snow_covered_densegrass',
+                'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -317,6 +321,14 @@ curses.init_pair(22, 22, curses.COLOR_BLACK)
 curses.init_color(23, 950, 950, 900)  
 curses.init_pair(23, 23, curses.COLOR_BLACK)
 
+#frosty ice blue
+curses.init_color(24, 750, 900, 1000) 
+curses.init_pair(24, 24, curses.COLOR_BLACK)
+
+#sea
+curses.init_color(25, 50, 300, 600)  # RGB values range from 0-1000
+curses.init_pair(25, 25, curses.COLOR_BLACK)
+
 talc_color = (950, 950, 900)
 fps_counter = FPSCounter()
 
@@ -500,7 +512,7 @@ while True:
         
         f.close()
         os.system('clear')
-        filename = str(maindir)+'/world/graphic.data'  # Replace with your file name
+        filename = str(maindir)+'/world/graphic.data'  
         with open(filename, 'r') as file:
             lines = file.readlines()
             for i, line in enumerate(lines):
@@ -546,6 +558,7 @@ while True:
             #
             biome='                      '
             t=temp[embarky][embarkx]
+            temperature=t
             a=elev[embarky][embarkx]
             r=rain[embarky][embarkx]
             if t > biomes.desert[0] and t < biomes.desert[1]:
@@ -639,11 +652,13 @@ while True:
                     x=inputter(8,int(number_after_x)+5,"Do you want to embark? (y/n):")
                     if x == 'y':
                         scene='micro_region'
+                        
                         os.system('clear')
     if scene == 'micro_region':
         os.system('clear')
+        region_generating(stdscr)
         
-        worldgen.micro_region(biome,elev[embarky,embarkx])
+        worldgen.micro_region(biome,elev[embarky,embarkx],stdscr)
         x=np.loadtxt(str(maindir)+'/region/region.data',dtype=object)
         
                 
@@ -762,6 +777,46 @@ while True:
         
         discover1=False
     if scene == 'play':
+        
+        #snow/other
+        #add temp later
+        try:
+            if season=='winter':
+                if t % 6001 == 0:
+                    for j in range(Y):
+                        for i in range(X):
+                            if x[i][j] == 'grass':
+                                x[i][j] = 'snow_covered_grass'
+                            if x[i][j] == 'nettle':
+                                x[i][j] = 'snow_covered_nettle'
+                            if x[i][j] == 'densegrass':
+                                x[i][j] = 'snow_covered_densegrass'
+                            if x[i][j] == 'sparse_grass':
+                                x[i][j] = 'snow_covered_sparse_grass'
+                            if x[i][j] == 'sapling':
+                                x[i][j] = 'snow_covered_sapling'
+                            if x[i][j] == 'crabgrass':
+                                x[i][j] = 'snow_covered_crabgrass'
+                            if x[i][j] == 'river':
+                                x[i][j] = 'frozen_river'
+                    
+                            if x[i][j] == 'water':
+                                x[i][j] = 'frozen_pool'
+        except:
+            pass
+                        
+                    
+            
+            
+        
+        if t % 8000 < 2000:
+            season='spring'
+        elif t % 8000 < 4000:
+            season='summer'
+        elif t % 8000 < 6000:
+            season='fall'
+        elif t % 8000 < 8000:
+            season='winter'
         if t == 0:
             x_2=np.zeros((X,Y))
             for j in range(X):
@@ -939,7 +994,22 @@ while True:
                                 stdscr.addstr(j+1,i,'¬',curses.color_pair(22))
                             if x[i+over][j+overy] == 'slate_bridge':
                                 stdscr.addstr(j+1,i,'═',curses.color_pair(22))
-                            
+                            if x[i+over][j+overy] == 'snow_covered_grass':
+                                stdscr.addstr(j+1,i,'~',curses.color_pair(18))
+                            if x[i+over][j+overy] == 'snow_covered_nettle':
+                                stdscr.addstr(j+1,i,'\'',curses.color_pair(18))
+                            if x[i+over][j+overy] == 'snow_covered_crabgrass':
+                                stdscr.addstr(j+1,i,'~',curses.color_pair(23))
+                            if x[i+over][j+overy] == 'snow_covered_densegrass':
+                                stdscr.addstr(j+1,i,'-',curses.color_pair(18))
+                            if x[i+over][j+overy] == 'snow_covered_sapling':
+                                stdscr.addstr(j+1,i,'/',curses.color_pair(23))
+                            if x[i+over][j+overy] == 'snow_covered_sparse_grass':
+                                stdscr.addstr(j+1,i,'≈',curses.color_pair(23))
+                            if x[i+over][j+overy] == 'frozen_river':
+                                stdscr.addstr(j+1,i,'#',curses.color_pair(24))
+                            if x[i+over][j+overy] == 'frozen_pool':
+                                stdscr.addstr(j+1,i,'#',curses.color_pair(24))
                             if stockpile[i+over,j+overy]!=0:
                                 stdscr.addstr(j+1,i,'=',curses.color_pair(23))
 
@@ -1072,6 +1142,13 @@ while True:
                                     stdscr.addstr(j+1,i,'~',curses.color_pair(3))
                                 else:
                                     stdscr.addstr(j+1,i,'≈')
+                            if x[i+over][j+overy] == 'great_sea':
+                                r=random.randint(1,10000)
+                                if r <= 9999:
+                                    stdscr.addstr(j+1,i,'≈',curses.color_pair(25))
+                                else:
+                                    stdscr.addstr(j+1,i,'~',curses.color_pair(3))
+                                
                         except:
                             pass
                         if t % 20 <= 10:
@@ -2366,6 +2443,7 @@ while True:
             mason_crafting_menu_print(stdscr)
         elif menu == 'stockpile':
             stockpile_menu_print(stdscr)
+        ####Waves
             
         ####Tree Growth/Sapling
         if playing % 2 == 1:
@@ -2393,6 +2471,7 @@ while True:
                 stdscr.addstr(29,62,str(i.posx+overy)+'-'+str(i.posy+over))
                 stdscr.addstr(30,62,str(i.get_goal()))
         '''
+        
         stdscr.refresh()
         stdscr.addstr(19,62,str(get_items(0,0,items)))
         if t == 500:

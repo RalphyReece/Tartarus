@@ -81,6 +81,18 @@ def main(grid_array, start, end):
             path = None
     
     return path
+def main_short(grid_array, start, end):
+    def run_astar_search():
+        return astar_search(grid_array, start, end)
+    
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(run_astar_search)
+        try:
+            path = future.result(timeout=.05)
+        except Exception:
+            path = None
+    
+    return path
 
 def dwarf_path(start, end,file):
     grid_array=np.loadtxt('region/pathfind.data')
