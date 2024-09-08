@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-X=100
-Y=100
-Z=10
+X=60
+Y=60
+Z=20
 import cProfile
 import pstats
 import io
@@ -39,6 +39,7 @@ scene=0 is start
 '''
 task1c=0
 task2c=0
+task3c=0
 relover=0
 relovery=0
 def region_generating(stdscr):
@@ -96,7 +97,7 @@ furniture= [ 'slate_pebble_table','basalt_pebble_table','talc_pebble_table','tal
     ]
 solids = [
                 'tree', 'slate', 'iron-ore', 'copper-ore', 'silver-ore', 'gold-ore', 'mudstone', 'ozone','magnesite-ore','mythril-ore','tin-ore',
-                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt','great_sea'
+                'undiscovered_moss1','fungi-tree','water','undiscovered_rock_bush1','undiscovered_dense_moss1','fracter-ore','wood-wall','river','talc','basalt','great_sea','Formless','water_7/7'
         ]
 building_items=['basalt_pebble','talc_pebble','slate_pebble','wood']
 
@@ -136,7 +137,7 @@ tile_types = [
                 'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge',
                 'carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8',
                 'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8','snow_covered_grass','snow_covered_nettle','snow_covered_sapling','snow_covered_densegrass',
-                'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool'
+                'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool','down_ramp','up_ramp'
         ]
 scene=0
 def inputter(row=0,col=0,msg='hi'):
@@ -345,6 +346,7 @@ def designation_menu_print(stdscr):
     stdscr.addstr(5,62,"d - mine")
     stdscr.addstr(6,62,"t - chop trees")
     stdscr.addstr(7,62,"x - undo designation")
+    stdscr.addstr(9,62,"h - channel")
     stdscr.addstr(8,62,"Space - leave menu")
 def building_menu_print(stdscr):
     stdscr.addstr(5,62,"w - workshop")
@@ -436,19 +438,19 @@ def draw_rect(stdscr, char, color_pair, y, x):
     char_x = x
     stdscr.addch(char_y, char_x, char, curses.color_pair(color_pair))
   
-def set_carpenter_crafting_task(dwarves, cursor_x, cursor_y, rock, item_type):
+def set_carpenter_crafting_task(dwarves, cursor_x, cursor_y, z, rock, item_type):
     for Q in dwarves:
         if 'carpenter' in Q.professions:
             if Q.get_goal() is None:
-                Q.set_craft(cursor_x, cursor_y)
+                Q.set_craft(cursor_x, cursor_y, z)
                 Q.get_item = rock
                 Q.make_item = item_type  
      
-def set_mason_crafting_task(dwarves, cursor_x, cursor_y, rock, item_type):
+def set_mason_crafting_task(dwarves, cursor_x, cursor_y, z, rock, item_type):
     for Q in dwarves:
         if 'mason' in Q.professions:
             if Q.get_goal() is None:
-                Q.set_craft(cursor_x, cursor_y)
+                Q.set_craft(cursor_x, cursor_y,z)
                 Q.get_item = rock
                 Q.make_item = item_type  
 # Main loop
@@ -658,8 +660,8 @@ while True:
     if scene == 'micro_region':
         os.system('clear')
         region_generating(stdscr)
-        #FOR NOW< FIX LATER. biome instead of forest
-        worldgen.micro_region('forest',elev[embarky,embarkx],stdscr)
+        
+        worldgen.micro_region(biome,elev[embarky,embarkx],stdscr)
         x = np.load(str(maindir) + '/region/region.npy', allow_pickle=True)  
         
                 
@@ -735,25 +737,25 @@ while True:
         #Dwarves
         '''
         
-        dorf=creatures.Dwarf(1, 14, 90, 'Gimli', 5, 5, ['pickaxe'],['miner'])
+        dorf=creatures.Dwarf(1, 14, 55, 'Gimli', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
         
         
-        dorf=creatures.Dwarf(3, 15, 91, 'Nil', 5, 5, ['axe'],['woodcutter'])
+        dorf=creatures.Dwarf(3, 15, 55, 'Nil', 5, 5, ['axe'],['woodcutter'])
         #self, color, posx, posy, name, strength, agility, possessions, professions
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
+        dorf=creatures.Dwarf(1, 14, 55, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(1, 14, 90, 'Gimlii', 5, 5, [],['carpenter','architecture'])
+        dorf=creatures.Dwarf(1, 14, 55, 'Gimlii', 5, 5, [],['carpenter','architecture'])
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(2, 14, 93, 'Dinglii', 5, 5, [],['mason'])
+        dorf=creatures.Dwarf(2, 14, 56, 'Dinglii', 5, 5, [],['mason'])
         dwarves.append(dorf)
         
         for i in range(5):
-            add_item(i+90,20,0,'wood',items)
+            add_item(i+50,20,0,'wood',items)
         scene='play'
         over=5
         overy=0
@@ -881,8 +883,7 @@ while True:
         if t == 800:
                 beg1=time.time()
         
-        if t % 2 == 0:
-                stdscr.clear()
+        
 
         if playing % 2 ==0:
             stdscr.addstr(0,18,"PAUSED",curses.color_pair(6))
@@ -894,7 +895,7 @@ while True:
                 for i in entities:
                         i.goto(i.posx+overy,i.posy+over)
                 for i in dwarves:
-                        i.goto(i.posx+overy,i.posy+over)
+                        i.goto(i.posx+overy,i.posy+over,i.posz)
                 over=0
                 overy=0
                 overz=0
@@ -943,8 +944,9 @@ while True:
         
          
         
-        
-        for j in range(30):
+        if t % 2 == 0:
+            stdscr.clear()
+            for j in range(30):
                 try:
                     stdscr.addstr(j+1,60,'|')
                 except:
@@ -1020,6 +1022,13 @@ while True:
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(24))
                             if x[i+over][j+overy][overz] == 'frozen_pool':
                                 stdscr.addstr(j+1,i,'#',curses.color_pair(24))
+                            if x[i+over][j+overy][overz] == 'down_ramp':
+                                stdscr.addstr(j+1,i,'▼',curses.color_pair(24))
+                            if x[i+over][j+overy][overz] == 'up_ramp':
+                                stdscr.addstr(j+1,i,'▲',curses.color_pair(24))
+                            if x[i+over][j+overy][overz] == 'water_7/7':
+                                stdscr.addstr(j+1,i,'≈',curses.color_pair(3))
+                                
                             
                             if stockpile[i+over,j+overy][overz]!=0:
                                 stdscr.addstr(j+1,i,'=',curses.color_pair(23))
@@ -1043,42 +1052,42 @@ while True:
                             
                             #workshop
                             if x[i+over][j+overy][overz] == 'carpenter0':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter1':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter2':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter3':
-                                stdscr.addstr(j+1,i,'\"',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'\"',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter4':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter5':
-                                stdscr.addstr(j+1,i,']',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,']',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter6':
-                                stdscr.addstr(j+1,i,'═',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'═',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter7':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'carpenter8':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
 
                             if x[i+over][j+overy][overz] == 'mason0':
-                                stdscr.addstr(j+1,i,';',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,';',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason1':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason2':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason3':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason4':
-                                stdscr.addstr(j+1,i,'[',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'[',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason5':
-                                stdscr.addstr(j+1,i,'o',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'o',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason6':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason7':
-                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,'░',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             if x[i+over][j+overy][overz] == 'mason8':
-                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy])))
+                                stdscr.addstr(j+1,i,' ',curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
                             
                         except:
                             
@@ -1304,11 +1313,57 @@ while True:
         if menu == 'building':
             if key == ord('w'):
                 menu = 'workshop'
+            if key == ord('t'):
+                menu = 'table'
+            if key == ord('c'):
+                menu = 'chair'
         if menu == 'workshop':
             if key == ord('c'):
                 menu = 'build_carpenter'
             if key == ord('m'):
                 menu = 'build_mason'
+
+        if menu == 'table':
+            can_build=1
+            
+            for i in range(1):
+                for j in range(1):
+                    if x[cursorx+over+j][cursory+overy-1+i][overz] not in solids:
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(5))
+                    else:
+                        can_build=0
+                        stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
+            
+            if can_build==1:
+                stdscr.addstr(4,61,'Placement')
+            else:
+                stdscr.addstr(4,61,'Workshop Blocked')
+            if key == 10 and can_build == 1:
+                ccursorx=cursorx
+                ccursory=cursory
+                rocks=[]
+                rx=[]
+                ry=[]
+                rz=[]
+                for j in range(X-1):
+                    for i in range(Y-1):
+                        for k in range(Z-1):
+                            temmm=get_items(j,i,k,items)
+                            ####WIP WIP WIP WIP
+                            for K in range(len(temmm)):
+                            
+                                if temmm[K].endswith('_table'):
+    
+                                    rx.append(j)
+                                    ry.append(i)
+                                    rz.append(k)
+                                    rocks.append(temmm[K])
+                            
+                menu='table_material'
+                boldened=0
+                key='something to not be 10'
+
+        
         if menu == 'build_carpenter':
             can_build=1
             
@@ -1330,24 +1385,30 @@ while True:
                 rocks=[]
                 rx=[]
                 ry=[]
+                rz=[]
                 for j in range(X-1):
                     for i in range(Y-1):
-                            temmm=get_items(j,i,items)
+                        for k in range(Z-1):
+                            temmm=get_items(j,i,k,items)
                             if 'slate_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('slate_pebble')
                             elif 'talc_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('talc_pebble')
                             elif 'basalt_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('basalt_pebble')
                             elif 'wood' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('wood')
                 menu='carpenter_material'
                 boldened=0
@@ -1358,7 +1419,7 @@ while True:
             
             for i in range(3):
                 for j in range(3):
-                    if x[cursorx+over+j][cursory+overy-1+i] not in solids:
+                    if x[cursorx+over+j][cursory+overy-1+i][overz] not in solids:
                         stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(5))
                     else:
                         can_build=0
@@ -1374,24 +1435,30 @@ while True:
                 rocks=[]
                 rx=[]
                 ry=[]
+                rz=[]
                 for j in range(X-1):
                     for i in range(Y-1):
-                            temmm=get_items(j,i,items)
+                        for k in range(Z-1):
+                            temmm=get_items(j,i,k,items)
                             if 'slate_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('slate_pebble')
                             elif 'talc_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('talc_pebble')
                             elif 'basalt_pebble' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('basalt_pebble')
                             elif 'wood' in temmm:
                                 rx.append(j)
                                 ry.append(i)
+                                rz.append(k)
                                 rocks.append('wood')
                 menu='mason_material'
                 boldened=0
@@ -1424,14 +1491,49 @@ while True:
                     if 'carpenter' in i.professions:
                         if i.get_goal() == None:
                             i.get_item=rocks[boldened]
-                            i.set_build(ccursorx+over,ccursory+overy-1)
+                            i.set_build(ccursorx+over,ccursory+overy-1,overz)
                             
 
                 menu='main'
                 
                 for i in range(3):
                     for j in range(3):
-                        x[ccursorx+over+j][ccursory+overy-1+i]='unbuilt_carpenter_workshop'
+                        x[ccursorx+over+j][ccursory+overy-1+i][overz]='unbuilt_carpenter_workshop'
+        #
+        if menu == 'table_material':
+            for i in range(30):
+                if boldened != i:
+                    try:
+                        stdscr.addstr(i,65,rocks[i])
+                    except:
+                        pass
+                else:
+                    try:
+                        
+                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        
+                    except:
+                        boldened=0
+            if key == ord('='):
+                if boldened > 0:
+                    boldened-=1
+            elif key == ord('-'):
+                if boldened <30:
+                    boldened+=1
+            if key == 10:
+                #this is kinda a scam, but whatever. Makes choosing a material mostly useless.
+                for i in dwarves:
+                    
+                        if i.get_goal() == None:
+                            i.get_item=rocks[boldened]
+                            i.set_build(ccursorx+over,ccursory+overy-1,overz)
+                            
+
+                menu='main'
+                
+                
+                x[ccursorx+over][ccursory+overy-1][overz]='unbuilt_table'
+        #
                 
         if menu == 'mason_material':
             for i in range(30):
@@ -1459,7 +1561,7 @@ while True:
                     if 'mason' in i.professions:
                         if i.get_goal() == None:
                             i.get_item=rocks[boldened]
-                            i.set_build(ccursorx+over,ccursory+overy-1)
+                            i.set_build(ccursorx+over,ccursory+overy-1,overz)
                             
 
                 menu='main'
@@ -1473,9 +1575,9 @@ while True:
                     
         if menu == 'query':
             if key == ord('a'):
-                if x[cursorx+over][cursory+overy-1] in carpenter_tiles:
+                if x[cursorx+over][cursory+overy-1][overz] in carpenter_tiles:
                     menu = 'carpenter_crafting'
-                if x[cursorx+over][cursory+overy-1] in mason_tiles:
+                if x[cursorx+over][cursory+overy-1][overz] in mason_tiles:
                     menu = 'mason_crafting'
                 key = 'qqqqqqqq'
                 ccursorx=cursorx+over
@@ -1486,48 +1588,52 @@ while True:
                 rock = None
                 for j in range(X-1):
                     for i in range(Y-1):
-                        temmm = get_items(j, i, items)
-                        if 'wood' in temmm:
-                            rock = 'wood'
-                            item_type = 'wood_table'
-                            set_carpenter_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
-                            break
+                        for k in range(Z-1):
+                            temmm = get_items(j, i, k, items)
+                            if 'wood' in temmm:
+                                rock = 'wood'
+                                item_type = 'wood_table'
+                                set_carpenter_crafting_task(dwarves, ccursorx, ccursory, overz, rock, item_type)
+                                break
             if key == ord('c'):
                 menu = 'query'
                 rock = None
                 for j in range(X-1):
                     for i in range(Y-1):
-                        temmm = get_items(j, i, items)
-                        if 'wood' in temmm:
-                            rock = 'wood'
-                            item_type = 'wood_chair'
-                            set_carpenter_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
-                            break
+                        for k in range(Z-1):
+                            temmm = get_items(j, i, k, items)
+                            if 'wood' in temmm:
+                                rock = 'wood'
+                                item_type = 'wood_chair'
+                                set_carpenter_crafting_task(dwarves, ccursorx, ccursory, overz, rock, item_type)
+                                break
         if menu == 'mason_crafting':
             if key == ord('t'):
                 menu = 'query'
                 rock = None
                 for j in range(X-1):
                     for i in range(Y-1):
-                        temmm = get_items(j, i, items)
-                        for k in rock_types:
-                            if k in temmm:
-                                rock = k
-                                item_type = str(k)+'_table'
-                                set_mason_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
-                                break
+                        for K in range(Z-1):
+                            temmm = get_items(j, i, K, items)
+                            for k in rock_types:
+                                if k in temmm:
+                                    rock = k
+                                    item_type = str(k)+'_table'
+                                    set_mason_crafting_task(dwarves, ccursorx, ccursory, overz, rock, item_type)
+                                    break
             if key == ord('c'):
                 menu = 'query'
                 rock = None
                 for j in range(X-1):
                     for i in range(Y-1):
-                        temmm = get_items(j, i, items)
-                        for k in rock_types:
-                            if 'wood' in temmm:
-                                rock = k
-                                item_type = str(k)+'_chair'
-                                set_mason_crafting_task(dwarves, ccursorx, ccursory, rock, item_type)
-                                break
+                        for K in range(Z-1):
+                            temmm = get_items(j, i, K, items)
+                            for k in rock_types:
+                                if 'wood' in temmm:
+                                    rock = k
+                                    item_type = str(k)+'_chair'
+                                    set_mason_crafting_task(dwarves, ccursorx, ccursory, overz, rock, item_type)
+                                    break
                                 
                                 
                                 
@@ -1593,6 +1699,8 @@ while True:
                 action='rmdig'
             if key == ord('t'):
                 action='tree'
+            if key == ord('h'):
+                action='ramp'
                 
         
             if key == 10:
@@ -1609,6 +1717,16 @@ while True:
                                 for j in range(dc2[1]-dc1[1]+1):
                                     if x[dc1[0]+i+over,dc1[1]+j-1+overy,overz] in solids:
                                         tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy,overz]=1
+                        except TypeError:
+                            pass
+                        relover,relovery=0,0
+                    if action=='ramp':
+                        
+                        try:
+                            for i in range(dc2[0]-dc1[0]+1+relover):
+                                for j in range(dc2[1]-dc1[1]+1):
+                                    if x[dc1[0]+i+over,dc1[1]+j-1+overy,overz] in tile_types:
+                                        tasks[dc1[0]+i+over-relover,dc1[1]+j-1+overy,overz]=3
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -1908,15 +2026,21 @@ while True:
         if t % 5 == 0:
             task1c=0
             task2c=0
+            task3c=0
             
             for j in range(X):
                 for k in range(Y):
-                    for r in range(Z):
-                        if tasks[j][k][r]==1:
+                    for r in range(int(Z/2)):
+                        if tasks[j][k][int(2*r)]==1:
                             task1c=1
                             break
-                        elif tasks[j][k][r]==2:
+                    for r in range(int(Z/2)):
+                        if tasks[j][k][int(2*r)]==2:
                             task2c=1
+                            break
+                    for r in range(int(Z/2)):
+                        if tasks[j][k][int(2*r)]==3:
+                            task3c=1
                             break
         
         for i in entities:
@@ -1948,6 +2072,8 @@ while True:
                     if 'pickaxe' in i.possessions and 'miner' in i.professions:
                         if task1c==1:
                                     i.set_goal('mine')
+                        elif task3c==1:
+                                    i.set_goal('channel')
                         else:
                             i.task='idle'
                                     
@@ -1963,7 +2089,7 @@ while True:
                     if i.get_build() != None:
                         cc=0
                         for ccc in i.possessions:
-                            if ccc in item_list:
+                            if ccc in item_list or ccc in furniture:
                                 cc=1
                         if cc==1:
                             
@@ -2089,6 +2215,69 @@ while True:
                                         for z in range(Z):
                                         
                                             if tasks[j][k][z]== 1:
+
+                                     
+                                                i.task='Path'
+                                                #if x[j-1][k] in tile_types or x[j+1][k] in tile_types or x[j][k+1] in tile_types or x[j][k-1] in tile_types or x[j][k] in tile_types:
+                                              
+                                                if c != 1:    
+                                                
+                                                
+                                                    try:
+                                                        if x[j-1][k][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j-1, k, z) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j+1][k][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j+1, k, z) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j][k+1][z] in tile_types:
+                                                            
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k+1, z) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        
+                                                        pass
+                                                if c != 1:
+                                                    try:
+                                                        if x[j][k-1][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k-1, z) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c == 0:
+                                                    i.q=None
+                                                
+                                                
+                                                    
+                                                   
+                                                    i.task='idle'
+                            if qqq=='channel':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        for z in range(Z):
+                                        
+                                            if tasks[j][k][z]== 3:
 
                                      
                                                 i.task='Path'
@@ -2375,9 +2564,11 @@ while True:
                                     
                                         #if abs(i.pathy[1]-i.posx)<=2:
                                         i.goto(i.pathy[1]-overy,i.pathx[1]-over,i.pathz[1])
+                                        
                                       
                                         del i.pathx[0]
                                         del i.pathy[0]
+                                        del i.pathz[0]
                                     
                             except:
                                 
@@ -2412,6 +2603,45 @@ while True:
                                                         add_item(nx,ny,zz,'talc_pebble',items)
                                                     elif mined == 'basalt':
                                                         add_item(nx,ny,zz,'basalt_pebble',items)
+                                                        
+            
+                                            break 
+                                    i.task='idle'
+                                    i.set_goal(None)
+                                    
+                                if i.get_goal() == 'channel':
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    zz=i.posz
+                                    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Up, Down, Right, Left
+
+                                    for dx, dy in directions:
+                                        nx, ny = xx + dx, yy + dy
+    
+                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny][zz] == 3:
+                                            tasks[nx][ny] = 0
+                                            
+        
+                                            
+                                            mined=x[nx][ny][zz]
+                                            x[nx][ny][zz] = 'down_ramp'
+                                            try:
+                                                x[nx][ny][zz+1]= 'down_ramp'
+                                            except:
+                                                pass
+                                            try:
+                                                x[nx][ny][zz+2]= 'up_ramp'
+                                            except:
+                                                pass
+                                            r=random.randint(1,4)
+                                            if r == 2:
+                                                if mined == 'slate':
+                                                    add_item(nx,ny,zz,'slate_pebble',items)
+                                                elif mined == 'talc':
+                                                    add_item(nx,ny,zz,'talc_pebble',items)
+                                                elif mined == 'basalt':
+                                                    add_item(nx,ny,zz,'basalt_pebble',items)
+                                                    
                                                         
             
                                             break 
@@ -2464,6 +2694,8 @@ while True:
 
         ##
         '''
+        #water flowing basics
+        #soon TM
                 
                 
         if t % 2 == 0:
@@ -2496,19 +2728,19 @@ while True:
             if t % 2001 == 0:
                 for i in range(X):
                     for j in range(Y):
-                        if x[i][j]=='sapling':
+                        if x[i][j][0]=='sapling':
                         
                             r=random.randint(0,40000)
                             if r == 1:
-                                x[i][j]='tree'
+                                x[i][j][0]='tree'
             if (t+456) % 2001 == 0:
                 for i in range(X):
                     for j in range(Y):
-                        if x[i][j]=='grass':
+                        if x[i][j][0]=='grass':
                         
                             r=random.randint(0,80000)
                             if r == 1:
-                                x[i][j]='sapling'
+                                x[i][j][0]='sapling'
             
         '''   
         for i in dwarves:
