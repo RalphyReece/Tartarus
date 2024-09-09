@@ -3,6 +3,7 @@ import os
 import subprocess
 import numpy as np
 from noise import pnoise2
+import noise
 import matplotlib.pyplot as plt
 import random
 import math
@@ -12,6 +13,31 @@ import cave_gen
 import secrets
 import river_generation
 import sea_generation
+def generate_3d_perlin_noise_grid(x_size, y_size, z_size, scale=0.1, octaves=1, persistence=0.5, lacunarity=2.0, seed=None):
+    # Initialize the 3D grid
+    grid = np.zeros((x_size, y_size, z_size), dtype=float)
+
+    if seed == None:
+        seed=random.randint(0,95)
+
+    # Fill the grid with Perlin noise values
+    for x in range(x_size):
+        for y in range(y_size):
+            for z in range(z_size):
+                noise_value = noise.pnoise3(x * scale,
+                                            y * scale,
+                                            z * scale,
+                                            octaves=octaves,
+                                            persistence=persistence,
+                                            lacunarity=lacunarity,
+                                            repeatx=x_size,
+                                            repeaty=y_size,
+                                            repeatz=z_size,
+                                            base=seed)
+                # Normalize the noise to be between 0 and 1
+                grid[x][y][z] = (noise_value + 0.5)
+
+    return grid
 def ore_probability_curve(x):
     return .19*x +45
 
@@ -431,7 +457,7 @@ def micro_region(biome,elev,stdscr):
     maindir = maindir[:-1]   
     x=60
     x_len=x
-    z=20
+    z=40
     z_len=z
     y=60
     y_len=y
@@ -439,8 +465,8 @@ def micro_region(biome,elev,stdscr):
     region=np.empty((x,y,z), dtype=object)
 
 
-    if biome == 'forest':
-        for i in range(x):
+    
+    for i in range(x):
             for j in range(y):
                 for k in range(z):
                     region[i][j][k] = 'slate'
@@ -847,55 +873,85 @@ def micro_region(biome,elev,stdscr):
     #cave generation
     #60 and top 100 must be changed in both files
     cavex=0
-    cave=cave_gen.main()
-    cave_depth=5
-    for j in range(60):
-        for i in range(60):
-            if cave[i][j] == 1:
-                region[j+cavex][i][cave_depth] = 'undiscovered_moss1'
+    scale=.04
+    octaves=4
+    persistence=.5
+    lacunarity=1.5
+    for direction in range(1):
+        cave=cave_gen.main(x, y, 8, direction, scale, octaves, persistence, lacunarity, seed=random.randint(0,100))
+
+        cave_depth=5
+        for j in range(60):
+            for i in range(60):
+                for k in range(8):
+                    if cave[i][j][k] == 1:
+                        region[j+cavex][i][cave_depth+k] = 'undiscovered_moss1'
+        for j in range(60):
+            for i in range(60):
+                for k in range(8):
+                    if cave[i][j][k] == 2:
+                        region[j+cavex][i][cave_depth+k] = 'air'
+        for j in range(60):
+            for i in range(60):
+                for k in range(8):
+                    if cave[i][j][k] == 3:
+                        region[j+cavex][i][cave_depth+k] = 'down_ramp'
+        for j in range(60):
+            for i in range(60):
+                for k in range(8):
+                    if cave[i][j][k] == 4:
+                        region[j+cavex][i][cave_depth+k] = 'up_ramp'
+    
 
     tree_gen(x,y,32)
     trees=np.loadtxt(str(maindir)+'/region/region_trees.data')
     for i in range(x):
         for j in range(y):
-            if region[i][j][cave_depth] == 'undiscovered_moss1':
-                if trees[i][j] == 1:
-                    region[i][j][cave_depth] = 'fungi-tree'
+            for k in range(8):
+                if region[i][j][cave_depth+k] == 'undiscovered_moss1':
+                    if trees[i][j] == 1:
+                        region[i][j][cave_depth+k] = 'fungi-tree'
     flower_gen(x,y,50)
     trees=np.loadtxt(str(maindir)+'/region/region_flower.data')
     for i in range(x):
-                for j in range(y):
-                    if region[i][j][cave_depth]=='undiscovered_moss1':
-                        if trees[i][j] ==1:
-                            region[i][j][cave_depth] = 'undiscovered_rock_bush1'
+        for j in range(y):
+            for k in range(8):
+                if region[i][j][cave_depth+k] == 'undiscovered_moss1':
+                    if trees[i][j] == 1:
+                        region[i][j][cave_depth+k] = 'undiscovered_rock_bush1'
+                            
 
     dense_moss_gen(x,y)                       
     trees=np.loadtxt(str(maindir)+'/region/region_moss.data')
     
     for i in range(x):
-                for j in range(y):
-                    if trees[i][j] >.10:
-                        if region[i][j][cave_depth] == 'undiscovered_moss1':
-                            region[i][j][cave_depth] = 'undiscovered_dense_moss1'
-                        
-    talc_gen(x,y)                       
-    trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
+        for j in range(y):
+            for k in range(8):
+                if region[i][j][cave_depth+k] == 'undiscovered_moss1':
+                    if trees[i][j] >=.1:
+                        region[i][j][cave_depth+k] = 'undiscovered_dense_moss1'
+                            
+    
+    trees=generate_3d_perlin_noise_grid(x,y,z)                       
+    
     
     for i in range(x):
                 for j in range(y):
                     for k in range(z):
-                        if trees[i][j] >.07:
-                            if region[i][j][k] == 'slate':
-                                region[i][j][k] = 'talc'
+                        if k < 12:
+                            if trees[i][j][k] >.4:
+                                if region[i][j][k] == 'slate':
+                                    region[i][j][k] = 'talc'
     
-    talc_gen(x,y)                       
-    trees=np.loadtxt(str(maindir)+'/region/region_talc.data')
+    trees=generate_3d_perlin_noise_grid(x,y,z)    
     
     for i in range(x):
                 for j in range(y):
-                    if trees[i][j] >.06:
-                        if region[i][j][0] == 'slate':
-                            region[i][j][0] = 'basalt'    
+                    for k in range(z):
+                        if k > 10:
+                            if trees[i][j][k] >.4:
+                                if region[i][j][k] == 'slate':
+                                    region[i][j][k] = 'basalt'    
             
     
     
@@ -920,7 +976,7 @@ def micro_region(biome,elev,stdscr):
 
 
         river_array = river_generation.create_river(river_array)
-        r=random.randint(22,41)
+        r=random.randint(8,22)
         for i in range(xu):
             for j in range(y):
                 if i != 15:
@@ -1078,6 +1134,7 @@ def micro_region(biome,elev,stdscr):
                     region_copy[j][k][int(2*i)]=region[j][k][i]
         except:
             pass
+    
     np.save(str(maindir) + '/region/region.npy', region_copy)
     
     #f=open(str(maindir)+'/dev_data/rcounts'+str(time.time())+'.data','w')

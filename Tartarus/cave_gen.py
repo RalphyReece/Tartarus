@@ -1,43 +1,78 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from noise import pnoise2
+import noise
 import random
 
-def generate_perlin_noise_2d(shape, scale, octaves, persistence, lacunarity, seed=None):
-    if seed is not None:
+def main(x_size, y_size, z_size,direction, scale, octaves, persistence, lacunarity, seed=None):
+    # Initialize the 3D grid with zeros
+    grid = np.zeros((x_size, y_size, z_size), dtype=int)
+
+    if seed:
         np.random.seed(seed)
-    noise = np.zeros(shape)
-    for i in range(shape[0]):
-        for j in range(shape[1]):
-            noise[i][j] = pnoise2(i / scale, 
-                                  j / scale, 
-                                  octaves=octaves, 
-                                  persistence=persistence, 
-                                  lacunarity=lacunarity, 
-                                  repeatx=1024, 
-                                  repeaty=1024, 
-                                  base=seed)
-    return noise
+        seed_value = np.random.randint(0, 100)
+    else:
+        seed_value=0  # Default seed
 
-def generate_cave(shape, threshold, noise_params):
-    noise = generate_perlin_noise_2d(shape, **noise_params)
-    cave = np.zeros(shape)
-    cave[noise > threshold] = 1
-    return cave
-def main():
+    # Step 1: Fill the grid with 1 where Perlin noise > 0.2
+    if direction == 0:
+        ths=[.0001,.03,.05,.1,.15,.2,.3,.5,1.2]
+        
+    
+            
+    for x in range(x_size):
+        for y in range(y_size):
+            for z in range(z_size):
+                noise_value = noise.pnoise3(x * scale,
+                                            y * scale,
+                                            z * scale,
+                                            octaves=octaves,
+                                            persistence=persistence,
+                                            lacunarity=lacunarity,
+                                            repeatx=x_size,
+                                            repeaty=y_size,
+                                            repeatz=z_size,
+                                            base=seed_value)
+                
+                threshhold=ths[z]
+                if noise_value > threshhold:
+                    grid[x][y][z] = 1
+                
+    if direction == 0:
+        
+        # Step 2: Identify air cells (set to 2)
+        for x in range(x_size):
+            for y in range(y_size):
+                for z in range(0, z_size):  # Start at z=1 to avoid out of bounds
+                    try:
+                        # If current cell is 1 and the cell directly below is also 1, set current cell to 2 (air)
+                        if grid[x][y][z] == 1 and grid[x][y][z + 1] == 1:
+                            grid[x][y][z] = 2
+                    except:
+                        pass
+        for x in range(x_size):
+            for y in range(y_size):
+                for z in range(0, z_size):
+                    try:
+                    
+                        if grid[x][y][z] == 1:
+                            if grid[x+1][y][z + 1] == 1:
+                                grid[x+1][y][z] = 3
+                                grid[x+1][y][z+1] = 4
+                        if grid[x][y][z] == 1:
+                            if grid[x-1][y][z + 1] == 1:
+                                grid[x-1][y][z] = 3
+                                grid[x-1][y][z+1] = 4
+                        if grid[x][y][z] == 1:
+                            if grid[x][y+1][z + 1] == 1:
+                                grid[x][y+1][z] = 3
+                                grid[x][y+1][z+1] = 4
+                        if grid[x][y][z] == 1:
+                            if grid[x][y-1][z + 1] == 1:
+                                grid[x][y-1][z] = 3
+                                grid[x][y-1][z+1] = 4
+                    except:
+                        pass
+        
+    return grid
 
-    noise_params = {
-        'scale': 50,
-        'octaves': 20,
-        'persistence': 0.64,
-        'lacunarity': 6.0,
-        'seed': random.randint(0,1000)
-    }
-
-
-    shape = (100, 200)
-    threshold = 0.075
-    cave = generate_cave(shape, threshold, noise_params)
-    return cave
-
+# Example usage
 
