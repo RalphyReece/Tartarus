@@ -890,17 +890,17 @@ def micro_region(biome,elev,stdscr):
             for i in range(60):
                 for k in range(8):
                     if cave[i][j][k] == 2:
-                        region[j+cavex][i][cave_depth+k] = 'air'
+                        region[j+cavex][i][cave_depth+k] = 'undiscovered_air'
         for j in range(60):
             for i in range(60):
                 for k in range(8):
                     if cave[i][j][k] == 3:
-                        region[j+cavex][i][cave_depth+k] = 'down_ramp'
+                        region[j+cavex][i][cave_depth+k] = 'undiscovered_down_ramp'
         for j in range(60):
             for i in range(60):
                 for k in range(8):
                     if cave[i][j][k] == 4:
-                        region[j+cavex][i][cave_depth+k] = 'up_ramp'
+                        region[j+cavex][i][cave_depth+k] = 'undiscovered_up_ramp'
     
 
     tree_gen(x,y,32)
@@ -1132,6 +1132,18 @@ def micro_region(biome,elev,stdscr):
                 for k in range(y_len):
                     
                     region_copy[j][k][int(2*i)]=region[j][k][i]
+        except:
+            pass
+    #Cave system inter-layer ramp system.
+    for i in range(100):
+        try:
+            for j in range(x_len):
+                for k in range(y_len):
+                    if region_copy[j][k][i] == 'undiscovered_down_ramp':
+                        #if cave layer at bottom layer, will cause issues.
+                        region_copy[j][k][i+1] = 'up_ramp'
+                    
+                    
         except:
             pass
     

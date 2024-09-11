@@ -2,6 +2,8 @@
 X=60
 Y=60
 Z=40
+scx=40
+scy=20
 import cProfile
 import pstats
 import io
@@ -112,7 +114,7 @@ rock_types = [ 'basalt_pebble','talc_pebble','slate_pebble'
     ]
 item_color = [ 22 , 23 , 10 , 8,8,10,22,23
     ]
-undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undiscovered_dense_moss1'
+undiscovered_tiletypes = ['undiscovered_moss1','undiscovered_rock_bush1','undiscovered_dense_moss1','undiscovered_up_ramp','undiscovered_down_ramp','undiscovered_air'
 
                           ]
 
@@ -135,8 +137,7 @@ tile_types = [
                 'grass', 'sapling', 'mud', 'peat', 
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
                 'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge',
-                'carpenter0','carpenter1','carpenter2','carpenter3','carpenter4','carpenter5','carpenter6','carpenter7','carpenter8',
-                'mason0','mason1','mason2','mason3','mason4','mason5','mason6','mason7','mason8','snow_covered_grass','snow_covered_nettle','snow_covered_sapling','snow_covered_densegrass',
+                'snow_covered_grass','snow_covered_nettle','snow_covered_sapling','snow_covered_densegrass',
                 'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool','down_ramp','up_ramp'
         ]
 extras=['water_7/7','river','air','great_sea','pool']
@@ -895,7 +896,7 @@ while True:
                     
             np.save(str(maindir) + '/region/pathfind.npy', x_2)
             
-        if t % 57 == 0:
+        if t % 119 == 0:
             for j in range(Y):
                 
                 
@@ -911,6 +912,8 @@ while True:
                                     x[i][j-1][2*k] in tile_types or \
                                     x[i][j+1][2*k] in tile_types:
                                     discover1=True
+                                    
+                                    break
                             except:
                                 pass
                         
@@ -922,13 +925,19 @@ while True:
             discover1 = False
             for j in range(Y):
                 for i in range(X):
-                    for k in range(Z):
+                    for k in range(int(Z)):
                         if x[i][j][k] == 'undiscovered_moss1':
                             x[i][j][k] = 'cave_moss'
                         if x[i][j][k] == 'undiscovered_rock_bush1':
                             x[i][j][k] = 'rock_bush'
                         if x[i][j][k] == 'undiscovered_dense_moss1':
                             x[i][j][k] = 'dense_moss'
+                        if x[i][j][k] == 'undiscovered_down_ramp':
+                            x[i][j][k] = 'down_ramp'
+                        if x[i][j][k] == 'undiscovered_up_ramp':
+                            x[i][j][k] = 'up_ramp'
+                        if x[i][j][k] == 'undiscovered_air':
+                            x[i][j][k] ='air'
                     
                         
 
@@ -950,7 +959,7 @@ while True:
         
         
         t+=1
-        offset=42
+        offset=scx+2
         if key == curses.KEY_F1:
                 for i in entities:
                         i.goto(i.posx+overy,i.posy+over)
@@ -1006,15 +1015,15 @@ while True:
         
         if t % 2 == 0:
             stdscr.clear()
-            for j in range(20):
+            for j in range(scy):
                 try:
-                    stdscr.addstr(j+1,40,'|')
+                    stdscr.addstr(j+1,scx,'|')
                 except:
                     pass
                 
                 
             
-                for i in range(40):
+                for i in range(scx):
                         try:
                             
 
@@ -1246,8 +1255,8 @@ while True:
             stdscr.addstr(cursory,cursorx,"X")
 
         #time counter
-        stdscr.addstr(20,42,'       ')
-        stdscr.addstr(20,42,str(t))
+        stdscr.addstr(scy,scx+2,'       ')
+        stdscr.addstr(scy,scx+2,str(t))
         if key == ord('<'):
             overz-=2
         elif key == ord('>'):
@@ -1315,13 +1324,14 @@ while True:
                 if cursorx < 179:
                     cursorx +=1
             if menu == 'main':
+                if over <=X-10:
                 
-                over+=10
-                for i in entities:
-                    i.goto(i.posx,i.posy-10)
-                for i in dwarves:
-                        i.goto(i.posx,i.posy-10,i.posz)
-                        i.overyc-=10
+                    over+=10
+                    for i in entities:
+                        i.goto(i.posx,i.posy-10)
+                    for i in dwarves:
+                            i.goto(i.posx,i.posy-10,i.posz)
+                            i.overyc-=10
         
         if menu == 'main':
             if key == ord('p'):
@@ -1369,9 +1379,9 @@ while True:
                         stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
             
             if can_build==1:
-                stdscr.addstr(4,61,'Placement')
+                stdscr.addstr(4,scx+1,'Placement')
             else:
-                stdscr.addstr(4,61,'Workshop Blocked')
+                stdscr.addstr(4,scx+1,'Workshop Blocked')
             if key == 10 and can_build == 1:
                 ccursorx=cursorx
                 ccursory=cursory
@@ -1410,9 +1420,9 @@ while True:
                         stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
             
             if can_build==1:
-                stdscr.addstr(4,61,'Placement')
+                stdscr.addstr(4,scx+1,'Placement')
             else:
-                stdscr.addstr(4,61,'Workshop Blocked')
+                stdscr.addstr(4,scx+1,'Workshop Blocked')
             if key == 10 and can_build == 1:
                 ccursorx=cursorx
                 ccursory=cursory
@@ -1460,9 +1470,9 @@ while True:
                         stdscr.addstr(cursory+i,cursorx+j,'X',curses.color_pair(6))
             
             if can_build==1:
-                stdscr.addstr(4,61,'Placement')
+                stdscr.addstr(4,scx+1,'Placement')
             else:
-                stdscr.addstr(4,61,'Workshop Blocked')
+                stdscr.addstr(4,scx+1,'Workshop Blocked')
             if key == 10 and can_build == 1:
                 ccursorx=cursorx
                 ccursory=cursory
@@ -1503,13 +1513,13 @@ while True:
             for i in range(30):
                 if boldened != i:
                     try:
-                        stdscr.addstr(i,65,rocks[i])
+                        stdscr.addstr(i,scx+5,rocks[i])
                     except:
                         pass
                 else:
                     try:
                         
-                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        stdscr.addstr(i, scx+5,rocks[i],curses.color_pair(6))
                         
                     except:
                         boldened=0
@@ -1538,13 +1548,13 @@ while True:
             for i in range(30):
                 if boldened != i:
                     try:
-                        stdscr.addstr(i,65,rocks[i])
+                        stdscr.addstr(i,scx+5,rocks[i])
                     except:
                         pass
                 else:
                     try:
                         
-                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        stdscr.addstr(i, scx+5,rocks[i],curses.color_pair(6))
                         
                     except:
                         boldened=0
@@ -1573,13 +1583,13 @@ while True:
             for i in range(30):
                 if boldened != i:
                     try:
-                        stdscr.addstr(i,65,rocks[i])
+                        stdscr.addstr(i,scx+5,rocks[i])
                     except:
                         pass
                 else:
                     try:
                         
-                        stdscr.addstr(i, 65,rocks[i],curses.color_pair(6))
+                        stdscr.addstr(i, scx+5,rocks[i],curses.color_pair(6))
                         
                     except:
                         boldened=0
@@ -2019,43 +2029,43 @@ while True:
         
             for j in range(X):
                 for k in range(Y):
-                    for r in range(Z):
-                        if stockpile[j][k][r] == 1:
-                            if get_items(j,k,r,items) == []:
+                    for r in range(int(Z/2)):
+                        if stockpile[j][k][2*r] == 1:
+                            if get_items(j,k,2*r,items) == []:
                                 #openstock=1
                                 for J in range(X):
                                     for K in range(Y):
-                                        for R in range(Z):
+                                        for R in range(int(Z/2)):
                                             for I in furniture:
-                                                if I in get_items(J,K,R,items):
-                                                    if stockpile[J][K][R] != 1:
+                                                if I in get_items(J,K,2*R,items):
+                                                    if stockpile[J][K][2*R] != 1:
                                                 
                                             
                                             
                                                         for B in dwarves:
                                                             if B.get_goal()==None:
                                                     
-                                                                    B.drop_item=[j,k,R,I,1]
+                                                                    B.drop_item=[j,k,2*R,I,1]
                                                                     B.get_item=I
                                                                     break
                                                         
                             break
-                    if stockpile[j][k][r] == 2:
-                        if get_items(j,k,r,items) == []:
+                    if stockpile[j][k][2*r] == 2:
+                        if get_items(j,k,2*r,items) == []:
                             #openstock=2
                             for J in range(X):
                                 for K in range(Y):
-                                   for R in range(Z):
+                                   for R in range(int(Z/2)):
                                             for I in furniture:
-                                                if I in get_items(J,K,R,items):
-                                                    if stockpile[J][K][R] != 2:
+                                                if I in get_items(J,K,2*R,items):
+                                                    if stockpile[J][K][2*R] != 2:
                                                 
                                             
                                             
                                                         for B in dwarves:
                                                             if B.get_goal()==None:
                                                     
-                                                                    B.drop_item=[j,k,R,I,2]
+                                                                    B.drop_item=[j,k,2*R,I,2]
                                                                     B.get_item=I
                                                                     break
                                                         
@@ -2110,7 +2120,7 @@ while True:
                             break
         
         for i in entities:
-                if i.posy < 60:
+                if i.posy < scx:
                     if i.posz == overz:
                         try:
                                 
@@ -2718,35 +2728,36 @@ while True:
 
                                     for dx, dy in directions:
                                         nx, ny = xx + dx, yy + dy
-    
-                                        if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny][zz] == 3:
-                                            tasks[nx][ny][i.posz] = 0
+                                        for ww in range(3):
+                                            
+                                            if 0 <= nx < len(tasks) and 0 <= ny < len(tasks[1]) and tasks[nx][ny][zz+ww-1] == 3:
+                                                tasks[nx][ny][i.posz] = 0
                                             
         
                                             
-                                            mined=x[nx][ny][zz]
-                                            x[nx][ny][zz] = 'down_ramp'
-                                            try:
-                                                x[nx][ny][zz+1]= 'down_ramp'
-                                            except:
-                                                pass
-                                            try:
-                                                x[nx][ny][zz+2]= 'up_ramp'
-                                            except:
-                                                pass
-                                            pathfinding_update(x)
-                                            r=random.randint(1,4)
-                                            if r == 2:
-                                                if mined == 'slate':
-                                                    add_item(nx,ny,zz,'slate_pebble',items)
-                                                elif mined == 'talc':
-                                                    add_item(nx,ny,zz,'talc_pebble',items)
-                                                elif mined == 'basalt':
-                                                    add_item(nx,ny,zz,'basalt_pebble',items)
+                                                mined=x[nx][ny][zz]
+                                                x[nx][ny][zz] = 'down_ramp'
+                                                try:
+                                                    x[nx][ny][zz+1]= 'down_ramp'
+                                                except:
+                                                    pass
+                                                try:
+                                                    x[nx][ny][zz+2]= 'up_ramp'
+                                                except:
+                                                    pass
+                                                pathfinding_update(x)
+                                                r=random.randint(1,4)
+                                                if r == 2:
+                                                    if mined == 'slate':
+                                                        add_item(nx,ny,zz,'slate_pebble',items)
+                                                    elif mined == 'talc':
+                                                        add_item(nx,ny,zz,'talc_pebble',items)
+                                                    elif mined == 'basalt':
+                                                        add_item(nx,ny,zz,'basalt_pebble',items)
                                                     
                                                         
             
-                                            break 
+                                                break 
                                     i.task='idle'
                                     i.set_goal(None)
                                 if i.get_goal() == 'chop chop':
@@ -2775,7 +2786,7 @@ while True:
                                         
                                     
         for i in dwarves:        
-            if i.posy < 60:
+            if i.posy < scx:
                 if i.posz==overz:
                     try:
                         if i.professions[0] == 'miner':  
@@ -2854,7 +2865,7 @@ while True:
         '''
         
         stdscr.refresh()
-        stdscr.addstr(19,42,str(get_items(0,0,0,items)))
+        stdscr.addstr(scy-1,scx+2,str(get_items(0,0,0,items)))
         if t == 500:
                 f=open('milestone','a')
                 f.write('\n'+str(time.time()-tim))

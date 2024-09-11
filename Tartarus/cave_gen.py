@@ -55,20 +55,20 @@ def main(x_size, y_size, z_size,direction, scale, octaves, persistence, lacunari
                     
                         if grid[x][y][z] == 1:
                             if grid[x+1][y][z + 1] == 1:
-                                grid[x+1][y][z] = 3
-                                grid[x+1][y][z+1] = 4
+                                grid[x][y][z] = 3
+                                grid[x][y][z+1] = 4
                         if grid[x][y][z] == 1:
                             if grid[x-1][y][z + 1] == 1:
-                                grid[x-1][y][z] = 3
-                                grid[x-1][y][z+1] = 4
+                                grid[x][y][z] = 3
+                                grid[x][y][z+1] = 4
                         if grid[x][y][z] == 1:
                             if grid[x][y+1][z + 1] == 1:
-                                grid[x][y+1][z] = 3
-                                grid[x][y+1][z+1] = 4
+                                grid[x][y][z] = 3
+                                grid[x][y][z+1] = 4
                         if grid[x][y][z] == 1:
                             if grid[x][y-1][z + 1] == 1:
-                                grid[x][y-1][z] = 3
-                                grid[x][y-1][z+1] = 4
+                                grid[x][y][z] = 3
+                                grid[x][y][z+1] = 4
                     except:
                         pass
         
