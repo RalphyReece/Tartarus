@@ -42,6 +42,7 @@ scene=0 is start
 task1c=0
 task2c=0
 task3c=0
+task4c=0
 relover=0
 relovery=0
 def region_generating(stdscr):
@@ -138,11 +139,11 @@ tile_types = [
                 'nettle', 'crabgrass', 'densegrass', 'snow','aerath',
                 'dead_shrub','cave_moss','rock_bush','dense_moss','sparse_grass','cavern_floor','slate_bridge',
                 'snow_covered_grass','snow_covered_nettle','snow_covered_sapling','snow_covered_densegrass',
-                'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool','down_ramp','up_ramp'
+                'snow_covered_crabgrass','snow_covered_sparse_grass','frozen_river','frozen_pool','down_ramp','up_ramp','soil_up_ramp','soil_down_ramp','stair'
         ]
-extras=['water_7/7','river','air','great_sea','pool']
+special_tiles=['water_7/7','river','air','great_sea','pool']
 visi_types=tile_types
-for i in extras:
+for i in special_tiles:
     visi_types.append(i)
 
 scene=0
@@ -151,6 +152,7 @@ def inputter(row=0,col=0,msg='hi'):
         stdscr.addstr(row,col,msg)
         user_input=''
         while True:
+            time.sleep(.02)
             
             # Get user input
             key = stdscr.getch()
@@ -390,56 +392,57 @@ def check_furniture_and_update_screen(stdscr, furniture_matrix, workshop_color, 
         stdscr.addstr(j+1, i, ' ', curses.color_pair(int(workshop_color[i+over][j+overy][overz])))
 
 
-def main_menu_print(stdscr):
-    stdscr.addstr(5,42,"a - announcement window")
-    stdscr.addstr(6,42,"d - designation menu")
-    stdscr.addstr(7,42,"Space - pause (or leave menu)")
-    stdscr.addstr(8,42,"k - toggle cursor")
-    stdscr.addstr(9,42,"b - build menu")
-    stdscr.addstr(10,42,"q - query")
-    stdscr.addstr(11,42,"p - stockpiles")
-def designation_menu_print(stdscr):
-    stdscr.addstr(5,42,"d - mine")
-    stdscr.addstr(6,42,"t - chop trees")
-    stdscr.addstr(7,42,"x - undo designation")
-    stdscr.addstr(9,42,"h - channel")
-    stdscr.addstr(8,42,"Space - leave menu")
-def building_menu_print(stdscr):
-    stdscr.addstr(5,42,"w - workshop")
-    stdscr.addstr(8,42,"Space - leave menu")
-    stdscr.addstr(6,42,"t - table")
-def workshop_menu_print(stdscr):
-    stdscr.addstr(5,42,"c - carpenter workshop")
-    stdscr.addstr(6,42,"m - mason workshop")
+def main_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"a - announcement window")
+    stdscr.addstr(6,s,"d - designation menu")
+    stdscr.addstr(7,s,"Space - pause (or leave menu)")
+    stdscr.addstr(8,s,"k - toggle cursor")
+    stdscr.addstr(9,s,"b - build menu")
+    stdscr.addstr(10,s,"q - query")
+    stdscr.addstr(11,s,"p - stockpiles")
+def designation_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"d - mine")
+    stdscr.addstr(6,s,"t - chop trees")
+    stdscr.addstr(7,s,"x - undo designation")
+    stdscr.addstr(9,s,"h - channel")
+    stdscr.addstr(10,s,"i - up/down stair")
+    stdscr.addstr(8,s,"Space - leave menu")
+def building_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"w - workshop")
+    stdscr.addstr(8,s,"Space - leave menu")
+    stdscr.addstr(6,s,"t - table")
+def workshop_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"c - carpenter workshop")
+    stdscr.addstr(6,s,"m - mason workshop")
     
-    stdscr.addstr(8,42,"Space - leave menu")
+    stdscr.addstr(8,s,"Space - leave menu")
     
-def query_menu_print(stdscr):
-    stdscr.addstr(5,42,"a - add new task")
-    stdscr.addstr(6,42,"r - remove task")
+def query_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"a - add new task")
+    stdscr.addstr(6,s,"r - remove task")
     
-    stdscr.addstr(8,42,"Space - leave menu")
-def carpenter_crafting_menu_print(stdscr):
-    stdscr.addstr(5,42,"t - table")
-    stdscr.addstr(6,42,"c - chair")
+    stdscr.addstr(8,s,"Space - leave menu")
+def carpenter_crafting_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"t - table")
+    stdscr.addstr(6,s,"c - chair")
     #stdscr.addstr(6,42,"b - wood_blocks")
     
     
-    stdscr.addstr(8,42,"Space - leave menu")
-def mason_crafting_menu_print(stdscr):
-    stdscr.addstr(5,42,"t - table")
-    stdscr.addstr(6,42,"c - chair")
+    stdscr.addstr(8,s,"Space - leave menu")
+def mason_crafting_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"t - table")
+    stdscr.addstr(6,s,"c - chair")
     
     
-    stdscr.addstr(8,42,"Space - leave menu")
+    stdscr.addstr(8,s,"Space - leave menu")
 def write_announcement(string):
     f=open(str(maindir)+'/fort/announcements.data','a')
     f.write(string)
     f.close()
-def stockpile_menu_print(stdscr):
-    stdscr.addstr(5,42,"1 - furniture stockpile")
-    stdscr.addstr(6,42,"2 - common building items")
-    stdscr.addstr(10,42,"x - remove stockpile tiles")
+def stockpile_menu_print(stdscr,s):
+    stdscr.addstr(5,s,"1 - furniture stockpile")
+    stdscr.addstr(6,s,"2 - common building items")
+    stdscr.addstr(10,s,"x - remove stockpile tiles")
     
     
     stdscr.addstr(8,42,"Space - leave menu")
@@ -509,7 +512,65 @@ def set_mason_crafting_task(dwarves, cursor_x, cursor_y, z, rock, item_type):
             if Q.get_goal() is None:
                 Q.set_craft(cursor_x, cursor_y,z)
                 Q.get_item = rock
-                Q.make_item = item_type  
+                Q.make_item = item_type
+def help_menu(stdscr):
+    global scx
+    global scy
+    page='1'
+    stdscr.clear()
+    while True:
+        key = stdscr.getch()
+        keypress(key)
+        if key==ord('0'):
+                break
+        if key !=-1:
+            stdscr.clear()
+        if page=='1':
+            stdscr.addstr(6,10,"Welcome to Tartarus!")
+            stdscr.addstr(10,10,"1-Basic Help/IMPORTANT INFO")
+            stdscr.addstr(12,10,"2-Important changes from Dwarf Fortress.")
+            stdscr.addstr(14,10,"3-Known Bugs")
+            stdscr.addstr(16,11,"4-Settings")
+            stdscr.addstr(18,10,"0-Back to Game")
+            
+            if key ==ord('1'):
+                page='1-1'
+                stdscr.clear()
+            if key ==ord('2'):
+                page='1-2'
+                stdscr.clear()
+            if key ==ord('3'):
+                page='1-3'
+                stdscr.clear()
+            if key ==ord('4'):
+                page='settings'
+                stdscr.clear()
+        if page=='1-1':
+            stdscr.addstr(10,8,"To fix lag: lowering display size in settings will help")
+            stdscr.addstr(11,8,"To fix lag: Increasing graphical refresh value will help a lot")
+        if page=='1-2':
+            stdscr.addstr(10,8,"Can only assign (currently) 1 item to be crafted, per dwarf, at a time.")
+            stdscr.addstr(11,8,"If a dwarf is unavailable at the time the order is first given, it will be ignored")
+        if page=='1-3':
+            stdscr.addstr(10,8,"Dwarves are invisible at world creation until given a task")
+            stdscr.addstr(11,8,"Dwarves will walk on air when caves are first discovered.")
+            stdscr.addstr(12,8,"Dwarves sometimes delete themselves at world generation.")
+        if page=='settings':
+            stdscr.addstr(8,8,"1-Screen Display Size")
+            if key ==ord('1'):
+                q=inputter(row=10,col=8,msg='New screen-x display: ')
+                stdscr.clear()
+                scx=int(q)
+                q=inputter(row=10,col=10,msg='New screen-y display: ')
+                scy=int(q)
+                break
+                
+                
+                
+                
+        time.sleep(.1)
+        stdscr.refresh()
+        
 # Main loop
 while True:
     key='sdsdsd'
@@ -795,21 +856,21 @@ while True:
         #Dwarves
         '''
         
-        dorf=creatures.Dwarf(1, 14, 55, 'Gimli', 5, 5, ['pickaxe'],['miner'])
+        dorf=creatures.Dwarf(1, 14, 30,6, 'Gimli', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
         
         
-        dorf=creatures.Dwarf(3, 15, 55, 'Nil', 5, 5, ['axe'],['woodcutter'])
+        dorf=creatures.Dwarf(3, 15, 30,6, 'Nil', 5, 5, ['axe'],['woodcutter'])
         #self, color, posx, posy, name, strength, agility, possessions, professions
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(1, 14, 55, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
+        dorf=creatures.Dwarf(1, 14, 30,6, 'Gimlii', 5, 5, ['pickaxe'],['miner'])
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(1, 14, 55, 'Gimlii', 5, 5, [],['carpenter','architecture'])
+        dorf=creatures.Dwarf(1, 14, 30,4, 'Gimlii', 5, 5, [],['carpenter','architecture'])
         dwarves.append(dorf)
 
-        dorf=creatures.Dwarf(2, 14, 56, 'Dinglii', 5, 5, [],['mason'])
+        dorf=creatures.Dwarf(2, 14, 30,4, 'Dinglii', 5, 5, [],['mason'])
         dwarves.append(dorf)
         
         for i in range(5):
@@ -823,6 +884,13 @@ while True:
         dclicks=0
 
         ##Testing Area
+        for i in range(8):
+            for j in dwarves:
+                if x[j.posx][j.posy][j.posz]=='air':
+                    j.goto(j.posx,j.posy,j.posz+1)
+                    print(j.posz)
+                    time.sleep(.3)
+                    stdscr.refresh()
         
         
         
@@ -1006,9 +1074,7 @@ while True:
                     i.goto(i.posx,i.posy+10)
         '''
         if key == 27:
-            menu='main'
-            kshown=0
-            dclicks=0
+            help_menu(stdscr)
         
         
          
@@ -1095,6 +1161,12 @@ while True:
                                 stdscr.addstr(j+1,i,'▼',curses.color_pair(24))
                             elif x[i+over][j+overy][overz] == 'up_ramp':
                                 stdscr.addstr(j+1,i,'▲',curses.color_pair(24))
+                            elif x[i+over][j+overy][overz] == 'soil_down_ramp':
+                                stdscr.addstr(j+1,i,'▼',curses.color_pair(16))
+                            elif x[i+over][j+overy][overz] == 'soil_up_ramp':
+                                stdscr.addstr(j+1,i,'▲',curses.color_pair(16))
+                            elif x[i+over][j+overy][overz] == 'stair':
+                                stdscr.addstr(j+1,i,'X',curses.color_pair(10))
                             
                                 
                             
@@ -1745,6 +1817,8 @@ while True:
                 action='tree'
             if key == ord('h'):
                 action='ramp'
+            if key == ord('i'):
+                action='stair'
                 
         
             if key == 10:
@@ -1774,7 +1848,8 @@ while True:
                                         x_idx = dc1[0] + (i if x_range > 0 else -i) + over
                                         y_idx = dc1[1] + (j if y_range > 0 else -j) - 1 + overy
                                         if x[x_idx, y_idx, overz+k] in solids:
-                                            tasks[x_idx - relover, y_idx, overz+k] = 1
+                                            if x[x_idx - relover, y_idx, dc1[2]+k] not in special_tiles:
+                                                tasks[x_idx - relover, y_idx, overz+k] = 1
                         except TypeError:
                             pass
                         relover,relovery=0,0
@@ -1794,12 +1869,31 @@ while True:
                                             # Adjust for the direction of iteration
                                             x_idx = dc1[0] + (i if x_range > 0 else -i) + over
                                             y_idx = dc1[1] + (j if y_range > 0 else -j) - 1 + overy
+                                            if x[x_idx - relover, y_idx, dc1[2]+k] not in special_tiles:
                                         
-                                            tasks[x_idx - relover, y_idx, dc1[2]+k] = 3
+                                                tasks[x_idx - relover, y_idx, dc1[2]+k] = 3
+                    elif action=='stair':
+                        
+                        
+                            x_range = dc2[0] - dc1[0] + 1 + relover
+                            y_range = dc2[1] - dc1[1] + 1
+                            if x_range < 0:
+                                x_range -= 2
+                            if y_range < 0:
+                                y_range -= 2
+                            # Handle negative ranges by reversing the iteration direction if necessary
+                            for k in range(dc2[2]-dc1[2]+1):
+                                for i in range(abs(x_range)):
+                                    for j in range(abs(y_range)):
+                                            # Adjust for the direction of iteration
+                                            x_idx = dc1[0] + (i if x_range > 0 else -i) + over
+                                            y_idx = dc1[1] + (j if y_range > 0 else -j) - 1 + overy
+                                            if x[x_idx - relover, y_idx, dc1[2]+k] not in special_tiles:
+                                                tasks[x_idx - relover, y_idx, dc1[2]+k] = 4
                             
                         
                             relover,relovery=0,0
-                    if action=='tree':
+                    elif action=='tree':
                         
                         try:
                             for i in range(dc2[0]-dc1[0]+1+relover):
@@ -1809,7 +1903,7 @@ while True:
                         except TypeError:
                             pass
                         relover,relovery=0,0
-                    if action=='rmdig':
+                    elif action=='rmdig':
                         
                         try:
                             x_range = dc2[0] - dc1[0] + 1 + relover
@@ -1843,6 +1937,7 @@ while True:
         try:
         
             stdscr.addstr(10,offset,"                     ")
+            
             for tile_type in tile_types:
                     if (
                         x[cursorx-1+over][cursory+overy][overz] == tile_type or 
@@ -2099,25 +2194,28 @@ while True:
         
         
         #to update tasks
-        if t % 5 == 0:
+        if t % 10 == 0:
             task1c=0
             task2c=0
             task3c=0
+            task4c=0
             
             for j in range(X):
                 for k in range(Y):
                     for r in range(int(Z/2)):
                         if tasks[j][k][int(2*r)]==1:
                             task1c=1
-                            break
-                    for r in range(int(Z/2)):
-                        if tasks[j][k][int(2*r)]==2:
+                            
+                    
+                        elif tasks[j][k][int(2*r)]==2:
                             task2c=1
-                            break
-                    for r in range(int(Z/2)):
-                        if tasks[j][k][int(2*r)]==3:
+                            
+                    
+                        elif tasks[j][k][int(2*r)]==3:
                             task3c=1
-                            break
+                        elif tasks[j][k][int(2*r)]==4:
+                            task4c=1
+                            
         
         for i in entities:
                 if i.posy < scx:
@@ -2150,6 +2248,8 @@ while True:
                                     i.set_goal('mine')
                         elif task3c==1:
                                     i.set_goal('channel')
+                        elif task4c==1:
+                                    i.set_goal('stair')
                         else:
                             i.task='idle'
                                     
@@ -2410,6 +2510,59 @@ while True:
                                                     
                                                    
                                                     i.task='idle'
+                            if qqq=='stair':
+                                c=0
+                                for j in range(X):
+                                    for k in range(Y):
+                                        for z in range(Z):
+                                        
+                                            if tasks[j][k][z]== 4:
+
+                                     
+                                                i.task='Path'
+                                                #if x[j-1][k] in tile_types or x[j+1][k] in tile_types or x[j][k+1] in tile_types or x[j][k-1] in tile_types or x[j][k] in tile_types:
+                                              
+                                                if c != 1:    
+                                                
+                                                
+                                                    try:
+                                                        if x[j][k][z] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k, z) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c !=1:
+                                                    try:
+                                                        if x[j][k][z-1] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k, z-1) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                if c !=1:
+                                                    try:
+                                                        if x[j][k][z+2] in tile_types:
+                                                            i.q=pathfinding.main(np.load(str(maindir) + '/region/pathfind.npy'),(i.posy+over, i.posx+overy, i.posz),(j, k, z+2) )
+                                                            i.first_elements = [x[0] for x in i.q]
+                                                            i.second_elements = [x[1] for x in i.q]
+                                                            i.third_elements = [x[2] for x in i.q]
+                                                            c=1
+                                                    except:
+                                                        pass
+                                                
+                                                if c == 0:
+                                                    i.q=None
+                                                
+                                                
+                                                    
+                                                   
+                                                    i.task='idle'
+                            ##
                             if qqq=='chop chop':
                                 c=0
                                 for j in range(X):
@@ -2754,6 +2907,51 @@ while True:
                                                         add_item(nx,ny,zz,'talc_pebble',items)
                                                     elif mined == 'basalt':
                                                         add_item(nx,ny,zz,'basalt_pebble',items)
+                                if i.get_goal() == 'stair':
+                                    yy=i.posx+overy
+                                    xx=i.posy+over
+                                    zz=i.posz
+                                    
+                                    nx,ny=xx,yy
+
+                                    
+                                        
+                                            
+                                    if tasks[xx][yy][zz+1] == 4 or tasks[xx][yy][zz-2] == 4 or tasks[xx][yy][zz] == 4:
+                                                if tasks[xx][yy][zz+1]==4:
+                                                        tasks[nx][ny][zz+1] = 0
+                                                        x[nx][ny][zz+1] = 'stair'
+                                                        x[nx][ny][zz+2]='stair'
+                                                elif tasks[xx][yy][zz-2]==4:
+                                                        tasks[nx][ny][zz-2] = 0
+                                                        x[nx][ny][zz-1] = 'stair'
+                                                        x[nx][ny][zz]='stair'
+                                                elif tasks[xx][yy][zz]==4:
+                                                        tasks[nx][ny][i.posz] = 0
+                                                        x[nx][ny][zz] = 'stair'
+                                                        x[nx][ny][zz+1]='stair'
+                                            
+        
+                                            
+                                                mined=x[nx][ny][zz]
+                                                '''
+                                                if tasks[xx][yy][zz+1] == 4:
+                                                    x[nx][ny][zz+1] = 'stair'
+                                                    x[nx][ny][zz+2]='stair'
+                                                if tasks[xx][yy][zz-2] == 4:
+                                                    x[nx][ny][zz-1] = 'stair'
+                                                    x[nx][ny][zz]='stair'
+                                                '''
+                                                
+                                                pathfinding_update(x)
+                                                r=random.randint(1,4)
+                                                if r == 2:
+                                                    if mined == 'slate':
+                                                        add_item(nx,ny,zz,'slate_pebble',items)
+                                                    elif mined == 'talc':
+                                                        add_item(nx,ny,zz,'talc_pebble',items)
+                                                    elif mined == 'basalt':
+                                                        add_item(nx,ny,zz,'basalt_pebble',items)
                                                     
                                                         
             
@@ -2776,6 +2974,10 @@ while True:
                                                 if r==1:
                                                     tasks[nx][ny][zz] = 0
                                                     x[nx][ny][zz] = 'grass'
+                                                    for ii in range(10):
+                                                        if zz-ii >=0:
+                                                            if x[nx][ny][zz-ii]=='tree':
+                                                                x[nx][ny][zz-ii]='air'
                                                     pathfinding_update(x)
                                                 
                                                     add_item(nx,ny,zz,'wood',items)
@@ -2820,21 +3022,21 @@ while True:
             pass
         
         if menu == 'main':
-            main_menu_print(stdscr)
+            main_menu_print(stdscr,scx+2)
         elif menu == 'designation':
-            designation_menu_print(stdscr)
+            designation_menu_print(stdscr,scx+2)
         elif menu == 'building':
-            building_menu_print(stdscr)
+            building_menu_print(stdscr,scx+2)
         elif menu == 'workshop':
-            workshop_menu_print(stdscr)
+            workshop_menu_print(stdscr,scx+2)
         elif menu == 'query':
-            query_menu_print(stdscr)
+            query_menu_print(stdscr,scx+2)
         elif menu == 'carpenter_crafting':
-            carpenter_crafting_menu_print(stdscr)
+            carpenter_crafting_menu_print(stdscr,scx+2)
         elif menu == 'mason_crafting':
-            mason_crafting_menu_print(stdscr)
+            mason_crafting_menu_print(stdscr,scx+2)
         elif menu == 'stockpile':
-            stockpile_menu_print(stdscr)
+            stockpile_menu_print(stdscr,scx+2)
         ####Waves
             
         ####Tree Growth/Sapling
@@ -2873,7 +3075,7 @@ while True:
 
         stdscr.addstr(0,30,str(menu))
         #Overclocking
-        time.sleep(.02)
+        time.sleep(.01)
         '''
         #Item saving
         if t % 200 == 0:

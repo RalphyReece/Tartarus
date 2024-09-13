@@ -60,15 +60,17 @@ class Creature:
 # Creating instances of creatures
 
 class Dwarf:
-    def __init__(self, color, posx, posy, name, strength, agility, possessions, professions):
+    def __init__(self, color, posx, posy, posz, name, strength, agility, possessions, professions):
         self.movetime=random.randint(0,10)
         self.professions=professions
         self.iposx=posx
         self.iposy=posy
+        self.iposz=posz
         self.shape='☺'
         self.color=color
         self.posx = posx
         self.posy=posy
+        self.posz=posz
         self.name = name
         self.strength = strength
         self.agility = agility
@@ -101,7 +103,7 @@ class Dwarf:
         self.task = 'idle'
         self.goal = None
         self.get_item=None
-        self.posz=0
+        
         #Above will be a major issue eventually (births). Until then I dont care
         f=open(str(maindir)+'/fort/dwarves/D-'+str(name)+'.dwarf','w')
         f.close()
