@@ -86,16 +86,17 @@ class FPSCounter:
     def __init__(self):
         self.start_time = time.time()
         self.frame_count = 0
+        self.fps = 0
 
     def update(self):
         self.frame_count += 1
-        if self.frame_count >= 10:  # Update FPS every 10 frames
-            end_time = time.time()
-            elapsed_time = end_time - self.start_time
-            fps = self.frame_count / elapsed_time
-            return f"FPS: {fps:.2f}"
-            self.start_time = end_time
+        if time.time() - self.start_time >= 1:  # Update FPS every second
+            self.fps = self.frame_count
+            self.start_time = time.time()
             self.frame_count = 0
+
+    def get_fps(self):
+        return f"FPS: {self.fps}"
 furniture= [ 'slate_pebble_table','basalt_pebble_table','talc_pebble_table','talc_pebble_chair','basalt_pebble_chair','slate_pebble_table','wood_table','wood_chair'
     ]
 solids = [
@@ -554,7 +555,7 @@ def help_menu(stdscr):
         if page=='1-3':
             stdscr.addstr(10,8,"Dwarves are invisible at world creation until given a task")
             stdscr.addstr(11,8,"Dwarves will walk on air when caves are first discovered.")
-            stdscr.addstr(12,8,"Dwarves sometimes delete themselves at world generation.")
+            stdscr.addstr(12,8,"Dwarves sometimes delete themselves at world creation.")
         if page=='settings':
             stdscr.addstr(8,8,"1-Screen Display Size")
             if key ==ord('1'):
@@ -975,10 +976,19 @@ while True:
                             try:
                             
                                 
-                                 if x[i-1][j][2*k] in tile_types or \
-                                    x[i+1][j][2*k] in tile_types or \
-                                    x[i][j-1][2*k] in tile_types or \
-                                    x[i][j+1][2*k] in tile_types:
+                                 
+                                idx = 2 * k
+
+                                # Use boolean indexing to check if any of the neighbors are in `tile_types`
+                                neighbors = [x[i-1, j, idx] if i > 0 else None,
+                                             x[i+1, j, idx] if i < X-1 else None,
+                                             x[i, j-1, idx] if j > 0 else None,
+                                             x[i, j+1, idx] if j < Y-1 else None]
+
+                                # Check the current tile and any of the neighbors
+                                if (x[i, j, idx] in tile_types or
+                                    any(neighbor in tile_types for neighbor in neighbors if neighbor is not None)):
+   
                                     discover1=True
                                     
                                     break
@@ -996,15 +1006,15 @@ while True:
                     for k in range(int(Z)):
                         if x[i][j][k] == 'undiscovered_moss1':
                             x[i][j][k] = 'cave_moss'
-                        if x[i][j][k] == 'undiscovered_rock_bush1':
+                        elif x[i][j][k] == 'undiscovered_rock_bush1':
                             x[i][j][k] = 'rock_bush'
-                        if x[i][j][k] == 'undiscovered_dense_moss1':
+                        elif x[i][j][k] == 'undiscovered_dense_moss1':
                             x[i][j][k] = 'dense_moss'
-                        if x[i][j][k] == 'undiscovered_down_ramp':
+                        elif x[i][j][k] == 'undiscovered_down_ramp':
                             x[i][j][k] = 'down_ramp'
-                        if x[i][j][k] == 'undiscovered_up_ramp':
+                        elif x[i][j][k] == 'undiscovered_up_ramp':
                             x[i][j][k] = 'up_ramp'
-                        if x[i][j][k] == 'undiscovered_air':
+                        elif x[i][j][k] == 'undiscovered_air':
                             x[i][j][k] ='air'
                     
                         
@@ -1811,13 +1821,13 @@ while True:
             
             if key == ord('d'):
                 action='dig'
-            if key == ord('x'):
+            elif key == ord('x'):
                 action='rmdig'
-            if key == ord('t'):
+            elif key == ord('t'):
                 action='tree'
-            if key == ord('h'):
+            elif key == ord('h'):
                 action='ramp'
-            if key == ord('i'):
+            elif key == ord('i'):
                 action='stair'
                 
         
@@ -1966,7 +1976,7 @@ while True:
 
         for i in dwarves:    
             if i.task == 'idle' or i.task == 'Idle':
-                if t % 31 == 0:
+                if t % 20 == 0:
                 
                 
                     i.task='Pathing'
@@ -2193,28 +2203,12 @@ while True:
             pathfinding_update(x)
         
         
-        #to update tasks
+        
         if t % 10 == 0:
-            task1c=0
-            task2c=0
-            task3c=0
-            task4c=0
-            
-            for j in range(X):
-                for k in range(Y):
-                    for r in range(int(Z/2)):
-                        if tasks[j][k][int(2*r)]==1:
-                            task1c=1
-                            
-                    
-                        elif tasks[j][k][int(2*r)]==2:
-                            task2c=1
-                            
-                    
-                        elif tasks[j][k][int(2*r)]==3:
-                            task3c=1
-                        elif tasks[j][k][int(2*r)]==4:
-                            task4c=1
+            task1c = np.any(tasks == 1)
+            task2c = np.any(tasks == 2)
+            task3c = np.any(tasks == 3)
+            task4c = np.any(tasks == 4)
                             
         
         for i in entities:
@@ -3014,12 +3008,13 @@ while True:
         #soon TM
                 
                 
+        
+        fps_counter.update()
+        qqqq=fps_counter.get_fps()
+            
         if t % 2 == 0:
-            qqqq=fps_counter.update()
-        try:
             stdscr.addstr(0,0,qqqq,curses.color_pair(6))
-        except:
-            pass
+        
         
         if menu == 'main':
             main_menu_print(stdscr,scx+2)
